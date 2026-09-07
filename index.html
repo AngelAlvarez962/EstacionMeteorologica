@@ -399,7 +399,6 @@
 
       <div>
         <input type="password" id="input-admin-pin" maxlength="10" placeholder="Ingrese su PIN" class="w-full text-center tracking-widest text-base sm:text-lg bg-slate-950 border border-slate-700 rounded-xl py-2 text-white font-mono placeholder:text-slate-600 placeholder:text-sm focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500">
-
         <div id="pin-error-msg" class="text-rose-400 text-[11px] mt-1.5 hidden">⚠️ PIN incorrecto.</div>
       </div>
 
@@ -627,7 +626,81 @@
       } catch (e) {}
     }
 
+    // ==========================================
+    // WATCHDOG: DETECCIÓN DE DESCONEXIÓN DEL GATEWAY
+    // ==========================================
+    let lastDataReceivedTime = null;
+    let isGatewayOffline = false;
+    let ultimoIdProcesado = null;
+    const OFFLINE_TIMEOUT_MS = 10000; // 10 segundos sin datos activa advertencia
+
+    function resetWatchdog() {
+      lastDataReceivedTime = Date.now();
+      if (isGatewayOffline) {
+        isGatewayOffline = false;
+        document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+        document.getElementById('status-label').textContent = isConnected ? 'LoRa Conectado (USB)' : 'Supabase Realtime';
+      }
+    }
+
+    function mostrarAlertaDesconexion(segundos) {
+      document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-rose-500 animate-ping';
+      document.getElementById('status-label').textContent = 'Gateway Desconectado';
+
+      const banner = document.getElementById('alert-banner');
+      banner.className = 'p-3.5 sm:p-4 rounded-xl border flex items-center justify-between transition-all duration-300 bg-rose-950/90 border-rose-600 text-rose-100 shadow-lg shadow-rose-950/40 animate-pulse';
+      
+      const iconBox = document.getElementById('alert-icon-box');
+      iconBox.className = 'p-2 rounded-lg bg-rose-900 text-rose-300 shrink-0';
+      
+      const title = document.getElementById('alert-title');
+      title.className = 'font-bold text-xs sm:text-sm tracking-wide uppercase text-rose-300';
+      title.textContent = '⚠️ ADVERTENCIA: GATEWAY DESCONECTADO';
+
+      const desc = document.getElementById('alert-desc');
+      desc.textContent = `No se reciben lecturas desde hace ${segundos} seg. Verifique la alimentación o el Wi-Fi del receptor.`;
+
+      const icon = document.getElementById('alert-icon');
+      icon.setAttribute('data-lucide', 'wifi-off');
+
+      const sensorBadge = document.getElementById('sensor-badge');
+      sensorBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-950 border border-rose-700 text-rose-300 font-semibold text-xs sm:text-sm';
+      document.getElementById('sensor-badge-dot').className = 'w-2 h-2 rounded-full bg-rose-400 animate-ping';
+      document.getElementById('sensor-status-text').textContent = 'DESCONECTADO';
+      document.getElementById('sensor-status-desc').textContent = `Hace ${segundos}s sin señal`;
+
+      lucide.createIcons();
+    }
+
+    function actualizarSegundosDesconexion(segundos) {
+      const desc = document.getElementById('alert-desc');
+      if (desc && isGatewayOffline) {
+        desc.textContent = `No se reciben lecturas desde hace ${segundos} seg. Verifique la alimentación o el Wi-Fi del receptor.`;
+      }
+      const sensorDesc = document.getElementById('sensor-status-desc');
+      if (sensorDesc && isGatewayOffline) {
+        sensorDesc.textContent = `Hace ${segundos}s sin señal`;
+      }
+    }
+
+    // Perro guardián: chequea cada segundo si el Gateway dejó de emitir
+    setInterval(() => {
+      if (isDemoMode || !lastDataReceivedTime) return;
+      const elapsedMs = Date.now() - lastDataReceivedTime;
+      const elapsedSec = Math.floor(elapsedMs / 1000);
+
+      if (elapsedMs >= OFFLINE_TIMEOUT_MS) {
+        if (!isGatewayOffline) {
+          isGatewayOffline = true;
+          mostrarAlertaDesconexion(elapsedSec);
+        } else {
+          actualizarSegundosDesconexion(elapsedSec);
+        }
+      }
+    }, 1000);
+
     function processIncomingData(nodeId, distance, status, pktNum, rssi, fromHistory = false, customTime = null) {
+      if (!fromHistory) resetWatchdog();
       packetCount++;
       const now = new Date();
       let timeStr = now.toTimeString().split(' ')[0];
@@ -852,11 +925,17 @@
           .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mediciones_rio' }, payload => {
             if (isDemoMode) return;
             const r = payload.new;
+            ultimoIdProcesado = r.id;
             processIncomingData(r.estacion, Number(r.distancia_cm), r.estado, Number(r.paquete_num), r.rssi_dbm, false, r.created_at);
             document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
             document.getElementById('status-label').textContent = 'Supabase Realtime';
           })
-          .subscribe();
+          .subscribe((status) => {
+            if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+              console.warn('Reconectando canal Realtime...');
+              setTimeout(initSupabase, 3000);
+            }
+          });
 
         document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-emerald-400';
         document.getElementById('status-label').textContent = 'Supabase Online';
@@ -865,6 +944,36 @@
         console.error('Error al iniciar Supabase:', err);
       }
     }
+
+    // Polling continuo de respaldo (cada 3.5 segundos) para que la página nunca requiera recarga manual
+    async function sincronizarUltimoDatoSupabase() {
+      if (!supabaseClient || isDemoMode || isConnected) return;
+      try {
+        const { data: rows, error } = await supabaseClient
+          .from('mediciones_rio')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        if (!error && rows && rows.length > 0) {
+          const r = rows[0];
+          if (!ultimoIdProcesado || r.id !== ultimoIdProcesado) {
+            ultimoIdProcesado = r.id;
+            processIncomingData(r.estacion, Number(r.distancia_cm), r.estado, Number(r.paquete_num), r.rssi_dbm, false, r.created_at);
+            document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+            document.getElementById('status-label').textContent = 'Supabase Sync';
+          }
+        }
+      } catch (e) {}
+    }
+
+    setInterval(sincronizarUltimoDatoSupabase, 3500);
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        sincronizarUltimoDatoSupabase();
+      }
+    });
 
     // ==========================================
     // SEGURIDAD: MODO ADMINISTRADOR (PIN PROTEGIDO)
