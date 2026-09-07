@@ -279,7 +279,7 @@
         <!-- DISTANCIA DEL SENSOR -->
         <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between shadow-sm">
           <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold uppercase tracking-wider mb-1">
-            <span>Distancia al Agua</span>
+            <span>Distancia Sensor ➔ Agua</span>
             <i data-lucide="arrow-down-up" class="w-3.5 h-3.5 text-cyan-400"></i>
           </div>
           <div>
@@ -288,17 +288,18 @@
               <span class="text-slate-400 font-medium text-xs">cm</span>
             </div>
             <div class="text-[11px] text-slate-400 mt-0.5 font-mono" id="metric-meters">--.-- metros</div>
+            <div class="text-[10px] text-slate-500 mt-1">Lectura directa del eco ultrasónico</div>
           </div>
           <div class="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
-            <span class="text-slate-500">Rango:</span>
-            <span class="text-slate-300 font-mono" id="card-sensor-range">25 - 400 cm</span>
+            <span class="text-slate-500">Rango Útil:</span>
+            <span class="text-slate-300 font-mono" id="card-sensor-range">20 - 100 cm (Max: 400cm)</span>
           </div>
         </div>
 
         <!-- NIVEL DEL RÍO / MAR CALCULADO -->
         <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between shadow-sm">
           <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold uppercase tracking-wider mb-1">
-            <span>Nivel de Agua</span>
+            <span>Nivel / Profundidad Río</span>
             <i data-lucide="droplet" class="w-3.5 h-3.5 text-blue-400"></i>
           </div>
           <div>
@@ -307,10 +308,11 @@
               <span class="text-slate-400 font-medium text-xs">cm</span>
             </div>
             <div class="text-[11px] text-slate-400 mt-0.5" id="metric-water-percent">Capacidad: --%</div>
+            <div class="text-[10px] text-cyan-400/80 mt-1 font-mono">Fórmula: Lecho (100cm) - Distancia</div>
           </div>
           <div class="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
-            <span class="text-slate-500">Altura Lecho:</span>
-            <span class="text-slate-300 font-mono" id="card-bed-height">400 cm</span>
+            <span class="text-slate-500">Altura Instalación:</span>
+            <span class="text-slate-300 font-mono" id="card-bed-height">100 cm (1.0 m)</span>
           </div>
         </div>
 
@@ -374,10 +376,10 @@
           <div class="my-3 relative h-72 sm:h-80 w-full bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex">
             <!-- Regla métrica izquierda -->
             <div class="w-14 bg-slate-900/90 border-r border-slate-800/80 flex flex-col justify-between py-2 text-[10px] font-mono text-slate-400 text-right pr-2 select-none z-20">
-              <div id="ruler-max-cm">400cm <span class="text-rose-400 font-bold">▲ MAX</span></div>
-              <div id="ruler-75-cm">300cm</div>
-              <div id="ruler-50-cm">200cm</div>
-              <div id="ruler-25-cm">100cm</div>
+              <div id="ruler-max-cm">100cm <span class="text-rose-400 font-bold">▲ MAX</span></div>
+              <div id="ruler-75-cm">75cm</div>
+              <div id="ruler-50-cm">50cm</div>
+              <div id="ruler-25-cm">25cm</div>
               <div>0cm <span class="text-slate-500">FONDO</span></div>
             </div>
 
@@ -393,12 +395,12 @@
 
               <!-- Línea de Peligro Rojo -->
               <div id="line-red-alert" class="absolute top-[20%] w-full border-b border-rose-500/50 border-dashed z-10 flex items-center justify-end pr-2">
-                <span id="label-red-alert" class="text-[9px] text-rose-400 font-mono uppercase font-semibold">Límite Desborde (320cm)</span>
+                <span id="label-red-alert" class="text-[9px] text-rose-400 font-mono uppercase font-semibold">Límite Desborde (80cm)</span>
               </div>
 
               <!-- Línea de Alerta Amarilla -->
-              <div id="line-yellow-alert" class="absolute top-[37.5%] w-full border-b border-amber-500/50 border-dashed z-10 flex items-center justify-end pr-2">
-                <span id="label-yellow-alert" class="text-[9px] text-amber-400 font-mono uppercase font-semibold">Alerta Amarilla (250cm)</span>
+              <div id="line-yellow-alert" class="absolute top-[40%] w-full border-b border-amber-500/50 border-dashed z-10 flex items-center justify-end pr-2">
+                <span id="label-yellow-alert" class="text-[9px] text-amber-400 font-mono uppercase font-semibold">Alerta Amarilla (60cm)</span>
               </div>
 
               <!-- Columna de Agua con Animación de Olas -->
@@ -425,13 +427,13 @@
           <!-- Umbrales en Mini-Tarjetas -->
           <div class="grid grid-cols-3 gap-1.5 text-center text-[10px] pt-1">
             <div class="p-1.5 rounded bg-emerald-950/40 border border-emerald-900/60 text-emerald-400">
-              <span class="block font-bold">Normal</span> <span id="badge-range-green">&lt; 250cm</span>
+              <span class="block font-bold">Normal</span> <span id="badge-range-green">&lt; 60cm</span>
             </div>
             <div class="p-1.5 rounded bg-amber-950/40 border border-amber-900/60 text-amber-400">
-              <span class="block font-bold">Alerta</span> <span id="badge-range-yellow">250-320cm</span>
+              <span class="block font-bold">Alerta</span> <span id="badge-range-yellow">60-80cm</span>
             </div>
             <div class="p-1.5 rounded bg-rose-950/40 border border-rose-900/60 text-rose-400">
-              <span class="block font-bold">Peligro</span> <span id="badge-range-red">&gt; 320cm</span>
+              <span class="block font-bold">Peligro</span> <span id="badge-range-red">&gt; 80cm</span>
             </div>
           </div>
         </div>
@@ -622,7 +624,7 @@
           <div class="sm:col-span-2 flex items-end gap-2">
             <div class="flex-1">
               <label class="block text-slate-400 mb-1 text-[10px]">Lecho (cm):</label>
-              <input type="number" id="new-station-bed" placeholder="400" value="400" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono focus:border-cyan-500 focus:outline-none">
+              <input type="number" id="new-station-bed" placeholder="100" value="100" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono focus:border-cyan-500 focus:outline-none">
             </div>
             <button id="btn-add-station" class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold px-3 py-1.5 rounded-lg text-xs transition active:scale-95 shrink-0">
               Agregar
@@ -700,9 +702,8 @@
     // 1. ESTADO GLOBAL Y CONFIGURACIÓN MULTI-ESTACIÓN
     // ==========================================
     const DEFAULT_STATIONS = [
-      { id: 'RIO_01', name: 'Estación 1 - Puente Central (Río)', bedHeight: 400, yellowAlert: 250, redAlert: 320 },
-      { id: 'RIO_02', name: 'Estación 2 - Cuenca Alta / Afluente', bedHeight: 450, yellowAlert: 270, redAlert: 350 },
-      { id: 'MAR_01', name: 'Estación Costera - Nivel Marea / Mar', bedHeight: 500, yellowAlert: 330, redAlert: 430 }
+      { id: 'RIO_01', name: 'Estación 1 - Puente Central (Río)', bedHeight: 100, yellowAlert: 60, redAlert: 80 },
+      { id: 'RIO_02', name: 'Estación 2 - Cuenca Alta / Afluente', bedHeight: 100, yellowAlert: 60, redAlert: 80 }
     ];
 
     let stationsConfig = [];
@@ -711,6 +712,20 @@
         const raw = localStorage.getItem('estaciones_config');
         if (raw) {
           stationsConfig = JSON.parse(raw);
+          // Filtrar MAR_01 o estaciones obsoletas de versiones previas
+          stationsConfig = stationsConfig.filter(s => s.id !== 'MAR_01');
+          // Migración automática a la altura real de instalación (1.0 metro = 100 cm):
+          stationsConfig.forEach(s => {
+            if (!s.bedHeight || s.bedHeight > 150) {
+              s.bedHeight = 100;
+              s.yellowAlert = 60;
+              s.redAlert = 80;
+            }
+          });
+          if (stationsConfig.length === 0) {
+            stationsConfig = JSON.parse(JSON.stringify(DEFAULT_STATIONS));
+          }
+          guardarConfiguracionEstaciones();
         } else {
           stationsConfig = JSON.parse(JSON.stringify(DEFAULT_STATIONS));
           guardarConfiguracionEstaciones();
@@ -735,7 +750,8 @@
           latest: null,
           history: [],
           lastPacketTime: null,
-          isOffline: true
+          isOffline: true,
+          hasReceivedLive: false
         };
       }
     }
@@ -764,9 +780,9 @@
         const nueva = {
           id: cleanId,
           name: 'Estación ' + cleanId,
-          bedHeight: 400,
-          yellowAlert: 250,
-          redAlert: 320
+          bedHeight: 100,
+          yellowAlert: 60,
+          redAlert: 80
         };
         stationsConfig.push(nueva);
         guardarConfiguracionEstaciones();
@@ -872,7 +888,7 @@
     });
 
     // ==========================================
-    // 3. MOTOR CONSOLIDADO DE EVALUACIÓN DE RIESGO HIDROLÓGICO Y MARÍTIMO
+    // 3. MOTOR CONSOLIDADO DE EVALUACIÓN DE RIESGO HIDROLÓGICO
     // ==========================================
     function evaluarRiesgoGlobal() {
       const banner = document.getElementById('consolidated-risk-banner');
@@ -889,36 +905,43 @@
       let peligros = [];
       let alertas = [];
       let normales = [];
+      let conError = [];
       let desconectadas = [];
       let ahora = Date.now();
 
       stationsConfig.forEach(cfg => {
         const store = telemetryStore[cfg.id];
-        if (!store || !store.latest || !store.lastPacketTime) {
+        if (!store || !store.hasReceivedLive || !store.lastPacketTime) {
+          if (store) store.isOffline = true;
           desconectadas.push(cfg);
           return;
         }
 
-        // Si pasaron más de 90 segundos sin datos, se marca sin señal
+        // Si pasaron más de 40 segundos sin recibir transmisión LoRa, marcar como desconectada
         const transcurrido = (ahora - store.lastPacketTime) / 1000;
-        if (transcurrido > 90) {
+        if (transcurrido > 40) {
           store.isOffline = true;
           desconectadas.push(cfg);
         } else {
           store.isOffline = false;
           activas++;
-          const water = store.latest.waterLevel;
-          if (water >= cfg.redAlert || store.latest.status === 'ERR_DESBORDE') {
-            peligros.push({ cfg: cfg, water: water });
-          } else if (water >= cfg.yellowAlert) {
-            alertas.push({ cfg: cfg, water: water });
+
+          if (!store.latest || store.latest.status !== 'OK') {
+            conError.push({ cfg: cfg, status: store.latest ? store.latest.status : 'SIN_DATOS' });
           } else {
-            normales.push({ cfg: cfg, water: water });
+            const water = store.latest.waterLevel;
+            if (water >= cfg.redAlert || store.latest.status === 'ERR_DESBORDE') {
+              peligros.push({ cfg: cfg, water: water });
+            } else if (water >= cfg.yellowAlert) {
+              alertas.push({ cfg: cfg, water: water });
+            } else {
+              normales.push({ cfg: cfg, water: water });
+            }
           }
         }
       });
 
-      countEl.textContent = activas + ' de ' + totalEstaciones + ' estaciones activas';
+      countEl.textContent = activas + ' de ' + totalEstaciones + ' estaciones transmitiendo en vivo';
 
       // Evaluación por orden de severidad
       if (peligros.length > 0) {
@@ -949,26 +972,38 @@
         icon.setAttribute('data-lucide', 'alert-triangle');
 
       } else if (activas > 0) {
-        // 🟢 SEGURO
-        banner.className = 'p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-emerald-950/50 border-emerald-700/80 text-emerald-100 shadow-md';
-        iconBox.className = 'p-3 rounded-xl bg-emerald-900/80 text-emerald-300 shrink-0';
-        badge.className = 'text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-emerald-900/80 text-emerald-300 border border-emerald-600';
-        badge.textContent = '🟢 CONDICIÓN SEGURA';
-        title.className = 'font-extrabold text-sm sm:text-base tracking-wide uppercase text-emerald-200';
-        title.textContent = 'NIVELES DENTRO DEL RANGO NORMAL Y SEGURO';
-
-        reco.textContent = 'Todas las cuencas y mareas analizadas se mantienen dentro de sus márgenes normales esperados. Actividades en orilla y navegación seguras.';
-        icon.setAttribute('data-lucide', 'shield-check');
+        if (conError.length > 0 && normales.length === 0) {
+          // Conectadas pero con error en sensor
+          banner.className = 'p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-amber-950/40 border-amber-800 text-amber-100 shadow-md';
+          iconBox.className = 'p-3 rounded-xl bg-amber-900/70 text-amber-300 shrink-0';
+          badge.className = 'text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-amber-900/80 text-amber-300 border border-amber-700';
+          badge.textContent = '⚠️ ATENCIÓN REQUERIDA';
+          title.className = 'font-extrabold text-sm sm:text-base tracking-wide uppercase text-amber-200';
+          title.textContent = 'FALLA O DESCONEXIÓN EN SENSOR ULTRASONICO';
+          const errList = conError.map(e => e.cfg.id + ' (' + e.status + ')').join(', ');
+          reco.textContent = 'Estaciones en línea pero reportan anomalía en sensor: ' + errList + '. Verifique cables de Trigger y Echo.';
+          icon.setAttribute('data-lucide', 'alert-circle');
+        } else {
+          // 🟢 SEGURO
+          banner.className = 'p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-emerald-950/50 border-emerald-700/80 text-emerald-100 shadow-md';
+          iconBox.className = 'p-3 rounded-xl bg-emerald-900/80 text-emerald-300 shrink-0';
+          badge.className = 'text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-emerald-900/80 text-emerald-300 border border-emerald-600';
+          badge.textContent = '🟢 CONDICIÓN SEGURA';
+          title.className = 'font-extrabold text-sm sm:text-base tracking-wide uppercase text-emerald-200';
+          title.textContent = 'NIVELES DENTRO DEL RANGO NORMAL Y SEGURO';
+          reco.textContent = 'Las estaciones transmitiendo en vivo se mantienen dentro de sus márgenes normales. Actividades en riberas seguras.';
+          icon.setAttribute('data-lucide', 'shield-check');
+        }
 
       } else {
-        // ⚪ EN ESPERA / DESCONECTADO
+        // ⚪ DESCONECTADO
         banner.className = 'p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-slate-900/90 border-slate-800 text-slate-300 shadow-md';
         iconBox.className = 'p-3 rounded-xl bg-slate-800 text-slate-400 shrink-0';
         badge.className = 'text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
         badge.textContent = 'EN ESPERA DE TELEMETRÍA';
         title.className = 'font-extrabold text-sm sm:text-base tracking-wide uppercase text-white';
-        title.textContent = 'SISTEMA A LA ESPERA DE DATOS';
-        reco.textContent = 'Enlazando con el Gateway LoRa 32 o la base de datos Supabase Realtime...';
+        title.textContent = 'ESTACIONES SIN SEÑAL / EN ESPERA';
+        reco.textContent = 'Conecte el Gateway LoRa por USB en Google Chrome/Edge o espere la transmisión en vivo por radiofrecuencia (915 MHz).';
         icon.setAttribute('data-lucide', 'radio');
       }
 
@@ -976,14 +1011,16 @@
       let chipsHtml = '';
       stationsConfig.forEach(cfg => {
         const store = telemetryStore[cfg.id];
-        if (!store || !store.latest || store.isOffline) {
-          chipsHtml += '<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 text-[10px]">' + cfg.id + ': Sin Señal</span>';
+        if (!store || !store.hasReceivedLive || store.isOffline) {
+          chipsHtml += '<span class="px-2 py-0.5 rounded bg-slate-800/90 text-rose-400/90 border border-slate-700 text-[10px] flex items-center gap-1 font-mono"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>' + cfg.id + ': Desconectada</span>';
+        } else if (!store.latest || store.latest.status !== 'OK') {
+          chipsHtml += '<span class="px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-700 text-[10px] flex items-center gap-1 font-mono"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>' + cfg.id + ': Error ' + (store.latest ? store.latest.status : '') + '</span>';
         } else {
           const w = store.latest.waterLevel;
           let color = 'bg-emerald-950 text-emerald-300 border-emerald-800';
           if (w >= cfg.redAlert) color = 'bg-rose-950 text-rose-300 border-rose-800 animate-pulse';
           else if (w >= cfg.yellowAlert) color = 'bg-amber-950 text-amber-300 border-amber-800';
-          chipsHtml += '<span class="px-2 py-0.5 rounded ' + color + ' border text-[10px] font-semibold">' + cfg.id + ': ' + w.toFixed(0) + 'cm</span>';
+          chipsHtml += '<span class="px-2 py-0.5 rounded ' + color + ' border text-[10px] font-semibold flex items-center gap-1 font-mono"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>' + cfg.id + ': ' + w.toFixed(0) + 'cm</span>';
         }
       });
       summaryLine.innerHTML = chipsHtml;
@@ -1054,38 +1091,64 @@
 
       stationsConfig.forEach(cfg => {
         const store = telemetryStore[cfg.id];
-        const hasData = store && store.latest;
-        const water = hasData ? store.latest.waterLevel : 0;
-        const dist = hasData ? store.latest.distance : 0;
-        const rssi = hasData ? store.latest.rssi : null;
-        const pct = Math.min(100, Math.max(0, (water / cfg.bedHeight) * 100));
+        const isLive = store && store.hasReceivedLive && !store.isOffline;
+        const hasLatest = store && store.latest;
+        const status = hasLatest ? store.latest.status : 'SIN_DATOS';
+        const water = (isLive && hasLatest && status === 'OK') ? store.latest.waterLevel : 0;
+        const dist = (isLive && hasLatest && status === 'OK') ? store.latest.distance : 0;
+        const rssi = (isLive && hasLatest) ? store.latest.rssi : null;
+        const pct = (isLive && status === 'OK') ? Math.min(100, Math.max(0, (water / cfg.bedHeight) * 100)) : 0;
 
-        let cardBorder = 'border-slate-800';
-        let badgeColor = 'bg-slate-800 text-slate-400 border-slate-700';
-        let badgeStatus = 'SIN SEÑAL';
+        let cardBorder = 'border-slate-800 bg-slate-900/60 opacity-80 hover:opacity-100';
+        let badgeColor = 'bg-slate-800 text-rose-400 border-rose-900/60';
+        let badgeStatus = '🔴 DESCONECTADA';
         let barColor = 'bg-slate-700';
+        let statusMessage = '<span class="text-slate-500">Sin transmisión LoRa activa (fuera de línea)</span>';
 
-        if (hasData && !store.isOffline) {
-          if (water >= cfg.redAlert) {
-            cardBorder = 'border-rose-700/80 shadow-rose-950/40 shadow-lg';
-            badgeColor = 'bg-rose-950 text-rose-300 border-rose-800 animate-pulse';
-            badgeStatus = 'PELIGRO';
-            barColor = 'bg-rose-500';
-          } else if (water >= cfg.yellowAlert) {
-            cardBorder = 'border-amber-700/70 shadow-amber-950/30 shadow-md';
-            badgeColor = 'bg-amber-950 text-amber-300 border-amber-800';
-            badgeStatus = 'ALERTA';
-            barColor = 'bg-amber-500';
+        if (isLive) {
+          if (status !== 'OK') {
+            cardBorder = 'border-amber-700/80 bg-slate-900/95';
+            badgeColor = 'bg-amber-950 text-amber-300 border-amber-700';
+            badgeStatus = '⚠️ ERROR (' + status + ')';
+            barColor = 'bg-amber-600';
+            if (status === 'ERR_CABLE') {
+              statusMessage = '<span class="text-rose-400 font-medium">Cable de sensor desconectado (Trig/Echo)</span>';
+            } else if (status === 'SIN_ECO') {
+              statusMessage = '<span class="text-amber-400 font-medium">Fuera de rango (Sin eco ultrasónico)</span>';
+            } else {
+              statusMessage = '<span class="text-amber-400 font-medium">Lectura anormal de sensor: ' + status + '</span>';
+            }
           } else {
-            cardBorder = 'border-emerald-800/60';
-            badgeColor = 'bg-emerald-950 text-emerald-300 border-emerald-800';
-            badgeStatus = 'NORMAL';
-            barColor = 'bg-cyan-500';
+            if (water >= cfg.redAlert) {
+              cardBorder = 'border-rose-700/80 bg-slate-900/95 shadow-rose-950/40 shadow-lg';
+              badgeColor = 'bg-rose-950 text-rose-300 border-rose-800 animate-pulse';
+              badgeStatus = '🚨 PELIGRO';
+              barColor = 'bg-rose-500';
+              statusMessage = '<span class="text-rose-400 font-semibold">¡Nivel crítico de desborde!</span>';
+            } else if (water >= cfg.yellowAlert) {
+              cardBorder = 'border-amber-700/70 bg-slate-900/95 shadow-amber-950/30 shadow-md';
+              badgeColor = 'bg-amber-950 text-amber-300 border-amber-800';
+              badgeStatus = '🟡 ALERTA';
+              barColor = 'bg-amber-500';
+              statusMessage = '<span class="text-amber-300 font-medium">Caudal elevado bajo vigilancia</span>';
+            } else if (dist >= cfg.bedHeight) {
+              cardBorder = 'border-slate-800 bg-slate-900/95';
+              badgeColor = 'bg-emerald-950 text-emerald-300 border-emerald-800';
+              badgeStatus = '🟢 CAUCE SECO';
+              barColor = 'bg-cyan-500';
+              statusMessage = '<span class="text-slate-400 font-medium">Cauce seco (Distancia ' + dist.toFixed(1) + ' cm &ge; ' + cfg.bedHeight + ' cm)</span>';
+            } else {
+              cardBorder = 'border-emerald-800/60 bg-slate-900/95';
+              badgeColor = 'bg-emerald-950 text-emerald-300 border-emerald-800';
+              badgeStatus = '🟢 NORMAL';
+              barColor = 'bg-cyan-500';
+              statusMessage = '<span class="text-emerald-400 font-medium">Nivel normal (' + water.toFixed(1) + ' cm de agua)</span>';
+            }
           }
         }
 
         const card = document.createElement('div');
-        card.className = 'bg-slate-900/90 border ' + cardBorder + ' rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-sm hover:border-cyan-500/80 transition cursor-pointer group';
+        card.className = 'border ' + cardBorder + ' rounded-2xl p-4 sm:p-5 flex flex-col justify-between transition cursor-pointer group shadow-sm hover:border-cyan-500/80';
         card.onclick = () => cambiarVistaEstacion(cfg.id);
 
         card.innerHTML = `
@@ -1098,14 +1161,30 @@
               <span class="px-2 py-0.5 text-[10px] font-bold rounded-full border ${badgeColor}">${badgeStatus}</span>
             </div>
 
-            <div class="my-3 flex items-baseline justify-between">
-              <div>
-                <span class="text-3xl font-extrabold font-mono text-white">${hasData ? water.toFixed(1) : '--.-'}</span>
-                <span class="text-xs text-slate-400">cm nivel</span>
+            <!-- Valores de Nivel y Distancia -->
+            <div class="my-3 p-3 rounded-xl bg-slate-950/70 border border-slate-800/80">
+              <div class="flex items-baseline justify-between">
+                <div>
+                  <span class="text-[10px] text-slate-400 uppercase font-semibold block">Nivel de Agua (Río)</span>
+                  <div class="flex items-baseline gap-1">
+                    <span class="text-3xl font-extrabold font-mono ${isLive && status === 'OK' ? 'text-white' : 'text-slate-500'}">
+                      ${isLive && status === 'OK' ? water.toFixed(1) : '--.-'}
+                    </span>
+                    <span class="text-xs text-slate-400">cm</span>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="text-[10px] text-slate-400 uppercase font-semibold block">Distancia Sensor ➔ Agua</span>
+                  <div class="font-mono text-sm ${isLive && status === 'OK' ? 'text-cyan-300 font-bold' : 'text-slate-500'}">
+                    ${isLive && status === 'OK' ? dist.toFixed(1) + ' cm' : (isLive ? status : '--')}
+                  </div>
+                  <div class="text-[10px] text-slate-500">Capacidad: ${isLive && status === 'OK' ? pct.toFixed(0) + '%' : '--%'}</div>
+                </div>
               </div>
-              <div class="text-right">
-                <span class="text-xs font-mono text-slate-400">Dist: ${hasData ? dist.toFixed(1) + 'cm' : '--'}</span>
-                <div class="text-[10px] text-slate-500">Capacidad: ${pct.toFixed(0)}%</div>
+
+              <!-- Mensaje de estado -->
+              <div class="mt-2 text-[11px] flex items-center gap-1.5 pt-2 border-t border-slate-800/60">
+                ${statusMessage}
               </div>
             </div>
 
@@ -1116,12 +1195,12 @@
           </div>
 
           <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
-            <span class="flex items-center gap-1">
-              <i data-lucide="radio" class="w-3 h-3 text-slate-500"></i>
-              ${rssi ? rssi + ' dBm' : 'LoRa'}
+            <span class="flex items-center gap-1 font-mono">
+              <i data-lucide="radio" class="w-3 h-3 ${isLive ? 'text-emerald-400' : 'text-slate-600'}"></i>
+              ${isLive && rssi !== null ? rssi + ' dBm' : (isLive ? 'LoRa' : 'Sin enlace')}
             </span>
             <span class="font-mono text-[10px] text-slate-500">
-              ${hasData && store.latest.time ? store.latest.time : 'Sin lecturas'}
+              ${isLive && hasLatest && store.latest.time ? store.latest.time : (hasLatest && store.latest.time ? 'Último: ' + store.latest.time : 'Sin lecturas')}
             </span>
             <span class="text-cyan-400 font-medium group-hover:translate-x-0.5 transition flex items-center gap-0.5 text-[10px]">
               Ver detalle ➔
@@ -1172,39 +1251,62 @@
         riverChart.options.scales.y.max = cfg.bedHeight;
       }
 
-      // Cargar últimos datos de la estación si existen
+      // Cargar últimos datos de la estación si existen y está activa
       const store = telemetryStore[stId];
-      if (store && store.latest) {
+      if (store && store.hasReceivedLive && !store.isOffline && store.latest) {
         actualizarWidgetsEstacion(cfg, store.latest);
         recargarGraficaConHistorial(store.history, cfg);
       } else {
-        resetDetalleToNull(cfg);
+        resetDetalleToNull(cfg, store ? store.latest : null, store ? store.isOffline : true);
+        if (store && store.history && store.history.length > 0) {
+          recargarGraficaConHistorial(store.history, cfg);
+        }
       }
     }
 
-    function resetDetalleToNull(cfg) {
+    function resetDetalleToNull(cfg, latestRecord = null, isOffline = true) {
       document.getElementById('metric-distance').textContent = '--.-';
-      document.getElementById('metric-meters').textContent = '--.-- metros';
       document.getElementById('metric-water-level').textContent = '--.-';
-      document.getElementById('metric-water-percent').textContent = 'Capacidad: --%';
-      document.getElementById('metric-rssi').textContent = '--';
-      document.getElementById('metric-packets').textContent = '#0';
       document.getElementById('water-column').style.height = '0%';
-      document.getElementById('water-badge-level').textContent = '-- cm de agua';
 
       const sensorBadge = document.getElementById('sensor-badge');
-      sensorBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 font-semibold text-xs sm:text-sm';
-      document.getElementById('sensor-badge-dot').className = 'w-2 h-2 rounded-full bg-slate-500';
-      document.getElementById('sensor-status-text').textContent = 'SIN DATOS';
-      document.getElementById('sensor-status-desc').textContent = 'Esperando transmisión de telemetría';
+      const sensorDot = document.getElementById('sensor-badge-dot');
+      const sensorText = document.getElementById('sensor-status-text');
+      const sensorDesc = document.getElementById('sensor-status-desc');
 
-      if (riverChart) {
+      if (isOffline) {
+        document.getElementById('metric-meters').textContent = 'Estación fuera de línea';
+        document.getElementById('metric-water-percent').textContent = 'Sin señal LoRa activa';
+        document.getElementById('metric-rssi').textContent = '--';
+        document.getElementById('rssi-bar').style.width = '0%';
+        document.getElementById('water-badge-level').textContent = 'Estación sin señal';
+        sensorBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-rose-400 font-semibold text-xs sm:text-sm';
+        sensorDot.className = 'w-2 h-2 rounded-full bg-rose-500';
+        sensorText.textContent = 'DESCONECTADA';
+        sensorDesc.textContent = 'Esperando transmisión de telemetría de ' + cfg.id;
+      } else if (latestRecord && latestRecord.status !== 'OK') {
+        document.getElementById('metric-meters').textContent = 'Falla: ' + latestRecord.status;
+        document.getElementById('metric-water-percent').textContent = 'Error en sensor';
+        document.getElementById('water-badge-level').textContent = 'Error: ' + latestRecord.status;
+        sensorBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-950 border border-rose-800 text-rose-300 font-semibold text-xs sm:text-sm';
+        sensorDot.className = 'w-2 h-2 rounded-full bg-rose-400 animate-ping';
+        sensorText.textContent = latestRecord.status;
+        if (latestRecord.status === 'ERR_CABLE') {
+          sensorDesc.textContent = 'Sensor desconectado (revisar pines Trig/Echo)';
+        } else if (latestRecord.status === 'SIN_ECO') {
+          sensorDesc.textContent = 'Fuera de rango (>4 metros sin rebote)';
+        } else {
+          sensorDesc.textContent = 'Lectura anómala detectada';
+        }
+      }
+
+      if (riverChart && (!telemetryStore[cfg.id] || telemetryStore[cfg.id].history.length === 0)) {
         riverChart.data.labels = [];
         riverChart.data.datasets[0].data = [];
         riverChart.data.datasets[1].data = [];
         riverChart.update();
+        document.getElementById('chart-stats').textContent = 'Mín: -- cm | Máx: -- cm | Prom: -- cm';
       }
-      document.getElementById('chart-stats').textContent = 'Mín: -- cm | Máx: -- cm | Prom: -- cm';
     }
 
     function actualizarWidgetsEstacion(cfg, data) {
@@ -1215,18 +1317,41 @@
       const rssi = data.rssi;
       const percent = Math.min(100, Math.max(0, (waterLevel / cfg.bedHeight) * 100));
 
+      const sensorBadge = document.getElementById('sensor-badge');
+      const sensorDot = document.getElementById('sensor-badge-dot');
+      const sensorText = document.getElementById('sensor-status-text');
+      const sensorDesc = document.getElementById('sensor-status-desc');
+
       if (status === 'OK' && distance > 0) {
         document.getElementById('metric-distance').textContent = distance.toFixed(1);
-        document.getElementById('metric-meters').textContent = (distance / 100).toFixed(2) + ' metros';
+        document.getElementById('metric-meters').textContent = (distance / 100).toFixed(2) + ' m al agua';
         document.getElementById('metric-water-level').textContent = waterLevel.toFixed(1);
-        document.getElementById('metric-water-percent').textContent = 'Capacidad: ' + percent.toFixed(0) + '%';
+        document.getElementById('metric-water-percent').textContent = 'Capacidad: ' + percent.toFixed(0) + '% del cauce';
         document.getElementById('water-column').style.height = percent + '%';
-        document.getElementById('water-badge-level').textContent = waterLevel.toFixed(1) + ' cm (' + distance.toFixed(1) + ' cm sensor)';
+        document.getElementById('water-badge-level').textContent = 'Nivel río: ' + waterLevel.toFixed(1) + ' cm | Distancia sensor: ' + distance.toFixed(1) + ' cm';
+
+        sensorBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/70 border border-emerald-800 text-emerald-300 font-semibold text-xs sm:text-sm';
+        sensorDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+        sensorText.textContent = 'NORMAL (OK)';
+        sensorDesc.textContent = 'Eco ultrasónico estable y calibrado';
       } else {
         document.getElementById('metric-distance').textContent = '--';
-        document.getElementById('metric-meters').textContent = 'Falla de sensor';
+        document.getElementById('metric-meters').textContent = 'Falla: ' + status;
         document.getElementById('metric-water-level').textContent = '--';
-        document.getElementById('metric-water-percent').textContent = 'Estado: ' + status;
+        document.getElementById('metric-water-percent').textContent = 'Error: ' + status;
+        document.getElementById('water-column').style.height = '0%';
+        document.getElementById('water-badge-level').textContent = 'Error de sensor (' + status + ')';
+
+        sensorBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-950 border border-rose-800 text-rose-300 font-semibold text-xs sm:text-sm';
+        sensorDot.className = 'w-2 h-2 rounded-full bg-rose-400 animate-ping';
+        sensorText.textContent = status;
+        if (status === 'ERR_CABLE') {
+          sensorDesc.textContent = 'Sensor desconectado físicamente (Trig 13 / Echo 23)';
+        } else if (status === 'SIN_ECO') {
+          sensorDesc.textContent = 'Fuera de rango (sin rebote ultrasónico)';
+        } else {
+          sensorDesc.textContent = 'Lectura anómala detectada';
+        }
       }
 
       document.getElementById('metric-packets').textContent = '#' + (packetNum || 0);
@@ -1239,24 +1364,6 @@
         if (rssi >= -70) rssiBar.className = 'bg-emerald-500 h-full transition-all duration-300';
         else if (rssi >= -95) rssiBar.className = 'bg-amber-500 h-full transition-all duration-300';
         else rssiBar.className = 'bg-rose-500 h-full transition-all duration-300';
-      }
-
-      // Diagnóstico del Sensor
-      const sensorBadge = document.getElementById('sensor-badge');
-      const sensorDot = document.getElementById('sensor-badge-dot');
-      const sensorText = document.getElementById('sensor-status-text');
-      const sensorDesc = document.getElementById('sensor-status-desc');
-
-      if (status === 'OK') {
-        sensorBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/70 border border-emerald-800 text-emerald-300 font-semibold text-xs sm:text-sm';
-        sensorDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
-        sensorText.textContent = 'NORMAL (OK)';
-        sensorDesc.textContent = 'Ecos filtrados estables';
-      } else {
-        sensorBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-950 border border-rose-800 text-rose-300 font-semibold text-xs sm:text-sm';
-        sensorDot.className = 'w-2 h-2 rounded-full bg-rose-400 animate-ping';
-        sensorText.textContent = status;
-        sensorDesc.textContent = 'Lectura anómala detectada';
       }
     }
 
@@ -1303,7 +1410,7 @@
           },
           y: {
             min: 0,
-            max: 400,
+            max: 100,
             grid: { color: 'rgba(51, 65, 85, 0.25)' },
             ticks: { 
               color: '#94a3b8', 
@@ -1364,9 +1471,20 @@
     // 7. INGESTIÓN Y PROCESAMIENTO CENTRAL DE TELEMETRÍA
     // ==========================================
     function processIncomingData(nodeIdRaw, distance, status, pktNum, rssi, fromHistory = false, customTime = null) {
-      const stationId = asegurarEstacionRegistrada(nodeIdRaw);
+      const cleanId = sanitizeStationId(nodeIdRaw);
+      
+      // Si proviene del historial de Supabase y no está en la configuración activa, ignorar
+      if (fromHistory) {
+        const existe = stationsConfig.find(s => s.id === cleanId);
+        if (!existe) return;
+      }
+
+      // Si es MAR_01 (descartada del proyecto actual), ignorar
+      if (cleanId === 'MAR_01') return;
+
+      const stationId = asegurarEstacionRegistrada(cleanId);
       const cfg = stationsConfig.find(s => s.id === stationId);
-      const bedHeight = cfg ? cfg.bedHeight : 400.0;
+      const bedHeight = cfg ? cfg.bedHeight : 100.0;
 
       let waterLevel = 0.0;
       if (status === 'OK' && distance > 0) {
@@ -1384,8 +1502,6 @@
         } catch (e) {}
       }
 
-      totalPacketCount++;
-
       // Guardar en el store de la estación
       const store = telemetryStore[stationId];
       const record = {
@@ -1393,33 +1509,46 @@
         distance: distance,
         waterLevel: waterLevel,
         status: status,
-        packetNum: pktNum || totalPacketCount,
+        packetNum: pktNum || (totalPacketCount + 1),
         rssi: rssi
       };
 
-      store.latest = record;
-      store.lastPacketTime = Date.now();
-      store.isOffline = false;
+      if (!fromHistory) {
+        totalPacketCount++;
+        store.latest = record;
+        store.lastPacketTime = Date.now();
+        store.isOffline = false;
+        store.hasReceivedLive = true;
+        document.getElementById('global-last-update').textContent = timeStr;
+      } else {
+        // En registros históricos de Supabase:
+        // Solo guardamos en historial para la gráfica, NO activamos la estación en vivo
+        if (!store.latest) {
+          store.latest = record;
+        }
+      }
+
       store.history.push(record);
       if (store.history.length > 100) store.history.shift();
-
-      // Actualizar hora global
-      document.getElementById('global-last-update').textContent = timeStr;
 
       // Actualizar vistas
       if (currentViewMode === 'ALL') {
         renderGridEstaciones();
       } else if (currentViewMode === stationId) {
-        actualizarWidgetsEstacion(cfg, record);
-        if (status === 'OK') {
-          pushGraficaPunto(timeStr, waterLevel, cfg.redAlert);
+        if (!store.isOffline && store.hasReceivedLive) {
+          actualizarWidgetsEstacion(cfg, store.latest);
+          if (status === 'OK' && !fromHistory) {
+            pushGraficaPunto(timeStr, waterLevel, cfg.redAlert);
+          }
+        } else {
+          resetDetalleToNull(cfg, store.latest, store.isOffline);
         }
       }
 
       // Reevaluar semáforo de riesgo consolidado
       evaluarRiesgoGlobal();
 
-      // Agregar línea a la terminal técnica
+      // Agregar línea a la terminal técnica solo para transmisiones en vivo
       if (!fromHistory) {
         agregarLogTerminal(timeStr, stationId, distance, status, pktNum, rssi);
       }
@@ -1445,8 +1574,16 @@
       evaluarRiesgoGlobal();
       if (currentViewMode === 'ALL') {
         renderGridEstaciones();
+      } else {
+        const cfg = stationsConfig.find(s => s.id === currentViewMode);
+        const store = telemetryStore[currentViewMode];
+        if (cfg && store) {
+          if (store.isOffline || !store.hasReceivedLive) {
+            resetDetalleToNull(cfg, store.latest, store.isOffline);
+          }
+        }
       }
-    }, 4000);
+    }, 3000);
 
     // ==========================================
     // 9. INTEGRACIÓN SUPABASE (REALTIME + POLLING)
@@ -1656,7 +1793,7 @@
         if (!isNaN(distance)) {
           processIncomingData(nodeId, distance, status, pktNum, rssi);
           const cfg = stationsConfig.find(s => s.id === sanitizeStationId(nodeId));
-          const bed = cfg ? cfg.bedHeight : 400;
+          const bed = cfg ? cfg.bedHeight : 100;
           const w = Math.max(0, bed - distance);
           guardarEnSupabase(nodeId, distance, w, status, rssi);
         }
@@ -1770,7 +1907,7 @@
 
       const id = idInput.value.trim().toUpperCase();
       const name = nameInput.value.trim();
-      const bed = parseFloat(bedInput.value) || 400;
+      const bed = parseFloat(bedInput.value) || 100;
 
       if (!id || !name) {
         alert('Por favor ingresa un ID LoRa y un Nombre para la estación.');
@@ -1826,7 +1963,7 @@
     });
 
     document.getElementById('btn-reset-default-stations').addEventListener('click', () => {
-      if (confirm('¿Restablecer las estaciones a la configuración de fábrica (RIO_01, RIO_02, MAR_01)?')) {
+      if (confirm('¿Restablecer las estaciones a la configuración de fábrica (RIO_01, RIO_02)?')) {
         stationsConfig = JSON.parse(JSON.stringify(DEFAULT_STATIONS));
         guardarConfiguracionEstaciones();
         abrirModalGestionEstaciones();
@@ -1894,19 +2031,19 @@
       if (isDemoMode) stopDemoMode();
       const select = document.getElementById('sim-station-select');
       const stId = select.value || (stationsConfig[0] ? stationsConfig[0].id : 'RIO_01');
-      const cfg = stationsConfig.find(s => s.id === stId) || { bedHeight: 400, yellowAlert: 250, redAlert: 320 };
+      const cfg = stationsConfig.find(s => s.id === stId) || { bedHeight: 100, yellowAlert: 60, redAlert: 80 };
 
-      let dist = 280;
+      let dist = 80;
       let status = 'OK';
 
       if (tipo === 'normal') {
         dist = cfg.bedHeight - Math.round(cfg.yellowAlert * 0.5);
       } else if (tipo === 'alerta') {
-        dist = cfg.bedHeight - Math.round(cfg.yellowAlert + 10);
+        dist = Math.max(22, cfg.bedHeight - Math.round(cfg.yellowAlert + 5));
       } else if (tipo === 'desborde') {
-        dist = cfg.bedHeight - Math.round(cfg.redAlert + 20);
+        dist = Math.max(18, cfg.bedHeight - Math.round(cfg.redAlert + 5));
       } else if (tipo === 'falla') {
-        dist = 15;
+        dist = 10;
         status = 'MUY_CERCA';
       }
 
