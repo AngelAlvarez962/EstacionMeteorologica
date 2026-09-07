@@ -1237,25 +1237,15 @@
     }
 
     // ==========================================
-    // CONEXION WEB SERIAL (USB)
+    // CONEXION WEB SERIAL (USB) CON AUTO-RECONEXIÓN
     // ==========================================
     const btnConnect = document.getElementById('btn-connect');
     const btnConnectText = document.getElementById('btn-connect-text');
 
-    btnConnect.addEventListener('click', async () => {
-      if (isDemoMode) stopDemoMode();
-      if (isConnected) {
-        await disconnectSerial();
-        return;
-      }
-
-      if (!('serial' in navigator)) {
-        alert('Web Serial API no está disponible en este dispositivo. Para conectar por USB usa Chrome/Edge en tu computadora.');
-        return;
-      }
-
+    async function startSerialConnection(port) {
+      if (isConnected) return;
       try {
-        serialPort = await navigator.serial.requestPort();
+        serialPort = port;
         await serialPort.open({ baudRate: 115200 });
 
         isConnected = true;
@@ -1270,9 +1260,58 @@
 
         readSerialLoop();
       } catch (err) {
+        console.warn('Error al iniciar puerto serial:', err);
+      }
+    }
+
+    btnConnect.addEventListener('click', async () => {
+      if (isDemoMode) stopDemoMode();
+      if (isConnected) {
+        await disconnectSerial();
+        return;
+      }
+
+      if (!('serial' in navigator)) {
+        alert('Web Serial API no está disponible en este dispositivo. Para conectar por USB usa Chrome o Edge en tu computadora.');
+        return;
+      }
+
+      try {
+        const port = await navigator.serial.requestPort();
+        await startSerialConnection(port);
+      } catch (err) {
         console.error('Error serial:', err);
       }
     });
+
+    if ('serial' in navigator) {
+      // Auto-reconectar inmediatamente cuando el usuario enchufa el cable USB a la PC
+      navigator.serial.addEventListener('connect', async (event) => {
+        console.log('Dispositivo USB detectado:', event.target);
+        setTimeout(async () => {
+          if (!isConnected) {
+            await startSerialConnection(event.target);
+          }
+        }, 500);
+      });
+
+      // Detectar desconexión física inmediata al sacar el cable
+      navigator.serial.addEventListener('disconnect', async (event) => {
+        console.log('Dispositivo USB retirado físicamente:', event.target);
+        await disconnectSerial();
+        mostrarAlertaDesconexion(0);
+      });
+
+      // Al cargar o recargar la página, si el puerto ya estaba autorizado, abrirlo solo
+      window.addEventListener('DOMContentLoaded', async () => {
+        try {
+          const ports = await navigator.serial.getPorts();
+          if (ports.length > 0 && !isConnected) {
+            await startSerialConnection(ports[0]);
+          }
+        } catch(e) {}
+      });
+    }
 
     function parseSerialLine(line) {
       line = line.trim();
@@ -1320,15 +1359,14 @@
     }
 
     async function disconnectSerial() {
-      if (serialReader) { await serialReader.cancel(); serialReader = null; }
+      if (serialReader) { await serialReader.cancel().catch(() => {}); serialReader = null; }
       if (readableStreamClosed) { await readableStreamClosed.catch(() => {}); readableStreamClosed = null; }
-      if (serialPort) { await serialPort.close(); serialPort = null; }
+      if (serialPort) { await serialPort.close().catch(() => {}); serialPort = null; }
       isConnected = false;
       btnConnectText.textContent = 'Conectar USB';
       btnConnect.className = 'flex items-center gap-1.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs shadow-md shadow-cyan-600/20 transition';
       document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-rose-500 animate-pulse';
       document.getElementById('status-label').textContent = 'En espera';
-      resetDashboardToNull();
     }
 
     // Controles
