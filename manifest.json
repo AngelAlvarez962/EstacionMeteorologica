@@ -1,0 +1,19 @@
+﻿{
+  "name": "Alerta Río - LoRa 32",
+  "short_name": "Alerta Río",
+  "description": "Sistema de Monitoreo Hidrológico de Río en Tiempo Real con Heltec LoRa 32 y Supabase",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#020617",
+  "theme_color": "#0284c7",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%230284c7'/><path d='M20,60 Q35,40 50,60 T80,60' stroke='white' stroke-width='8' fill='none'/><path d='M20,72 Q35,52 50,72 T80,72' stroke='white' stroke-width='8' fill='none'/></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

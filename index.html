@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sistema de Monitoreo de Río - LoRa 32 + Supabase</title>
+  
+  <!-- PWA Mobile Support -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Alerta Río">
+  <meta name="theme-color" content="#090d16">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%230284c7'/><path d='M20,60 Q35,40 50,60 T80,60' stroke='white' stroke-width='8' fill='none'/><path d='M20,72 Q35,52 50,72 T80,72' stroke='white' stroke-width='8' fill='none'/></svg>">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Supabase JS Client CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              500: '#0284c7',
+              600: '#0369a1'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @keyframes wave {
+      0% { transform: translateX(0) translateZ(0) scaleY(1); }
+      50% { transform: translateX(-25%) translateZ(0) scaleY(0.9); }
+      100% { transform: translateX(-50%) translateZ(0) scaleY(1); }
+    }
+    .wave-animate-1 { animation: wave 10s linear infinite; }
+    .wave-animate-2 { animation: wave 6s linear infinite reverse; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #0b1120; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    .touch-action-manipulation { touch-action: manipulation; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-cyan-500 selection:text-white pb-6">
+
+  <!-- ==================== HEADER SUPERIOR ==================== -->
+  <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 flex flex-wrap items-center justify-between gap-2">
+      
+      <!-- Titulo y Logo -->
+      <div class="flex items-center gap-2.5">
+        <div class="p-2 bg-gradient-to-tr from-cyan-600 to-blue-500 rounded-xl shadow-md shadow-cyan-500/20 flex items-center justify-center shrink-0">
+          <i data-lucide="waves" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-bold text-base sm:text-lg text-white tracking-tight">Alerta Río LoRa</h1>
+            <span class="px-2 py-0.5 text-[10px] sm:text-xs font-semibold rounded-full bg-cyan-950 text-cyan-400 border border-cyan-800" id="station-badge">
+              NODO: --
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400 hidden sm:block">Monitoreo Hidrológico en Tiempo Real (Vercel + Supabase)</p>
+        </div>
+      </div>
+
+      <!-- Barra de Acciones y Conectividad -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <!-- Indicador de conexion -->
+        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 text-xs">
+          <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse" id="status-dot"></span>
+          <span class="font-medium text-slate-300 text-[11px] sm:text-xs" id="status-label">En espera</span>
+        </div>
+
+        <!-- Botones Protegidos de Administrador (Ocultos por defecto) -->
+        <button id="btn-open-supabase" class="admin-only hidden flex items-center gap-1 bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-700/80 font-medium px-2.5 py-1.5 rounded-lg text-xs transition active:scale-95" title="Configurar conexión con Supabase">
+          <i data-lucide="database" class="w-3.5 h-3.5 text-emerald-400"></i>
+          <span class="hidden sm:inline" id="supabase-btn-label">Supabase</span>
+        </button>
+
+        <button id="btn-connect" class="admin-only hidden flex items-center gap-1.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs shadow-md shadow-cyan-600/20 transition active:scale-95" title="Conectar puerto USB LoRa">
+          <i data-lucide="usb" class="w-3.5 h-3.5"></i>
+          <span id="btn-connect-text">Conectar USB</span>
+        </button>
+
+        <!-- Boton de Acceso Admin (Candado) -->
+        <button id="btn-admin-toggle" class="flex items-center gap-1 bg-slate-800/90 hover:bg-slate-700 text-slate-400 hover:text-white border border-slate-700/80 font-medium px-2.5 py-1.5 rounded-lg text-xs transition active:scale-95" title="Acceso de Administrador">
+          <i data-lucide="lock" class="w-3.5 h-3.5 text-slate-400" id="admin-icon"></i>
+          <span class="text-[11px]" id="admin-btn-label">Admin</span>
+        </button>
+
+        <!-- Boton Modo Demo -->
+        <button id="btn-demo" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3 py-1.5 rounded-lg text-xs border border-slate-700 transition active:scale-95">
+          <i data-lucide="play" class="w-3.5 h-3.5 text-emerald-400" id="demo-icon"></i>
+          <span>Modo Demo</span>
+        </button>
+
+        <!-- Boton Sonido -->
+        <button id="btn-sound" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition" title="Alarma sonora">
+          <i data-lucide="volume-2" class="w-4 h-4" id="sound-icon"></i>
+        </button>
+
+        <!-- Boton Exportar CSV -->
+        <button id="btn-export" class="hidden sm:flex items-center p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition" title="Descargar CSV">
+          <i data-lucide="download" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ==================== BARRA DE ESCENARIOS RAPIDOS ==================== -->
+  <div class="bg-slate-900/60 border-b border-slate-800/80 px-3 py-2">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2 overflow-x-auto text-xs select-none">
+      <span class="text-slate-400 text-[11px] whitespace-nowrap flex items-center gap-1">
+        <i data-lucide="sliders" class="w-3.5 h-3.5 text-cyan-400"></i> Simulación / Pruebas:
+      </span>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button onclick="simularEscenario('normal')" class="px-2.5 py-1 rounded bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 text-[11px] font-medium transition active:scale-95">
+          🟢 Normal (130cm)
+        </button>
+        <button onclick="simularEscenario('alerta')" class="px-2.5 py-1 rounded bg-amber-950/70 hover:bg-amber-900 border border-amber-800 text-amber-300 text-[11px] font-medium transition active:scale-95">
+          🟡 Alerta (270cm)
+        </button>
+        <button onclick="simularEscenario('desborde')" class="px-2.5 py-1 rounded bg-rose-950/70 hover:bg-rose-900 border border-rose-800 text-rose-300 text-[11px] font-medium transition active:scale-95">
+          🔴 Desborde (350cm)
+        </button>
+        <button onclick="simularEscenario('falla')" class="px-2.5 py-1 rounded bg-purple-950/70 hover:bg-purple-900 border border-purple-800 text-purple-300 text-[11px] font-medium transition active:scale-95">
+          ⚠️ Falla Sensor
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== CONTENIDO PRINCIPAL ==================== -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
+
+    <!-- BANNER DE ALERTA DINAMICA -->
+    <div id="alert-banner" class="p-3.5 sm:p-4 rounded-xl border flex items-center justify-between transition-all duration-300 bg-slate-900 border-slate-800 text-slate-300">
+      <div class="flex items-center gap-3">
+        <div id="alert-icon-box" class="p-2 rounded-lg bg-slate-800 text-slate-400 shrink-0">
+          <i data-lucide="power-off" class="w-5 h-5 sm:w-6 sm:h-6" id="alert-icon"></i>
+        </div>
+        <div>
+          <h2 class="font-bold text-xs sm:text-sm tracking-wide uppercase text-slate-400" id="alert-title">SISTEMA A LA ESPERA DE DATOS</h2>
+          <p class="text-[11px] sm:text-xs text-slate-400" id="alert-desc">Conectado a la nube. Esperando tramas de telemetría de la estación o modo demo.</p>
+        </div>
+      </div>
+      <div class="text-right shrink-0 pl-2">
+        <span class="text-[10px] sm:text-xs text-slate-500 block">Última lectura:</span>
+        <div class="font-mono text-xs text-slate-300" id="last-update">--:--:--</div>
+      </div>
+    </div>
+
+    <!-- TARJETAS PRINCIPALES (GRID SUPERIOR) -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+
+      <!-- DISTANCIA DEL SENSOR -->
+      <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between shadow-sm">
+        <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold uppercase tracking-wider mb-1">
+          <span>Distancia</span>
+          <i data-lucide="arrow-down-up" class="w-3.5 h-3.5 text-cyan-400"></i>
+        </div>
+        <div>
+          <div class="flex items-baseline gap-1">
+            <span class="text-3xl sm:text-4xl font-extrabold font-mono text-white tracking-tight" id="metric-distance">--.-</span>
+            <span class="text-slate-400 font-medium text-xs">cm</span>
+          </div>
+          <div class="text-[11px] text-slate-400 mt-0.5 font-mono" id="metric-meters">--.-- metros</div>
+        </div>
+        <div class="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+          <span class="text-slate-500">Rango:</span>
+          <span class="text-slate-300 font-mono" id="card-sensor-range">25 - 400 cm</span>
+        </div>
+      </div>
+
+      <!-- NIVEL DEL RIO CALCULADO -->
+      <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between shadow-sm">
+        <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold uppercase tracking-wider mb-1">
+          <span>Nivel del Río</span>
+          <i data-lucide="droplet" class="w-3.5 h-3.5 text-blue-400"></i>
+        </div>
+        <div>
+          <div class="flex items-baseline gap-1">
+            <span class="text-3xl sm:text-4xl font-extrabold font-mono text-cyan-400 tracking-tight" id="metric-water-level">--.-</span>
+            <span class="text-slate-400 font-medium text-xs">cm</span>
+          </div>
+          <div class="text-[11px] text-slate-400 mt-0.5" id="metric-water-percent">Capacidad: --%</div>
+        </div>
+        <div class="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+          <span class="text-slate-500">Altura lecho:</span>
+          <span class="text-slate-300 font-mono" id="card-bed-height">400 cm</span>
+        </div>
+      </div>
+
+      <!-- ESTADO DIAGNOSTICO DEL SENSOR -->
+      <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between shadow-sm">
+        <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold uppercase tracking-wider mb-1">
+          <span>Sensor</span>
+          <i data-lucide="activity" class="w-3.5 h-3.5 text-emerald-400"></i>
+        </div>
+        <div>
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 font-semibold text-xs sm:text-sm" id="sensor-badge">
+            <span class="w-2 h-2 rounded-full bg-slate-500" id="sensor-badge-dot"></span>
+            <span id="sensor-status-text">INACTIVO</span>
+          </div>
+          <div class="text-[11px] text-slate-400 mt-1 line-clamp-1" id="sensor-status-desc">Sin datos recibidos</div>
+        </div>
+        <div class="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+          <span class="text-slate-500">Pines:</span>
+          <span class="text-slate-300 font-mono">Trig 13 / Echo 23</span>
+        </div>
+      </div>
+
+      <!-- CALIDAD DE SENAL LORA (RSSI) -->
+      <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between shadow-sm">
+        <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold uppercase tracking-wider mb-1">
+          <span>Señal LoRa</span>
+          <i data-lucide="radio" class="w-3.5 h-3.5 text-amber-400"></i>
+        </div>
+        <div>
+          <div class="flex items-baseline gap-1">
+            <span class="text-3xl sm:text-4xl font-extrabold font-mono text-white tracking-tight" id="metric-rssi">--</span>
+            <span class="text-slate-400 font-medium text-xs">dBm</span>
+          </div>
+          <div class="w-full bg-slate-800 rounded-full h-1.5 mt-2 overflow-hidden flex">
+            <div id="rssi-bar" class="bg-slate-700 h-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+          <span class="text-slate-500">Paquetes:</span>
+          <span class="text-slate-300 font-mono" id="metric-packets">#0</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SECCIÓN CENTRAL: CORTE TRANSVERSAL DEL RÍO + GRÁFICA EN VIVO -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+
+      <!-- CORTE TRANSVERSAL DEL RÍO -->
+      <div class="lg:col-span-4 bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-sm">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div>
+            <h3 class="font-bold text-sm text-slate-200">Columna de Agua en Vivo</h3>
+            <p class="text-[11px] text-slate-400">Corte físico en el río (0 a 400 cm)</p>
+          </div>
+          <div class="p-1.5 bg-slate-800 rounded-lg text-cyan-400">
+            <i data-lucide="gauge" class="w-4 h-4"></i>
+          </div>
+        </div>
+
+        <div class="my-3 relative h-72 sm:h-80 w-full bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex">
+          <div class="w-14 bg-slate-900/90 border-r border-slate-800/80 flex flex-col justify-between py-2 text-[10px] font-mono text-slate-400 text-right pr-2 select-none z-20">
+            <div id="ruler-max-cm">400cm <span class="text-rose-400 font-bold">▲ MAX</span></div>
+            <div>300cm</div>
+            <div>200cm</div>
+            <div>100cm</div>
+            <div>0cm <span class="text-slate-500">FONDO</span></div>
+          </div>
+
+          <div class="relative flex-1 bg-slate-950 flex flex-col justify-end overflow-hidden">
+            <div class="absolute top-2 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center">
+              <div class="px-2 py-0.5 rounded bg-slate-800/90 border border-slate-700 text-[10px] font-mono text-amber-300 flex items-center gap-1 shadow">
+                <i data-lucide="radar" class="w-3 h-3 text-amber-400"></i>
+                SENSOR HC-SR04
+              </div>
+              <div class="w-0.5 h-2 bg-dashed bg-amber-400/40"></div>
+            </div>
+
+            <div id="line-red-alert" class="absolute top-[20%] w-full border-b border-rose-500/40 border-dashed z-10 flex items-center justify-end pr-2">
+              <span id="label-red-alert" class="text-[9px] text-rose-400/90 font-mono uppercase font-semibold">Límite Desborde (320cm)</span>
+            </div>
+            <div id="line-yellow-alert" class="absolute top-[37.5%] w-full border-b border-amber-500/40 border-dashed z-10 flex items-center justify-end pr-2">
+              <span id="label-yellow-alert" class="text-[9px] text-amber-400/90 font-mono uppercase font-semibold">Alerta Amarilla (250cm)</span>
+            </div>
+
+            <div id="water-column" class="relative w-full transition-all duration-500 ease-out flex flex-col justify-end bg-gradient-to-t from-blue-900/95 via-cyan-700/85 to-cyan-500/95" style="height: 0%;">
+              <div class="absolute -top-3 w-[200%] h-4 opacity-70 wave-animate-1 flex">
+                <svg class="w-full h-full text-cyan-400" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                  <path d="M0,0 C150,90 350,-40 500,50 C650,140 900,-30 1200,40 L1200,120 L0,120 Z" fill="currentColor"></path>
+                </svg>
+              </div>
+              <div class="absolute -top-2 w-[200%] h-4 opacity-50 wave-animate-2 flex">
+                <svg class="w-full h-full text-blue-300" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                  <path d="M0,0 C200,60 400,-20 600,40 C800,100 1000,-10 1200,30 L1200,120 L0,120 Z" fill="currentColor"></path>
+                </svg>
+              </div>
+              <div class="z-20 text-center pb-3 select-none">
+                <span class="px-2 py-0.5 bg-slate-900/90 backdrop-blur rounded text-xs font-mono font-bold text-white shadow" id="water-badge-level">
+                  -- cm de agua
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-1.5 text-center text-[10px] pt-1">
+          <div class="p-1.5 rounded bg-emerald-950/40 border border-emerald-900/60 text-emerald-400">
+            <span class="block font-bold">Verde</span> <span id="badge-range-green">&lt; 250cm</span>
+          </div>
+          <div class="p-1.5 rounded bg-amber-950/40 border border-amber-900/60 text-amber-400">
+            <span class="block font-bold">Amarillo</span> <span id="badge-range-yellow">250-320cm</span>
+          </div>
+          <div class="p-1.5 rounded bg-rose-950/40 border border-rose-900/60 text-rose-400">
+            <span class="block font-bold">Rojo</span> <span id="badge-range-red">&gt; 320cm</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- GRAFICA EN TIEMPO REAL -->
+      <div class="lg:col-span-8 bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-sm">
+        <div class="flex flex-wrap items-center justify-between pb-2 border-b border-slate-800 gap-2">
+          <div>
+            <h3 class="font-bold text-sm text-slate-200">Tendencia Histórica en Vivo</h3>
+            <p class="text-[11px] text-slate-400">Evolución del caudal guardado en Supabase</p>
+          </div>
+          
+          <div class="flex items-center gap-1.5">
+            <div class="inline-flex rounded-lg bg-slate-800 p-0.5 text-xs">
+              <button class="px-2 py-0.5 rounded-md bg-cyan-600 text-white font-medium" id="btn-win-30">30 pts</button>
+              <button class="px-2 py-0.5 rounded-md text-slate-400 hover:text-white" id="btn-win-60">60 pts</button>
+            </div>
+            <button id="btn-clear-chart" class="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition" title="Limpiar gráfica">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="relative h-64 sm:h-72 w-full mt-2">
+          <canvas id="riverChart"></canvas>
+        </div>
+
+        <div class="mt-3 pt-2 border-t border-slate-800/80 flex flex-wrap items-center justify-between text-xs text-slate-400 gap-2">
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-1">
+              <span class="w-2.5 h-0.5 bg-cyan-400"></span>
+              <span class="text-[11px]">Nivel Río</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <span class="w-2.5 h-0.5 bg-rose-400 border-b border-dashed border-rose-400"></span>
+              <span class="text-[11px]">Límite Desborde (320cm)</span>
+            </div>
+          </div>
+          <div class="font-mono text-[11px] text-slate-500" id="chart-stats">
+            Mín: -- cm | Máx: -- cm | Prom: -- cm
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TERMINAL DE TELEMETRÍA -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-sm">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <i data-lucide="terminal" class="w-4 h-4 text-cyan-400"></i>
+          <h3 class="font-bold text-xs sm:text-sm text-slate-200">Terminal de Telemetría</h3>
+          <span class="text-[10px] text-slate-500 font-mono hidden sm:inline">(Supabase Realtime / LoRa)</span>
+        </div>
+        <div class="flex items-center gap-2 text-xs">
+          <label class="flex items-center gap-1 text-slate-400 select-none cursor-pointer text-[11px]">
+            <input type="checkbox" id="autoscroll-chk" checked class="rounded bg-slate-800 border-slate-700 text-cyan-500 focus:ring-0">
+            Auto-scroll
+          </label>
+          <button id="btn-clear-terminal" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] transition">
+            Limpiar
+          </button>
+        </div>
+      </div>
+
+      <div id="terminal-logs" class="mt-2.5 h-28 bg-slate-950 rounded-xl p-2.5 font-mono text-[11px] text-cyan-300/90 overflow-y-auto space-y-1 border border-slate-800/80 select-text">
+        <div class="text-slate-500 italic">// Conexión lista. Esperando tramas de telemetría de Supabase o modo demo.</div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ==================== MODAL DE AUTENTICACION ADMIN (PIN) ==================== -->
+  <div id="modal-admin-auth" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-xs w-full p-5 space-y-4 shadow-2xl text-center">
+      <div class="w-12 h-12 rounded-2xl bg-cyan-950/80 border border-cyan-800 text-cyan-400 flex items-center justify-center mx-auto shadow-lg shadow-cyan-950/50">
+        <i data-lucide="shield-check" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <h3 class="font-bold text-base text-white">Acceso de Administrador</h3>
+        <p class="text-xs text-slate-400 mt-1">Ingresa el PIN de seguridad para acceder a los ajustes de Supabase y USB:</p>
+      </div>
+
+      <div>
+        <input type="password" id="input-admin-pin" maxlength="10" placeholder="PIN (por defecto: 1234)" class="w-full text-center tracking-widest text-lg bg-slate-950 border border-slate-700 rounded-xl py-2 text-white font-mono focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500">
+        <div id="pin-error-msg" class="text-rose-400 text-[11px] mt-1.5 hidden">⚠️ PIN incorrecto.</div>
+      </div>
+
+      <div class="flex items-center gap-2 pt-1">
+        <button id="btn-cancel-pin" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition">
+          Cancelar
+        </button>
+        <button id="btn-submit-pin" class="flex-1 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-semibold shadow-md shadow-cyan-600/20 transition">
+          Desbloquear
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL CONFIGURACION SUPABASE ==================== -->
+  <div id="modal-supabase" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <i data-lucide="database" class="w-5 h-5 text-emerald-400"></i>
+          <h3 class="font-bold text-base text-white">Conexión con Supabase</h3>
+        </div>
+        <button id="btn-close-modal" class="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-300">
+        Credenciales de tu proyecto en Supabase (de <b>Project Settings ➔ API</b>):
+      </p>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-400 font-medium mb-1">Project URL:</label>
+          <input type="text" id="cfg-supabase-url" placeholder="https://tu-proyecto.supabase.co" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono focus:border-cyan-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-slate-400 font-medium mb-1">Anon Public Key:</label>
+          <textarea id="cfg-supabase-key" rows="3" placeholder="eyJhbGciOiJIUzI1NiIsIn..." class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono focus:border-cyan-500 focus:outline-none"></textarea>
+        </div>
+        <div class="pt-2 border-t border-slate-800 space-y-2">
+          <label class="block text-slate-300 font-semibold text-xs">Parámetros del Río y Umbrales de Alerta:</label>
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-slate-400 font-medium mb-1 text-[11px]">Altura Lecho:</label>
+              <input type="number" id="cfg-max-height" step="1" min="50" max="1000" placeholder="400" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono text-xs focus:border-cyan-500 focus:outline-none">
+              <span class="text-[10px] text-slate-500 block mt-0.5">cm sensor a lecho</span>
+            </div>
+            <div>
+              <label class="block text-amber-400 font-medium mb-1 text-[11px]">Alerta Amarilla:</label>
+              <input type="number" id="cfg-yellow-alert" step="1" min="10" max="900" placeholder="250" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono text-xs focus:border-amber-500 focus:outline-none">
+              <span class="text-[10px] text-slate-500 block mt-0.5">cm de agua</span>
+            </div>
+            <div>
+              <label class="block text-rose-400 font-medium mb-1 text-[11px]">Alerta Roja:</label>
+              <input type="number" id="cfg-red-alert" step="1" min="10" max="950" placeholder="320" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono text-xs focus:border-rose-500 focus:outline-none">
+              <span class="text-[10px] text-slate-500 block mt-0.5">cm desborde</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-slate-800">
+          <label class="block text-slate-400 font-medium mb-1">Cambiar PIN de Administrador (opcional):</label>
+          <input type="password" id="cfg-new-pin" placeholder="Nuevo PIN numérico" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono focus:border-cyan-500 focus:outline-none">
+        </div>
+      </div>
+
+      <div class="p-2.5 rounded-lg bg-emerald-950/40 border border-emerald-900/60 text-emerald-300 text-[11px]">
+        🔒 <b>Seguridad:</b> Estos datos y el PIN solo son visibles para administradores autorizados.
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+        <button id="btn-save-supabase" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg text-xs transition">
+          Guardar Cambios
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="mt-auto bg-slate-900/90 border-t border-slate-800 py-3 text-center text-[11px] text-slate-500">
+    Sistema de Monitoreo Hidrológico LoRa 32 &copy; 2026 | Vercel + Supabase Realtime
+  </footer>
+
+  <!-- ==================== JAVASCRIPT ==================== -->
+  <script>
+    lucide.createIcons();
+
+    let SENSOR_MAX_HEIGHT_CM  = parseFloat(localStorage.getItem('cfg_max_height')) || 400.0;
+    let LEVEL_YELLOW_ALERT_CM = parseFloat(localStorage.getItem('cfg_yellow_alert')) || 250.0;
+    let LEVEL_RED_ALERT_CM    = parseFloat(localStorage.getItem('cfg_red_alert')) || 320.0;
+
+    function actualizarConfiguracionVisual() {
+      const cardRange = document.getElementById('card-sensor-range');
+      if (cardRange) cardRange.textContent = `25 - ${Math.round(SENSOR_MAX_HEIGHT_CM)} cm`;
+      
+      const cardBed = document.getElementById('card-bed-height');
+      if (cardBed) cardBed.textContent = `${Math.round(SENSOR_MAX_HEIGHT_CM)} cm`;
+
+      const rulerMax = document.getElementById('ruler-max-cm');
+      if (rulerMax) rulerMax.innerHTML = `${Math.round(SENSOR_MAX_HEIGHT_CM)}cm <span class="text-rose-400 font-bold">▲ MAX</span>`;
+
+      const redPct = Math.max(0, Math.min(100, ((SENSOR_MAX_HEIGHT_CM - LEVEL_RED_ALERT_CM) / SENSOR_MAX_HEIGHT_CM) * 100));
+      const yellowPct = Math.max(0, Math.min(100, ((SENSOR_MAX_HEIGHT_CM - LEVEL_YELLOW_ALERT_CM) / SENSOR_MAX_HEIGHT_CM) * 100));
+
+      const lineRed = document.getElementById('line-red-alert');
+      if (lineRed) lineRed.style.top = `${redPct.toFixed(1)}%`;
+      const labelRed = document.getElementById('label-red-alert');
+      if (labelRed) labelRed.textContent = `Límite Desborde (${Math.round(LEVEL_RED_ALERT_CM)}cm)`;
+
+      const lineYellow = document.getElementById('line-yellow-alert');
+      if (lineYellow) lineYellow.style.top = `${yellowPct.toFixed(1)}%`;
+      const labelYellow = document.getElementById('label-yellow-alert');
+      if (labelYellow) labelYellow.textContent = `Alerta Amarilla (${Math.round(LEVEL_YELLOW_ALERT_CM)}cm)`;
+
+      const bGreen = document.getElementById('badge-range-green');
+      if (bGreen) bGreen.textContent = `< ${Math.round(LEVEL_YELLOW_ALERT_CM)}cm`;
+
+      const bYellow = document.getElementById('badge-range-yellow');
+      if (bYellow) bYellow.textContent = `${Math.round(LEVEL_YELLOW_ALERT_CM)}-${Math.round(LEVEL_RED_ALERT_CM)}cm`;
+
+      const bRed = document.getElementById('badge-range-red');
+      if (bRed) bRed.textContent = `> ${Math.round(LEVEL_RED_ALERT_CM)}cm`;
+
+      if (typeof riverChart !== 'undefined' && riverChart && riverChart.options && riverChart.options.scales && riverChart.options.scales.y) {
+        riverChart.options.scales.y.max = SENSOR_MAX_HEIGHT_CM;
+        riverChart.update('none');
+      }
+    }
+    
+    let isConnected = false;
+    let isDemoMode = false;
+    let isSoundEnabled = true;
+    let demoInterval = null;
+    let packetCount = 0;
+    let windowSize = 30;
+    let serialPort = null;
+    let serialReader = null;
+    let readableStreamClosed = null;
+    let historicalData = [];
+
+    // Credenciales Supabase (almacenadas en localStorage o preconfiguradas)
+    let supabaseClient = null;
+    let supabaseChannel = null;
+
+    // Configuración Chart.js
+    const ctx = document.getElementById('riverChart').getContext('2d');
+    const riverChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          {
+            label: 'Nivel del Río (cm)',
+            data: [],
+            borderColor: '#22d3ee',
+            backgroundColor: 'rgba(34, 211, 238, 0.1)',
+            borderWidth: 2.2,
+            tension: 0.35,
+            fill: true,
+            pointRadius: 2,
+            pointHoverRadius: 4,
+            pointBackgroundColor: '#22d3ee'
+          },
+          {
+            label: 'Límite Desborde',
+            data: [],
+            borderColor: '#f43f5e',
+            borderWidth: 1.5,
+            borderDash: [5, 5],
+            fill: false,
+            pointRadius: 0
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 250 },
+        scales: {
+          x: {
+            grid: { color: 'rgba(51, 65, 85, 0.25)' },
+            ticks: { color: '#94a3b8', font: { family: 'monospace', size: 9 }, maxTicksLimit: 8 }
+          },
+          y: {
+            min: 0,
+            max: 400,
+            grid: { color: 'rgba(51, 65, 85, 0.25)' },
+            ticks: { 
+              color: '#94a3b8', 
+              font: { family: 'monospace', size: 10 },
+              callback: function(value) { return value + 'cm'; }
+            }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#0f172a',
+            titleColor: '#38bdf8',
+            bodyColor: '#f8fafc',
+            borderColor: '#334155',
+            borderWidth: 1,
+            padding: 8,
+            displayColors: false
+          }
+        }
+      }
+    });
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playAlarmTone(freq = 880, type = 'sine', duration = 0.25) {
+      if (!isSoundEnabled) return;
+      try {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function processIncomingData(nodeId, distance, status, pktNum, rssi, fromHistory = false, customTime = null) {
+      packetCount++;
+      const now = new Date();
+      let timeStr = now.toTimeString().split(' ')[0];
+      if (customTime) {
+        try {
+          const d = new Date(customTime);
+          if (!isNaN(d.getTime())) {
+            timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          }
+        } catch (e) {}
+      }
+
+      let waterLevel = 0.0;
+      let percent = 0;
+
+      if (status === 'OK' && distance > 0) {
+        waterLevel = Math.max(0, SENSOR_MAX_HEIGHT_CM - distance);
+        percent = Math.min(100, Math.max(0, (waterLevel / SENSOR_MAX_HEIGHT_CM) * 100));
+      }
+
+      historicalData.push({
+        time: timeStr,
+        nodeId: nodeId,
+        distance: distance,
+        waterLevel: waterLevel,
+        status: status,
+        packet: pktNum,
+        rssi: rssi
+      });
+
+      document.getElementById('last-update').textContent = timeStr;
+      document.getElementById('station-badge').textContent = 'NODO: ' + nodeId;
+      document.getElementById('metric-packets').textContent = '#' + (pktNum || packetCount);
+
+      if (rssi !== null && rssi !== undefined) {
+        document.getElementById('metric-rssi').textContent = rssi;
+        let rssiPct = Math.min(100, Math.max(0, ((rssi + 115) / 75) * 100));
+        const rssiBar = document.getElementById('rssi-bar');
+        rssiBar.style.width = rssiPct + '%';
+        if (rssi >= -70) rssiBar.className = 'bg-emerald-500 h-full transition-all duration-300';
+        else if (rssi >= -95) rssiBar.className = 'bg-amber-500 h-full transition-all duration-300';
+        else rssiBar.className = 'bg-rose-500 h-full transition-all duration-300';
+      }
+
+      if (status === 'OK') {
+        document.getElementById('metric-distance').textContent = distance.toFixed(1);
+        document.getElementById('metric-meters').textContent = (distance / 100).toFixed(2) + ' metros';
+        document.getElementById('metric-water-level').textContent = waterLevel.toFixed(1);
+        document.getElementById('metric-water-percent').textContent = 'Capacidad: ' + percent.toFixed(0) + '%';
+        
+        document.getElementById('water-column').style.height = percent + '%';
+        document.getElementById('water-badge-level').textContent = waterLevel.toFixed(1) + ' cm agua (' + distance.toFixed(1) + ' cm dist)';
+      } else {
+        document.getElementById('metric-distance').textContent = '--';
+        document.getElementById('metric-meters').textContent = 'Falla de lectura';
+        document.getElementById('metric-water-level').textContent = '--';
+        document.getElementById('metric-water-percent').textContent = 'Estado: ' + status;
+      }
+
+      actualizarEstadoAlerta(status, distance, waterLevel);
+
+      if (status === 'OK') {
+        if (riverChart.data.labels.length >= windowSize) {
+          riverChart.data.labels.shift();
+          riverChart.data.datasets[0].data.shift();
+          riverChart.data.datasets[1].data.shift();
+        }
+        riverChart.data.labels.push(timeStr);
+        riverChart.data.datasets[0].data.push(waterLevel);
+        riverChart.data.datasets[1].data.push(LEVEL_RED_ALERT_CM);
+        riverChart.update('none');
+        actualizarEstadisticasGrafica();
+      }
+
+      if (!fromHistory) {
+        agregarLogTerminal(timeStr, nodeId, distance, status, pktNum, rssi);
+      }
+    }
+
+    function actualizarEstadoAlerta(status, distance, waterLevel) {
+      const banner = document.getElementById('alert-banner');
+      const title = document.getElementById('alert-title');
+      const desc = document.getElementById('alert-desc');
+      const icon = document.getElementById('alert-icon');
+      const iconBox = document.getElementById('alert-icon-box');
+      const sensorBadge = document.getElementById('sensor-badge');
+      const sensorStatusText = document.getElementById('sensor-status-text');
+      const sensorStatusDesc = document.getElementById('sensor-status-desc');
+      const sensorDot = document.getElementById('sensor-badge-dot');
+
+      if (status !== 'OK') {
+        banner.className = 'p-3.5 sm:p-4 rounded-xl border flex items-center justify-between transition-all duration-300 bg-rose-950/60 border-rose-800 text-rose-200';
+        iconBox.className = 'p-2 rounded-lg bg-rose-900 text-rose-400 shrink-0';
+        title.className = 'font-bold text-xs sm:text-sm tracking-wide uppercase text-rose-400';
+        title.textContent = 'ALERTA: FALLA EN SENSOR';
+        icon.setAttribute('data-lucide', 'alert-triangle');
+
+        sensorBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-950 border border-rose-800 text-rose-300 font-semibold text-xs sm:text-sm';
+        sensorDot.className = 'w-2 h-2 rounded-full bg-rose-400 animate-ping';
+
+        if (status === 'ERR_CABLE') {
+          desc.textContent = 'Sensor desconectado o sin alimentación (Revise cables 5V, GND, 13 o 23).';
+          sensorStatusText.textContent = 'ERR CABLE';
+          sensorStatusDesc.textContent = 'Sin señal Echo';
+        } else if (status === 'ERR_CORTO') {
+          desc.textContent = 'Pin Echo bloqueado en HIGH antes del disparo (Cortocircuito).';
+          sensorStatusText.textContent = 'ERR CORTO';
+          sensorStatusDesc.textContent = 'Echo pegado a 5V';
+        } else if (status === 'SIN_ECO') {
+          desc.textContent = 'Fuera de rango (> 4.0 metros) o sin superficie que devuelva el eco.';
+          sensorStatusText.textContent = 'SIN ECO';
+          sensorStatusDesc.textContent = 'Supera los 400 cm';
+        } else if (status === 'MUY_CERCA' || status === 'ZONA_CIEGA') {
+          desc.textContent = 'Objeto a menos de 25 cm (Zona ciega del sensor ultrasónico).';
+          sensorStatusText.textContent = 'MUY CERCA';
+          sensorStatusDesc.textContent = 'Menor a 25 cm';
+        } else {
+          desc.textContent = 'Reporte: ' + status;
+          sensorStatusText.textContent = status;
+          sensorStatusDesc.textContent = 'Alerta reportada';
+        }
+
+        playAlarmTone(440, 'sawtooth', 0.2);
+      } else {
+        sensorBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/70 border border-emerald-800 text-emerald-300 font-semibold text-xs sm:text-sm';
+        sensorDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+        sensorStatusText.textContent = 'NORMAL (OK)';
+        sensorStatusDesc.textContent = 'Lecturas estables filtradas';
+
+        if (waterLevel >= LEVEL_RED_ALERT_CM) {
+          banner.className = 'p-3.5 sm:p-4 rounded-xl border flex items-center justify-between transition-all duration-300 bg-rose-950/80 border-rose-600 text-rose-100 shadow-lg shadow-rose-950/50 animate-pulse';
+          iconBox.className = 'p-2 rounded-lg bg-rose-900 text-rose-300 shrink-0';
+          title.className = 'font-bold text-xs sm:text-sm tracking-wide uppercase text-rose-300';
+          title.textContent = '⚠️ PELIGRO CRÍTICO: RIESGO DE DESBORDE';
+          desc.textContent = '¡El río superó los ' + LEVEL_RED_ALERT_CM + ' cm! Margen restante: ' + distance.toFixed(1) + ' cm.';
+          icon.setAttribute('data-lucide', 'alert-octagon');
+          playAlarmTone(980, 'square', 0.4);
+        } else if (waterLevel >= LEVEL_YELLOW_ALERT_CM) {
+          banner.className = 'p-3.5 sm:p-4 rounded-xl border flex items-center justify-between transition-all duration-300 bg-amber-950/50 border-amber-700 text-amber-100';
+          iconBox.className = 'p-2 rounded-lg bg-amber-900 text-amber-300 shrink-0';
+          title.className = 'font-bold text-xs sm:text-sm tracking-wide uppercase text-amber-300';
+          title.textContent = 'PRECAUCIÓN: NIVEL DEL RÍO ELEVADO';
+          desc.textContent = 'Nivel de advertencia (' + waterLevel.toFixed(1) + ' cm). Monitoreo continuo.';
+          icon.setAttribute('data-lucide', 'alert-triangle');
+        } else {
+          banner.className = 'p-3.5 sm:p-4 rounded-xl border flex items-center justify-between transition-all duration-300 bg-emerald-950/40 border-emerald-800 text-emerald-200';
+          iconBox.className = 'p-2 rounded-lg bg-emerald-900/60 text-emerald-400 shrink-0';
+          title.className = 'font-bold text-xs sm:text-sm tracking-wide uppercase text-emerald-400';
+          title.textContent = 'SISTEMA EN CONDICIÓN NORMAL';
+          desc.textContent = 'El cauce se mantiene dentro de los márgenes seguros esperados.';
+          icon.setAttribute('data-lucide', 'shield-check');
+        }
+      }
+      lucide.createIcons();
+    }
+
+    function actualizarEstadisticasGrafica() {
+      const data = riverChart.data.datasets[0].data;
+      if (!data || data.length === 0) return;
+      const min = Math.min(...data).toFixed(1);
+      const max = Math.max(...data).toFixed(1);
+      const avg = (data.reduce((a, b) => a + b, 0) / data.length).toFixed(1);
+      document.getElementById('chart-stats').textContent = `Mín: ${min} cm | Máx: ${max} cm | Prom: ${avg} cm`;
+    }
+
+    function agregarLogTerminal(time, id, dist, st, pkt, rssi) {
+      const terminal = document.getElementById('terminal-logs');
+      const line = document.createElement('div');
+      line.className = 'hover:bg-slate-900/60 px-1 rounded flex items-center justify-between font-mono';
+      
+      let rssiText = (rssi !== null && rssi !== undefined) ? ` | RSSI: ${rssi} dBm` : '';
+      line.innerHTML = `<span><span class="text-slate-500">[${time}]</span> <span class="text-emerald-400">${id}</span> &gt; Dist: <span class="text-white font-bold">${dist.toFixed(1)}cm</span> (${st}) #${pkt}${rssiText}</span>`;
+      
+      terminal.appendChild(line);
+      if (terminal.children.length > 70) terminal.removeChild(terminal.children[0]);
+      if (document.getElementById('autoscroll-chk').checked) terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    // ==========================================
+    // INTEGRACION SUPABASE (REALTIME + HISTORIAL)
+    // ==========================================
+    const DEFAULT_SUPABASE_URL = 'https://gffxiesxsqijbxlyerwi.supabase.co';
+    const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmZnhpZXN4c3FpamJ4bHllcndpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MzIyOTMsImV4cCI6MjEwNDEwODI5M30.MPxGovxcE3kuW4FZKPnkwc4wtf32KJH3KFT5XbYi3LM';
+
+    async function initSupabase() {
+      const savedUrl = localStorage.getItem('supabase_url') || DEFAULT_SUPABASE_URL;
+      const savedKey = localStorage.getItem('supabase_key') || DEFAULT_SUPABASE_KEY;
+
+      if (!savedUrl || !savedKey) {
+        document.getElementById('supabase-btn-label').textContent = 'Configurar Supabase';
+        return;
+      }
+
+      try {
+        supabaseClient = window.supabase.createClient(savedUrl, savedKey);
+        document.getElementById('supabase-btn-label').textContent = 'Supabase Conectado';
+
+        // 1. Cargar las ultimas lecturas historicas para llenar la grafica de inmediato
+        const { data: rows, error } = await supabaseClient
+          .from('mediciones_rio')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(20);
+
+        if (!error && rows && rows.length > 0) {
+          // Invertir para poner en orden cronologico
+          rows.reverse().forEach(r => {
+            processIncomingData(r.estacion, Number(r.distancia_cm), r.estado, Number(r.paquete_num), r.rssi_dbm, true, r.created_at);
+          });
+          const terminal = document.getElementById('terminal-logs');
+          const note = document.createElement('div');
+          note.className = 'text-emerald-400/90 font-mono';
+          note.textContent = `// Supabase: ${rows.length} mediciones históricas cargadas exitosamente.`;
+          terminal.appendChild(note);
+        }
+
+        // 2. Suscribirse a cambios en tiempo real (WebSockets de Supabase)
+        if (supabaseChannel) supabaseChannel.unsubscribe();
+
+        supabaseChannel = supabaseClient
+          .channel('cambios_rio_realtime')
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mediciones_rio' }, payload => {
+            if (isDemoMode) return;
+            const r = payload.new;
+            processIncomingData(r.estacion, Number(r.distancia_cm), r.estado, Number(r.paquete_num), r.rssi_dbm, false, r.created_at);
+            document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+            document.getElementById('status-label').textContent = 'Supabase Realtime';
+          })
+          .subscribe();
+
+        document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-emerald-400';
+        document.getElementById('status-label').textContent = 'Supabase Online';
+
+      } catch (err) {
+        console.error('Error al iniciar Supabase:', err);
+      }
+    }
+
+    // ==========================================
+    // SEGURIDAD: MODO ADMINISTRADOR (PIN PROTEGIDO)
+    // ==========================================
+    let isAdmin = false;
+    function getAdminPin() {
+      return localStorage.getItem('admin_pin') || '1234';
+    }
+
+    function setAdminMode(active) {
+      isAdmin = active;
+      const adminButtons = document.querySelectorAll('.admin-only');
+      const adminIcon = document.getElementById('admin-icon');
+      const adminLabel = document.getElementById('admin-btn-label');
+      const adminBtn = document.getElementById('btn-admin-toggle');
+
+      if (isAdmin) {
+        adminButtons.forEach(btn => btn.classList.remove('hidden'));
+        adminIcon.setAttribute('data-lucide', 'unlock');
+        adminLabel.textContent = 'Bloquear';
+        adminBtn.className = 'flex items-center gap-1 bg-amber-950/80 hover:bg-amber-900 text-amber-300 border border-amber-700/90 font-medium px-2.5 py-1.5 rounded-lg text-xs transition active:scale-95';
+        
+        const terminal = document.getElementById('terminal-logs');
+        const note = document.createElement('div');
+        note.className = 'text-amber-400 font-mono';
+        note.textContent = '// Modo Administrador activado. Controles de Supabase y USB desbloqueados.';
+        terminal.appendChild(note);
+      } else {
+        adminButtons.forEach(btn => btn.classList.add('hidden'));
+        adminIcon.setAttribute('data-lucide', 'lock');
+        adminLabel.textContent = 'Admin';
+        adminBtn.className = 'flex items-center gap-1 bg-slate-800/90 hover:bg-slate-700 text-slate-400 hover:text-white border border-slate-700/80 font-medium px-2.5 py-1.5 rounded-lg text-xs transition active:scale-95';
+      }
+      lucide.createIcons();
+    }
+
+    const modalAdmin = document.getElementById('modal-admin-auth');
+    const inputPin = document.getElementById('input-admin-pin');
+    const pinError = document.getElementById('pin-error-msg');
+
+    document.getElementById('btn-admin-toggle').addEventListener('click', () => {
+      if (isAdmin) {
+        setAdminMode(false);
+      } else {
+        inputPin.value = '';
+        pinError.classList.add('hidden');
+        modalAdmin.classList.remove('hidden');
+        setTimeout(() => inputPin.focus(), 100);
+      }
+    });
+
+    document.getElementById('btn-cancel-pin').addEventListener('click', () => {
+      modalAdmin.classList.add('hidden');
+    });
+
+    function verificarPin() {
+      const ingresado = inputPin.value.trim();
+      if (ingresado === getAdminPin()) {
+        modalAdmin.classList.add('hidden');
+        setAdminMode(true);
+        playAlarmTone(1046, 'sine', 0.15); // Beep de confirmación
+      } else {
+        pinError.classList.remove('hidden');
+        inputPin.value = '';
+        inputPin.focus();
+        playAlarmTone(330, 'sawtooth', 0.2); // Beep de error
+      }
+    }
+
+    document.getElementById('btn-submit-pin').addEventListener('click', verificarPin);
+    inputPin.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') verificarPin();
+    });
+
+    // Modal de configuracion Supabase
+    const modalSupabase = document.getElementById('modal-supabase');
+    document.getElementById('btn-open-supabase').addEventListener('click', () => {
+      document.getElementById('cfg-supabase-url').value = localStorage.getItem('supabase_url') || DEFAULT_SUPABASE_URL;
+      document.getElementById('cfg-supabase-key').value = localStorage.getItem('supabase_key') || DEFAULT_SUPABASE_KEY;
+      document.getElementById('cfg-max-height').value = SENSOR_MAX_HEIGHT_CM;
+      document.getElementById('cfg-yellow-alert').value = LEVEL_YELLOW_ALERT_CM;
+      document.getElementById('cfg-red-alert').value = LEVEL_RED_ALERT_CM;
+      document.getElementById('cfg-new-pin').value = '';
+      modalSupabase.classList.remove('hidden');
+    });
+
+    document.getElementById('btn-close-modal').addEventListener('click', () => {
+      modalSupabase.classList.add('hidden');
+    });
+
+    document.getElementById('btn-save-supabase').addEventListener('click', () => {
+      const url = document.getElementById('cfg-supabase-url').value.trim();
+      const key = document.getElementById('cfg-supabase-key').value.trim();
+      const newPin = document.getElementById('cfg-new-pin').value.trim();
+
+      const h = parseFloat(document.getElementById('cfg-max-height').value);
+      const y = parseFloat(document.getElementById('cfg-yellow-alert').value);
+      const r = parseFloat(document.getElementById('cfg-red-alert').value);
+
+      if (!url || !key) {
+        alert('Por favor ingresa tanto la URL como la Anon Key de Supabase.');
+        return;
+      }
+
+      localStorage.setItem('supabase_url', url);
+      localStorage.setItem('supabase_key', key);
+
+      if (!isNaN(h) && h >= 50) {
+        SENSOR_MAX_HEIGHT_CM = h;
+        localStorage.setItem('cfg_max_height', h);
+      }
+      if (!isNaN(y) && y > 0) {
+        LEVEL_YELLOW_ALERT_CM = y;
+        localStorage.setItem('cfg_yellow_alert', y);
+      }
+      if (!isNaN(r) && r > 0) {
+        LEVEL_RED_ALERT_CM = r;
+        localStorage.setItem('cfg_red_alert', r);
+      }
+      actualizarConfiguracionVisual();
+
+      if (newPin) {
+        localStorage.setItem('admin_pin', newPin);
+        alert('Configuración guardada y PIN de administrador actualizado.');
+      }
+
+      modalSupabase.classList.add('hidden');
+      initSupabase();
+    });
+
+    // Función para enviar una prueba a Supabase desde los presets
+    async function guardarEnSupabase(estacion, distancia, nivel, estado) {
+      if (!supabaseClient) return;
+      try {
+        await supabaseClient.from('mediciones_rio').insert([
+          {
+            estacion: estacion,
+            distancia_cm: distancia,
+            nivel_rio_cm: nivel,
+            estado: estado,
+            paquete_num: packetCount + 1,
+            rssi_dbm: -58
+          }
+        ]);
+      } catch (e) {
+        console.warn('Error al guardar en Supabase:', e);
+      }
+    }
+
+    // ==========================================
+    // SIMULACION Y PRESETS RAPIDOS
+    // ==========================================
+    function simularEscenario(tipo) {
+      if (isDemoMode) stopDemoMode();
+      
+      document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-cyan-400 animate-pulse';
+      document.getElementById('status-label').textContent = 'Prueba: ' + tipo.toUpperCase();
+
+      if (tipo === 'normal') {
+        processIncomingData('EST_RIO1', 270.0, 'OK', packetCount + 1, -55);
+        guardarEnSupabase('EST_RIO1', 270.0, 130.0, 'OK');
+      } else if (tipo === 'alerta') {
+        processIncomingData('EST_RIO1', 130.0, 'OK', packetCount + 1, -62);
+        guardarEnSupabase('EST_RIO1', 130.0, 270.0, 'OK');
+      } else if (tipo === 'desborde') {
+        processIncomingData('EST_RIO1', 50.0, 'OK', packetCount + 1, -68);
+        guardarEnSupabase('EST_RIO1', 50.0, 350.0, 'OK');
+      } else if (tipo === 'falla') {
+        processIncomingData('EST_RIO1', 15.0, 'MUY_CERCA', packetCount + 1, -70);
+        guardarEnSupabase('EST_RIO1', 15.0, 0.0, 'MUY_CERCA');
+      }
+    }
+
+    const btnDemo = document.getElementById('btn-demo');
+    btnDemo.addEventListener('click', () => {
+      if (isDemoMode) stopDemoMode();
+      else startDemoMode();
+    });
+
+    let simulatedDist = 220.0;
+    let simDirection = -1.2;
+
+    function startDemoMode() {
+      if (isConnected) disconnectSerial();
+      isDemoMode = true;
+      btnDemo.innerHTML = '<i data-lucide="square" class="w-3.5 h-3.5 text-amber-300"></i><span>Detener Demo</span>';
+      btnDemo.className = 'flex items-center gap-1.5 bg-amber-900/80 border border-amber-600 text-amber-200 font-medium px-3 py-1.5 rounded-lg text-xs transition';
+      document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-cyan-400 animate-pulse';
+      document.getElementById('status-label').textContent = 'Modo Demo Activo';
+      lucide.createIcons();
+
+      demoInterval = setInterval(() => {
+        simulatedDist += simDirection + (Math.random() * 2 - 1);
+        if (simulatedDist < 45) simDirection = 1.4;
+        if (simulatedDist > 340) simDirection = -1.4;
+
+        let st = 'OK';
+        let d = simulatedDist;
+        if (Math.random() < 0.02) {
+          st = 'MUY_CERCA';
+          d = 18.0;
+        }
+
+        let simRssi = -52 - Math.floor(Math.random() * 18);
+        processIncomingData('EST_RIO1', d, st, packetCount + 1, simRssi);
+      }, 400);
+    }
+
+    function stopDemoMode() {
+      isDemoMode = false;
+      clearInterval(demoInterval);
+      demoInterval = null;
+      btnDemo.innerHTML = '<i data-lucide="play" class="w-3.5 h-3.5 text-emerald-400"></i><span>Modo Demo</span>';
+      btnDemo.className = 'flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-3 py-1.5 rounded-lg text-xs border border-slate-700 transition';
+      document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-rose-500 animate-pulse';
+      document.getElementById('status-label').textContent = 'En espera';
+      lucide.createIcons();
+      resetDashboardToNull();
+    }
+
+    function resetDashboardToNull() {
+      document.getElementById('metric-distance').textContent = '--.-';
+      document.getElementById('metric-meters').textContent = '--.-- metros';
+      document.getElementById('metric-water-level').textContent = '--.-';
+      document.getElementById('metric-water-percent').textContent = 'Capacidad: --%';
+      document.getElementById('last-update').textContent = '--:--:--';
+      document.getElementById('station-badge').textContent = 'NODO: --';
+      document.getElementById('metric-packets').textContent = '#0';
+      packetCount = 0;
+
+      document.getElementById('metric-rssi').textContent = '--';
+      const rssiBar = document.getElementById('rssi-bar');
+      rssiBar.style.width = '0%';
+      rssiBar.className = 'bg-slate-700 h-full transition-all duration-300';
+
+      const sensorBadge = document.getElementById('sensor-badge');
+      sensorBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 font-semibold text-xs sm:text-sm';
+      document.getElementById('sensor-badge-dot').className = 'w-2 h-2 rounded-full bg-slate-500';
+      document.getElementById('sensor-status-text').textContent = 'INACTIVO';
+      document.getElementById('sensor-status-desc').textContent = 'Sin datos recibidos';
+
+      document.getElementById('water-column').style.height = '0%';
+      document.getElementById('water-badge-level').textContent = '-- cm de agua';
+
+      const banner = document.getElementById('alert-banner');
+      banner.className = 'p-3.5 sm:p-4 rounded-xl border flex items-center justify-between transition-all duration-300 bg-slate-900 border-slate-800 text-slate-300';
+      document.getElementById('alert-icon-box').className = 'p-2 rounded-lg bg-slate-800 text-slate-400 shrink-0';
+      const title = document.getElementById('alert-title');
+      title.className = 'font-bold text-xs sm:text-sm tracking-wide uppercase text-slate-400';
+      title.textContent = 'SISTEMA A LA ESPERA DE DATOS';
+      document.getElementById('alert-desc').textContent = 'Conectado a la nube. Esperando tramas de telemetría de la estación o modo demo.';
+      document.getElementById('alert-icon').setAttribute('data-lucide', 'power-off');
+
+      riverChart.data.labels = [];
+      riverChart.data.datasets[0].data = [];
+      riverChart.data.datasets[1].data = [];
+      riverChart.update();
+      document.getElementById('chart-stats').textContent = 'Mín: -- cm | Máx: -- cm | Prom: -- cm';
+
+      lucide.createIcons();
+    }
+
+    // ==========================================
+    // CONEXION WEB SERIAL (USB)
+    // ==========================================
+    const btnConnect = document.getElementById('btn-connect');
+    const btnConnectText = document.getElementById('btn-connect-text');
+
+    btnConnect.addEventListener('click', async () => {
+      if (isDemoMode) stopDemoMode();
+      if (isConnected) {
+        await disconnectSerial();
+        return;
+      }
+
+      if (!('serial' in navigator)) {
+        alert('Web Serial API no está disponible en este dispositivo. Para conectar por USB usa Chrome/Edge en tu computadora.');
+        return;
+      }
+
+      try {
+        serialPort = await navigator.serial.requestPort();
+        await serialPort.open({ baudRate: 115200 });
+
+        isConnected = true;
+        btnConnectText.textContent = 'Desconectar';
+        btnConnect.className = 'flex items-center gap-1.5 bg-rose-600 hover:bg-rose-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition';
+        document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+        document.getElementById('status-label').textContent = 'LoRa Conectado (USB)';
+
+        const textDecoder = new TextDecoderStream();
+        readableStreamClosed = serialPort.readable.pipeTo(textDecoder.writable);
+        serialReader = textDecoder.readable.getReader();
+
+        readSerialLoop();
+      } catch (err) {
+        console.error('Error serial:', err);
+      }
+    });
+
+    function parseSerialLine(line) {
+      line = line.trim();
+      if (!line) return;
+
+      let rssi = null;
+      const rssiMatch = line.match(/RSSI:\s*(-?\d+)/i);
+      if (rssiMatch) rssi = parseInt(rssiMatch[1], 10);
+
+      let payload = line.replace(/^RX:\s*/i, '').replace(/^Tx\s*->\s*/i, '');
+      if (payload.includes('|')) payload = payload.split('|')[0].trim();
+
+      const parts = payload.split(',');
+      if (parts.length >= 3) {
+        const nodeId = parts[0].trim();
+        const distance = parseFloat(parts[1]);
+        const status = parts[2].trim();
+        const pktNum = parts[3] ? parseInt(parts[3].trim(), 10) : packetCount + 1;
+
+        if (!isNaN(distance)) {
+          processIncomingData(nodeId, distance, status, pktNum, rssi);
+          let w = Math.max(0, SENSOR_MAX_HEIGHT_CM - distance);
+          guardarEnSupabase(nodeId, distance, w, status);
+        }
+      }
+    }
+
+    async function readSerialLoop() {
+      let buffer = '';
+      try {
+        while (true) {
+          const { value, done } = await serialReader.read();
+          if (done) break;
+          if (value) {
+            buffer += value;
+            const lines = buffer.split('\n');
+            buffer = lines.pop();
+            for (const line of lines) parseSerialLine(line);
+          }
+        }
+      } catch (err) {
+      } finally {
+        await disconnectSerial();
+      }
+    }
+
+    async function disconnectSerial() {
+      if (serialReader) { await serialReader.cancel(); serialReader = null; }
+      if (readableStreamClosed) { await readableStreamClosed.catch(() => {}); readableStreamClosed = null; }
+      if (serialPort) { await serialPort.close(); serialPort = null; }
+      isConnected = false;
+      btnConnectText.textContent = 'Conectar USB';
+      btnConnect.className = 'flex items-center gap-1.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs shadow-md shadow-cyan-600/20 transition';
+      document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-rose-500 animate-pulse';
+      document.getElementById('status-label').textContent = 'En espera';
+      resetDashboardToNull();
+    }
+
+    // Controles
+    document.getElementById('btn-sound').addEventListener('click', () => {
+      isSoundEnabled = !isSoundEnabled;
+      const icon = document.getElementById('sound-icon');
+      if (isSoundEnabled) {
+        icon.setAttribute('data-lucide', 'volume-2');
+        playAlarmTone(600, 'sine', 0.1);
+      } else {
+        icon.setAttribute('data-lucide', 'volume-x');
+      }
+      lucide.createIcons();
+    });
+
+    document.getElementById('btn-win-30').addEventListener('click', (e) => {
+      windowSize = 30;
+      e.target.className = 'px-2 py-0.5 rounded-md bg-cyan-600 text-white font-medium';
+      document.getElementById('btn-win-60').className = 'px-2 py-0.5 rounded-md text-slate-400 hover:text-white';
+    });
+
+    document.getElementById('btn-win-60').addEventListener('click', (e) => {
+      windowSize = 60;
+      e.target.className = 'px-2 py-0.5 rounded-md bg-cyan-600 text-white font-medium';
+      document.getElementById('btn-win-30').className = 'px-2 py-0.5 rounded-md text-slate-400 hover:text-white';
+    });
+
+    document.getElementById('btn-clear-chart').addEventListener('click', () => {
+      riverChart.data.labels = [];
+      riverChart.data.datasets[0].data = [];
+      riverChart.data.datasets[1].data = [];
+      riverChart.update();
+    });
+
+    document.getElementById('btn-clear-terminal').addEventListener('click', () => {
+      document.getElementById('terminal-logs').innerHTML = '';
+    });
+
+    document.getElementById('btn-export').addEventListener('click', () => {
+      if (historicalData.length === 0) {
+        alert('Aún no hay datos registrados para exportar.');
+        return;
+      }
+      let csv = 'Hora,Estacion,Distancia_cm,NivelRio_cm,Estado,Paquete,RSSI_dBm\n';
+      historicalData.forEach(row => {
+        csv += `${row.time},${row.nodeId},${row.distance.toFixed(1)},${row.waterLevel.toFixed(1)},${row.status},${row.packet},${row.rssi || ''}\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Monitoreo_Rio_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Iniciar con valores configurados, nulos y conectar Supabase
+    actualizarConfiguracionVisual();
+    resetDashboardToNull();
+    initSupabase();
+  </script>
+</body>
+</html>
