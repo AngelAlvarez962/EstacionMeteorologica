@@ -1,0 +1,7 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/dashboard", "destination": "/dashboard_rio.html" },
+    { "source": "/landing", "destination": "/landing.html" }
+  ]
+}
