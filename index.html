@@ -6,10 +6,10 @@
   <title>Alerta Río & Mar — Red Hidrológica LoRa 32 | DesafIA 2026</title>
   
   <!-- SEO & Metadatos Oficiales -->
-  <meta name="description" content="Red autónoma de telemetría hidrológica y alerta temprana ante inundaciones con radioenlace LoRa 915 MHz y Supabase Cloud para el sureste mexicano. Proyecto oficial DesafIA 2026.">
-  <meta name="keywords" content="DesafIA 2026, Hackeando las Inundaciones, Estacion Meteorologica, LoRa 32, Monitoreo de Rios, Tabasco, Supabase Realtime, IoT">
+  <meta name="description" content="Sistema telemétrico hidrológico y marítimo para monitoreo de cauces, estuarios y alerta temprana ante inundaciones con radioenlace LoRa 915 MHz y Supabase Cloud en el sureste mexicano.">
+  <meta name="keywords" content="DesafIA 2026, Hackeando las Inundaciones, Telemetria Fluvial, Mareas, LoRa 32, Monitoreo de Rios, Tabasco, Grijalva, Usumacinta, IoT">
   <meta name="theme-color" content="#0284c7">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%230284c7'/><path d='M20,60 Q35,40 50,60 T80,60' stroke='white' stroke-width='8' fill='none'/><path d='M20,72 Q35,52 50,72 T80,72' stroke='white' stroke-width='8' fill='none'/></svg>">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%230284c7'/><path d='M18,58 Q34,42 50,58 T82,58' stroke='white' stroke-width='7' fill='none' stroke-linecap='round'/><path d='M18,72 Q34,56 50,72 T82,72' stroke='%2338bdf8' stroke-width='6' fill='none' stroke-linecap='round'/></svg>">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -44,7 +44,7 @@
               900: '#0c4a6e',
               950: '#082f49',
             },
-            lagoon: {
+            fluvial: {
               50: '#f0fdfa',
               100: '#ccfbf1',
               200: '#99f6e4',
@@ -56,35 +56,41 @@
               800: '#115e59',
               900: '#134e4a',
             },
+            estuary: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              200: '#a7f3d0',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+            },
             sand: {
               50: '#fffbeb',
               100: '#fef3c7',
               200: '#fde68a',
-              300: '#fcd34d',
-              400: '#fbbf24',
               500: '#f59e0b',
               600: '#d97706',
               700: '#b45309',
             }
           },
           animation: {
-            'wave-fluid': 'waveFluid 8s ease-in-out infinite alternate',
-            'float-soft': 'floatSoft 5s ease-in-out infinite alternate',
-            'water-pulse': 'waterPulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'wave-flow-1': 'waveFlow 10s linear infinite',
+            'wave-flow-2': 'waveFlow 6s linear infinite reverse',
+            'buoy-bob': 'buoyBob 3s ease-in-out infinite',
+            'pulse-beacon': 'pulseBeacon 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
           },
           keyframes: {
-            waveFluid: {
-              '0%': { transform: 'translateX(0) scaleY(1)' },
-              '50%': { transform: 'translateX(-15%) scaleY(1.08)' },
-              '100%': { transform: 'translateX(-30%) scaleY(0.96)' }
+            waveFlow: {
+              '0%': { transform: 'translateX(0)' },
+              '100%': { transform: 'translateX(-50%)' }
             },
-            floatSoft: {
-              '0%': { transform: 'translateY(0px)' },
-              '100%': { transform: 'translateY(-8px)' }
+            buoyBob: {
+              '0%, 100%': { transform: 'translateY(0) rotate(-2deg)' },
+              '50%': { transform: 'translateY(-6px) rotate(2deg)' }
             },
-            waterPulse: {
-              '0%, 100%': { opacity: '0.85', transform: 'scale(1)' },
-              '50%': { opacity: '1', transform: 'scale(1.02)' }
+            pulseBeacon: {
+              '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+              '50%': { opacity: '0.4', transform: 'scale(1.15)' }
             }
           }
         }
@@ -93,87 +99,116 @@
   </script>
 
   <style>
-    /* Cuadrícula sutil de cartas náuticas / batimetría */
-    .marine-grid {
+    /* Retícula sutil inspirada en cartas náuticas y batimétricas */
+    .nautical-grid {
       background-image: 
-        linear-gradient(to right, rgba(14, 165, 233, 0.05) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(14, 165, 233, 0.05) 1px, transparent 1px);
-      background-size: 36px 36px;
+        linear-gradient(to right, rgba(14, 165, 233, 0.06) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(14, 165, 233, 0.06) 1px, transparent 1px);
+      background-size: 32px 32px;
     }
     .glass-marine {
       background: rgba(255, 255, 255, 0.88);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(186, 230, 253, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(186, 230, 253, 0.9);
     }
     .glass-marine-card {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 249, 255, 0.8) 100%);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 249, 255, 0.85) 100%);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(186, 230, 253, 0.7);
+      border: 1px solid rgba(186, 230, 253, 0.8);
+      transition: all 0.35s ease;
     }
-    .glass-marine-hover:hover {
-      border-color: rgba(14, 165, 233, 0.5);
-      box-shadow: 0 16px 35px -8px rgba(14, 165, 233, 0.15);
+    .glass-marine-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(14, 165, 233, 0.6);
+      box-shadow: 0 16px 30px -8px rgba(14, 165, 233, 0.15);
     }
+    /* Ondulación del agua viva */
     .water-stream {
-      background: linear-gradient(180deg, rgba(56, 189, 248, 0.9) 0%, rgba(14, 165, 233, 0.8) 50%, rgba(3, 105, 161, 0.95) 100%);
-      box-shadow: inset 0 2px 8px rgba(255, 255, 255, 0.6);
+      background: linear-gradient(180deg, rgba(56, 189, 248, 0.85) 0%, rgba(14, 165, 233, 0.9) 45%, rgba(3, 105, 161, 0.98) 100%);
+      box-shadow: inset 0 2px 10px rgba(255, 255, 255, 0.7);
+    }
+    .river-caustics {
+      background: radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.35) 0%, transparent 60%);
     }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #f0f9ff; }
-    ::-webkit-scrollbar-thumb { background: #bae6fd; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: #7dd3fc; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #0284c7; }
   </style>
 </head>
 
-<body class="bg-gradient-to-b from-[#f8fafc] via-[#f0f9ff] to-[#f4fbf7] text-slate-800 min-h-screen font-sans antialiased selection:bg-ocean-200 selection:text-ocean-950 relative overflow-x-hidden">
+<body class="bg-gradient-to-b from-[#f8fafc] via-[#f0f9ff] to-[#ecfdf5] text-slate-800 min-h-screen font-sans antialiased selection:bg-ocean-200 selection:text-ocean-950 relative overflow-x-hidden">
 
-  <!-- ATMÓSFERA COSTERA DIURNA (Luz natural, reflejos de agua fresca y arena cálida) -->
+  <!-- ATMÓSFERA INMERSIVA DE RÍO & MAR (Luz de sol sobre el agua y brisa de estuario) -->
   <div class="fixed inset-0 pointer-events-none z-0">
-    <div class="absolute top-[-12%] left-1/2 -translate-x-1/2 w-[1300px] h-[650px] bg-gradient-to-b from-sky-200/35 via-cyan-100/25 to-transparent rounded-full blur-[130px]"></div>
-    <div class="absolute top-[35%] -left-40 w-[650px] h-[650px] bg-emerald-100/35 rounded-full blur-[150px]"></div>
-    <div class="absolute top-[65%] -right-40 w-[650px] h-[650px] bg-amber-100/40 rounded-full blur-[150px]"></div>
-    <div class="absolute inset-0 marine-grid opacity-75"></div>
+    <div class="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[1400px] h-[650px] bg-gradient-to-b from-sky-200/40 via-cyan-100/30 to-transparent rounded-full blur-[140px]"></div>
+    <div class="absolute top-[30%] -left-48 w-[700px] h-[700px] bg-emerald-100/45 rounded-full blur-[160px]"></div>
+    <div class="absolute top-[65%] -right-48 w-[700px] h-[700px] bg-cyan-100/40 rounded-full blur-[160px]"></div>
+    <div class="absolute inset-0 nautical-grid opacity-85"></div>
   </div>
 
   <!-- ========================================================================= -->
-  <!-- BARRA DE NAVEGACIÓN SUPERIOR (Luminosa, limpia, estilo costero premium)     -->
+  <!-- BARRA DE NAVEGACIÓN (Estilo Bitácora Náutica y Fluvial)                    -->
   <!-- ========================================================================= -->
-  <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-sky-100/90 shadow-sm transition-all duration-300">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+  <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-sky-200/80 shadow-sm transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
       
       <!-- Marca & Enlace Principal -->
       <a href="#hero" class="flex items-center gap-3 group">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 via-cyan-500 to-teal-400 p-[1.5px] shadow-md shadow-sky-500/20 group-hover:scale-105 transition-transform duration-300">
-          <div class="w-full h-full bg-white rounded-[9px] flex items-center justify-center">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-600 via-cyan-500 to-teal-400 p-[1.5px] shadow-md shadow-sky-500/25 group-hover:scale-105 transition-transform duration-300">
+          <div class="w-full h-full bg-white rounded-[14px] flex items-center justify-center">
             <i data-lucide="waves" class="w-5 h-5 text-sky-600"></i>
           </div>
         </div>
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
             <span class="font-black text-base sm:text-lg tracking-tight text-slate-900 group-hover:text-sky-700 transition-colors">Alerta Río & Mar</span>
-            <span class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-sky-100 text-sky-700 border border-sky-200">LoRa 32</span>
+            <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>LoRa 32</span>
+            </span>
           </div>
-          <span class="text-[10px] font-semibold text-slate-500 tracking-wider hidden sm:block">DesafIA 2026 · Sureste Mexicano</span>
+          <span class="text-[10px] font-semibold text-slate-500 tracking-wider hidden sm:flex items-center gap-1.5">
+            <span>Cuenca Grijalva · DesafIA 2026</span>
+          </span>
         </div>
       </a>
 
       <!-- Navegación Central (Desktop) -->
-      <div class="hidden lg:flex items-center gap-7 text-xs font-semibold tracking-wide text-slate-600">
-        <a href="#reto" class="hover:text-sky-600 transition-colors py-1">El Reto</a>
-        <a href="#ejes" class="hover:text-sky-600 transition-colors py-1">Los 6 Ejes</a>
-        <a href="#simulador" class="hover:text-sky-600 transition-colors py-1">Simulador</a>
+      <div class="hidden lg:flex items-center gap-6 text-xs font-semibold tracking-wide text-slate-600">
+        <a href="#reto" class="hover:text-sky-600 transition-colors py-1 flex items-center gap-1">
+          <i data-lucide="droplet" class="w-3.5 h-3.5 text-sky-500"></i>
+          <span>El Reto</span>
+        </a>
+        <a href="#ejes" class="hover:text-sky-600 transition-colors py-1 flex items-center gap-1">
+          <i data-lucide="compass" class="w-3.5 h-3.5 text-teal-600"></i>
+          <span>Los 6 Ejes</span>
+        </a>
+        <a href="#simulador" class="hover:text-sky-600 transition-colors py-1 flex items-center gap-1">
+          <i data-lucide="sliders" class="w-3.5 h-3.5 text-cyan-600"></i>
+          <span>Corte Hidráulico</span>
+        </a>
       </div>
 
-      <!-- Acciones (Acceso Directo al Dashboard) -->
-      <div class="flex items-center gap-3">
-        <a href="https://desafia.mx" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-sky-200 bg-sky-50/60 hover:bg-sky-100/70 text-sky-800 text-xs font-semibold transition-all active:scale-[0.98]">
+      <!-- Acciones de Navegación + Inmersión Sonora Fluvial -->
+      <div class="flex items-center gap-2.5">
+        
+        <!-- BOTÓN DE AMBIENTACIÓN FLUVIO-MARÍTIMA (Web Audio API Nativa) -->
+        <button id="btn-water-audio" onclick="toggleWaterAudio()" 
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-sky-200 bg-sky-50/80 hover:bg-sky-100 text-sky-800 text-xs font-bold transition-all active:scale-95 shadow-sm"
+                title="Activar rumor ambiental de agua de río viva (Sonido generado en tiempo real)">
+          <i data-lucide="volume-x" id="audio-icon" class="w-3.5 h-3.5 text-sky-600"></i>
+          <span id="audio-label" class="hidden sm:inline">Ambiente Fluvial</span>
+        </button>
+
+        <a href="https://desafia.mx" target="_blank" rel="noopener noreferrer" class="hidden md:inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-sky-200 bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-800 text-xs font-semibold transition-all active:scale-[0.98]">
           <span>desafia.mx</span>
           <i data-lucide="external-link" class="w-3 h-3 text-sky-600"></i>
         </a>
         
-        <a href="dashboard_rio.html" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-500 hover:to-cyan-500 text-white text-xs font-bold uppercase tracking-wider shadow-md shadow-sky-600/25 transition-all hover:-translate-y-0.5 active:scale-[0.98]">
+        <a href="dashboard_rio.html" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-sky-600 via-cyan-600 to-teal-600 hover:from-sky-500 hover:to-teal-500 text-white text-xs font-bold uppercase tracking-wider shadow-md shadow-sky-600/25 transition-all hover:-translate-y-0.5 active:scale-[0.98]">
           <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
           <span>Ver Dashboard</span>
           <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
@@ -184,133 +219,166 @@
   </nav>
 
   <!-- ========================================================================= -->
-  <!-- SECCIÓN 1: HERO ASIMÉTRICO (VIDA, LUZ, AGUA & TELEMETRÍA EN VIVO)          -->
+  <!-- SECCIÓN 1: HERO (SONDA HIDROMÉTRICA & TELEMETRÍA EN VIVO)                  -->
   <!-- ========================================================================= -->
   <header id="hero" class="relative z-10 min-h-[calc(100dvh-64px)] flex items-center py-12 md:py-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
       
       <div class="grid lg:grid-cols-12 gap-10 lg:gap-14 items-center">
         
-        <!-- Columna Izquierda: Mensaje Humano & Convocatoria -->
+        <!-- Columna Izquierda: Mensaje Comunitario & Náutico -->
         <div class="lg:col-span-7 space-y-6">
           
-          <!-- Insignia Oficial DesafIA 2026 -->
-          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-sky-200 bg-sky-50/90 text-sky-800 text-xs font-semibold shadow-sm">
+          <!-- Insignia Fluvial / DesafIA 2026 -->
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-sky-300 bg-gradient-to-r from-sky-50 to-cyan-50 text-sky-900 text-xs font-bold shadow-sm">
             <span class="w-2.5 h-2.5 rounded-full bg-sky-500 animate-ping"></span>
-            <span class="font-bold">DesafIA 2026 · Hackeando las Inundaciones</span>
+            <span>DesafIA 2026 · Cuenca Baja del Río Grijalva & Costa del Golfo</span>
           </div>
 
-          <!-- Título Principal Cálido, Luminoso y Humano -->
-          <h1 class="font-black text-4xl sm:text-6xl lg:text-7xl tracking-[-0.03em] text-slate-900 leading-[1.05]">
-            Tecnología con vida para proteger a nuestras <span class="bg-gradient-to-r from-sky-600 via-cyan-600 to-teal-600 bg-clip-text text-transparent">comunidades</span>
+          <!-- Título Principal con Flujo de Agua -->
+          <h1 class="font-black text-4xl sm:text-6xl lg:text-7xl tracking-[-0.03em] text-slate-900 leading-[1.04]">
+            Vigilancia continua del cauce para proteger la <span class="bg-gradient-to-r from-sky-600 via-cyan-600 to-teal-600 bg-clip-text text-transparent">vida ribereña</span>
           </h1>
 
-          <!-- Subtexto Conciso -->
+          <!-- Subtexto Conciso y Territorial -->
           <p class="text-base sm:text-lg text-slate-600 leading-relaxed font-normal max-w-xl">
-            Red hidrológica comunitaria con radioenlace LoRa 915 MHz. Vigila ríos y costas en tiempo real, alertando a familias ribereñas aun si colapsa la red celular o eléctrica.
+            Red de boyas y sondas hidrométricas con radioenlace LoRa 915 MHz. Mide tirantes de agua, detecta frentes de crecida y alerta a pescadores y familias costeras aun cuando colapsan las redes celulares y eléctricas.
           </p>
 
-          <!-- Botones de Acción Primarios -->
+          <!-- Botones de Acción -->
           <div class="pt-2 flex flex-wrap items-center gap-3.5">
             <a href="dashboard_rio.html" class="flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-sky-600 via-cyan-600 to-teal-600 hover:from-sky-500 hover:to-teal-500 text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-sky-600/30 transition-all hover:-translate-y-0.5 active:scale-[0.98]">
-              <i data-lucide="activity" class="w-4 h-4"></i>
+              <i data-lucide="waves" class="w-4 h-4"></i>
               <span>Monitorear Ríos en Vivo</span>
               <i data-lucide="arrow-right" class="w-4 h-4"></i>
             </a>
 
-            <a href="#simulador" class="flex items-center gap-2 px-5 py-3.5 rounded-xl border border-sky-200 bg-white hover:bg-sky-50/70 text-slate-700 hover:text-sky-800 text-xs sm:text-sm font-bold shadow-sm transition-all hover:-translate-y-0.5 active:scale-[0.98]">
+            <a href="#simulador" class="flex items-center gap-2 px-5 py-3.5 rounded-xl border border-sky-200 bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-800 text-xs sm:text-sm font-bold shadow-sm transition-all hover:-translate-y-0.5 active:scale-[0.98]">
               <i data-lucide="sliders" class="w-4 h-4 text-cyan-600"></i>
-              <span>Simulador de Desborde</span>
+              <span>Corte Hidráulico Transversal</span>
             </a>
           </div>
 
-          <!-- Micro-especificaciones de Enlace -->
-          <div class="pt-4 flex items-center gap-6 text-xs font-mono text-slate-500 border-t border-sky-100">
+          <!-- Especificaciones Náuticas & de Radioenlace -->
+          <div class="pt-4 flex flex-wrap items-center gap-6 text-xs font-mono text-slate-600 border-t border-sky-200/80">
             <div class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span class="font-semibold text-slate-700">915 MHz Off-Grid</span>
+              <i data-lucide="radio" class="w-4 h-4 text-emerald-600"></i>
+              <span class="font-bold text-slate-800">915 MHz Fluvial Off-Grid</span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-sky-500"></span>
-              <span class="font-semibold text-slate-700">15 km Cobertura</span>
+              <i data-lucide="map-pin" class="w-4 h-4 text-sky-600"></i>
+              <span class="font-bold text-slate-800">15 km Alcance en Espejo de Agua</span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-              <span class="font-semibold text-slate-700">Supabase Cloud</span>
+              <i data-lucide="cloud-rain" class="w-4 h-4 text-teal-600"></i>
+              <span class="font-bold text-slate-800">Supabase Cloud</span>
             </div>
           </div>
 
         </div>
 
-        <!-- Columna Derecha: CABINA DE TELEMETRÍA EN VIVO (Cristal Marino Luminoso) -->
+        <!-- Columna Derecha: CABINA DE TELEMETRÍA HIDROLÓGICA (Cristal Marino con Boya Flotante) -->
         <div class="lg:col-span-5">
-          <div class="glass-marine glass-marine-hover rounded-3xl p-6 sm:p-7 shadow-2xl shadow-sky-900/10 relative overflow-hidden transition-all duration-500">
+          <div class="glass-marine rounded-3xl p-6 sm:p-7 shadow-2xl shadow-sky-900/10 relative overflow-hidden transition-all duration-500 border-2 border-sky-200">
             
             <!-- Resplandor solar suave -->
-            <div class="absolute -top-20 -right-20 w-44 h-44 bg-cyan-200/40 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -top-20 -right-20 w-48 h-48 bg-cyan-200/40 rounded-full blur-3xl pointer-events-none"></div>
 
-            <!-- Cabecera de la Cabina -->
-            <div class="flex items-center justify-between pb-5 border-b border-sky-100">
+            <!-- Cabecera de la Estación Hidrométrica -->
+            <div class="flex items-center justify-between pb-4 border-b border-sky-200">
               <div class="flex items-center gap-2.5">
-                <span class="relative flex h-3 w-3">
+                <span class="relative flex h-3.5 w-3.5">
                   <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                  <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500"></span>
                 </span>
                 <div>
-                  <h3 class="text-xs font-mono font-bold text-slate-900 uppercase tracking-wider">Nodo 01 · Malecón Río</h3>
+                  <h3 class="text-xs font-mono font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <span>Estación Malecón Río</span>
+                    <i data-lucide="anchor" class="w-3 h-3 text-sky-600"></i>
+                  </h3>
                   <p class="text-[10px] font-mono text-slate-500">ID: RIO_01 · HELTEC LORA 32</p>
                 </div>
               </div>
-              <span class="text-[11px] font-mono font-semibold px-2.5 py-1 rounded-full bg-sky-50 border border-sky-200 text-sky-700">
-                RSSI: -78 dBm
-              </span>
+              <div class="text-right">
+                <span class="text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-sky-100 text-sky-800 border border-sky-200 block">
+                  RSSI: -78 dBm
+                </span>
+                <span class="text-[9px] font-mono text-slate-500 mt-0.5 block">Banda ISM 915 MHz</span>
+              </div>
             </div>
 
-            <!-- Métrica Principal del Agua (Conectada a Supabase en Vivo) -->
-            <div class="py-6 flex items-center justify-between">
+            <!-- Métrica del Tirante de Agua con Conexión a Supabase en Vivo -->
+            <div class="py-6 flex items-center justify-between gap-4">
               <div>
-                <span class="text-[11px] font-mono font-semibold text-slate-500 uppercase tracking-wider block">Nivel del Río (Agua)</span>
+                <div class="flex items-center gap-1.5 text-[11px] font-mono font-bold text-sky-800 uppercase tracking-wider">
+                  <i data-lucide="droplet" class="w-3.5 h-3.5 text-sky-600"></i>
+                  <span>Tirante Hidráulico ($y$)</span>
+                </div>
                 <div class="flex items-baseline gap-2 mt-1">
-                  <span id="hero-stat-level" class="text-5xl font-black text-slate-900 font-mono tracking-tight">2.42</span>
+                  <span id="hero-stat-level" class="text-5xl sm:text-6xl font-black text-slate-900 font-mono tracking-tight">2.42</span>
                   <span class="text-base font-mono font-bold text-sky-600">m</span>
                 </div>
                 <div class="mt-2.5 flex items-center gap-2">
-                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                  <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200" id="hero-stat-badge">Caudal Seguro</span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300" id="hero-stat-badge">Caudal en Calma</span>
                 </div>
               </div>
 
-              <!-- Mini visualizador acústico con agua cristalina animada -->
-              <div class="w-24 h-32 rounded-2xl border-2 border-sky-200 bg-sky-50/50 p-2 flex flex-col justify-end relative overflow-hidden shadow-inner">
-                <div class="absolute inset-x-0 top-1.5 text-[9px] font-mono font-bold text-sky-700 text-center">JSN-SR04T</div>
+              <!-- Micro-tanque hidrométrico con boya flotante interactiva -->
+              <div class="w-28 h-36 rounded-2xl border-2 border-sky-300 bg-gradient-to-b from-sky-50 via-sky-100/60 to-cyan-50 p-2 flex flex-col justify-end relative overflow-hidden shadow-inner">
+                <!-- Regla graduada milimétrica -->
+                <div class="absolute inset-y-1 left-1.5 flex flex-col justify-between text-[8px] font-mono text-slate-400 font-bold pointer-events-none z-20">
+                  <span>6m</span>
+                  <span>4m</span>
+                  <span>2m</span>
+                  <span>0m</span>
+                </div>
+
+                <div class="absolute inset-x-0 top-1.5 text-[9px] font-mono font-bold text-sky-700 text-center z-20">SONDA ULTRASONIDO</div>
+
+                <!-- Columna de agua animada -->
                 <div id="hero-water-visual" class="w-full water-stream rounded-xl transition-all duration-700 relative overflow-hidden" style="height: 40.3%;">
-                  <!-- Brillo y burbujas de agua viva -->
-                  <div class="absolute top-0 inset-x-0 h-1.5 bg-white/70 animate-pulse"></div>
-                  <div class="absolute bottom-1 left-2 w-1.5 h-1.5 bg-white/40 rounded-full animate-bounce"></div>
-                  <div class="absolute bottom-3 right-3 w-1 h-1 bg-white/50 rounded-full"></div>
+                  <!-- Superficie con espuma y luz solar -->
+                  <div class="absolute top-0 inset-x-0 h-1.5 bg-white/80 animate-pulse"></div>
+                  <!-- Boya miniatura que flota en la superficie -->
+                  <div class="absolute -top-3 right-3 w-4 h-4 bg-amber-400 border border-amber-600 rounded-full shadow-sm animate-buoy-bob flex items-center justify-center">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                  </div>
+                  <!-- Burbujas que suben -->
+                  <div class="absolute bottom-2 left-3 w-1.5 h-1.5 bg-white/40 rounded-full animate-bounce"></div>
+                  <div class="absolute bottom-4 right-4 w-1 h-1 bg-white/50 rounded-full"></div>
                 </div>
               </div>
             </div>
 
-            <!-- Grilla de Parámetros Hidrológicos -->
-            <div class="grid grid-cols-2 gap-3 pt-4 border-t border-sky-100 text-xs font-mono">
-              <div class="p-3.5 rounded-2xl bg-sky-50/80 border border-sky-100">
-                <span class="text-[10px] text-slate-500 uppercase font-semibold block">Capacidad Cauce</span>
-                <span id="hero-stat-percent" class="text-base font-bold text-sky-700">40.3%</span>
-                <span class="text-[10px] text-slate-500 block">de 6.00 m cota máxima</span>
+            <!-- Grilla Hidrológica de Cuenca -->
+            <div class="grid grid-cols-2 gap-3 pt-4 border-t border-sky-200 text-xs font-mono">
+              <div class="p-3.5 rounded-2xl bg-gradient-to-br from-sky-50 to-cyan-50/60 border border-sky-200">
+                <div class="flex items-center gap-1 text-[10px] text-slate-600 uppercase font-bold">
+                  <i data-lucide="gauge" class="w-3 h-3 text-sky-600"></i>
+                  <span>Capacidad del Cauce</span>
+                </div>
+                <span id="hero-stat-percent" class="text-base font-bold text-sky-800 mt-1 block">40.3%</span>
+                <span class="text-[10px] text-slate-500 block">sección hidráulica</span>
               </div>
 
-              <div class="p-3.5 rounded-2xl bg-sky-50/80 border border-sky-100">
-                <span class="text-[10px] text-slate-500 uppercase font-semibold block">Margen Libre</span>
-                <span id="hero-stat-margin" class="text-base font-bold text-slate-900">3.58 m</span>
-                <span class="text-[10px] text-slate-500 block">al bordo crítico</span>
+              <div class="p-3.5 rounded-2xl bg-gradient-to-br from-sky-50 to-cyan-50/60 border border-sky-200">
+                <div class="flex items-center gap-1 text-[10px] text-slate-600 uppercase font-bold">
+                  <i data-lucide="shield-alert" class="w-3 h-3 text-amber-600"></i>
+                  <span>Margen al Bordo</span>
+                </div>
+                <span id="hero-stat-margin" class="text-base font-bold text-slate-900 mt-1 block">3.58 m</span>
+                <span class="text-[10px] text-slate-500 block">antes del desborde</span>
               </div>
             </div>
 
-            <!-- Botón de apertura de consola completa -->
-            <div class="mt-5 pt-3 border-t border-sky-100 flex items-center justify-between">
-              <span class="text-[11px] font-medium text-slate-500">Sincronización Supabase Cloud activa</span>
-              <a href="dashboard_rio.html" class="text-xs font-mono font-bold text-sky-600 hover:text-sky-700 flex items-center gap-1 group">
+            <!-- Conexión a la consola -->
+            <div class="mt-4 pt-3 border-t border-sky-200 flex items-center justify-between text-xs font-mono">
+              <span class="text-slate-600 font-medium flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span>Supabase Realtime Conectado</span>
+              </span>
+              <a href="dashboard_rio.html" class="font-bold text-sky-700 hover:text-sky-900 flex items-center gap-1 group">
                 <span>Abrir consola</span>
                 <i data-lucide="chevron-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
               </a>
@@ -324,67 +392,86 @@
     </div>
   </header>
 
+  <!-- DIVISOR FLUIDO: OLEAJES DE ESTUARIO (Transición suave entre secciones) -->
+  <div class="w-full overflow-hidden leading-none z-10 relative -mt-4 text-white">
+    <svg class="w-full h-12 sm:h-16" viewBox="0 0 1200 120" preserveAspectRatio="none">
+      <path d="M0,0 C150,80 350,-30 500,40 C650,110 900,10 1200,45 L1200,120 L0,120 Z" fill="rgba(255, 255, 255, 0.75)"></path>
+    </svg>
+  </div>
+
   <!-- ========================================================================= -->
-  <!-- SECCIÓN 2: EL RETO OFICIAL DESAFIA — MANIFIESTO Y PROPÓSITO                -->
+  <!-- SECCIÓN 2: EL RETO OFICIAL — EL TERRITORIO DE LAS GRANDES AGUAS           -->
   <!-- ========================================================================= -->
-  <section id="reto" class="py-20 border-y border-sky-100 bg-white/70 backdrop-blur-sm relative z-10">
+  <section id="reto" class="py-16 sm:py-20 bg-white/75 backdrop-blur-sm relative z-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       
       <div class="grid lg:grid-cols-12 gap-12 items-center">
         
-        <!-- Bloque Principal de Texto -->
+        <!-- Bloque Principal de Texto Fluvial -->
         <div class="lg:col-span-7 space-y-6">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-800 text-xs font-bold uppercase tracking-wider">
-            <i data-lucide="target" class="w-3.5 h-3.5"></i>
-            <span>Propósito Territorial</span>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold uppercase tracking-wider">
+            <i data-lucide="compass" class="w-3.5 h-3.5"></i>
+            <span>El Territorio de las Grandes Aguas</span>
           </div>
 
           <h2 class="font-black text-3xl sm:text-5xl text-slate-900 tracking-tight leading-tight">
-            Hackeando las Inundaciones en el Sureste
+            Hackeando las Inundaciones en el Delta
           </h2>
 
-          <div class="p-6 rounded-2xl border-l-4 border-sky-500 bg-gradient-to-r from-sky-50/80 to-cyan-50/50 border border-sky-100 text-slate-800 text-base sm:text-lg leading-relaxed shadow-sm">
+          <div class="p-6 rounded-2xl border-l-4 border-sky-500 bg-gradient-to-r from-sky-50/90 via-cyan-50/60 to-white border border-sky-200 text-slate-800 text-base sm:text-lg leading-relaxed shadow-sm">
             <p class="italic font-medium text-slate-700">
               "Las inundaciones son uno de los mayores desafíos del sureste mexicano. Buscamos equipos capaces de analizar el problema, generar ideas y proponer soluciones para prevenir, monitorear o responder mejor."
             </p>
-            <p class="text-xs font-mono font-bold text-sky-800 mt-3 uppercase tracking-wider">— Convocatoria Oficial desafia.mx</p>
+            <p class="text-xs font-mono font-bold text-sky-800 mt-3 uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="anchor" class="w-3 h-3 text-sky-600"></i>
+              <span>Convocatoria Oficial desafia.mx · Ríos Grijalva, Carrizal y Usumacinta</span>
+            </p>
           </div>
 
           <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
-            <strong class="text-slate-900 font-bold">DesafIA 2026</strong> impulsa a estudiantes, docentes y especialistas a desarrollar tecnología desplegable en los ríos Grijalva, Carrizal y Usumacinta. Nuestra estación responde con infraestructura abierta, accesible para escuelas y comités de protección civil.
+            El sureste concentra más del <strong class="text-slate-900 font-bold">30% del escurrimiento superficial de agua dulce de México</strong>. Cuando convergen las lluvias torrenciales de la sierra y la pleamar del Golfo de México, la planicie se transforma. Nuestra estación hidrométrica proporciona ojos digitales donde las defensas tradicionales se quedan ciegas.
           </p>
         </div>
 
-        <!-- Tarjetas de Impacto Asimétricas y Vivas -->
+        <!-- 3 Tarjetas de Instrumentación Náutica y Fluvial -->
         <div class="lg:col-span-5 grid grid-cols-1 gap-4">
           
-          <div class="p-5 rounded-2xl bg-white border border-sky-100 hover:border-sky-300 shadow-sm hover:shadow-md transition-all flex items-start gap-4">
-            <div class="w-11 h-11 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center shrink-0 shadow-inner">
-              <i data-lucide="radio-tower" class="w-5 h-5"></i>
+          <div class="p-5 rounded-2xl bg-gradient-to-r from-sky-50/80 to-white border border-sky-200 hover:border-sky-400 shadow-sm transition-all flex items-start gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center shrink-0 shadow-inner">
+              <i data-lucide="radio-tower" class="w-6 h-6"></i>
             </div>
             <div>
-              <h4 class="font-bold text-slate-900 text-sm">Cero Dependencia Celular</h4>
-              <p class="text-xs text-slate-600 mt-1 leading-relaxed">Cuando el temporal tumba las antenas celulares, el radioenlace LoRa 915 MHz continúa transmitiendo datos a 15 km de distancia.</p>
+              <div class="flex items-center gap-2">
+                <h4 class="font-bold text-slate-900 text-sm">Baliza LoRa 915 MHz Off-Grid</h4>
+                <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-sky-200 text-sky-800 font-bold">15 km</span>
+              </div>
+              <p class="text-xs text-slate-600 mt-1 leading-relaxed">Transmisión de paquetes sobre el espejo de agua hasta 15 km de distancia, inmune a cortes de fibra óptica o caída de torres celulares costeras.</p>
             </div>
           </div>
 
-          <div class="p-5 rounded-2xl bg-white border border-amber-100 hover:border-amber-300 shadow-sm hover:shadow-md transition-all flex items-start gap-4">
-            <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 shadow-inner">
-              <i data-lucide="users" class="w-5 h-5"></i>
+          <div class="p-5 rounded-2xl bg-gradient-to-r from-amber-50/80 to-white border border-amber-200 hover:border-amber-400 shadow-sm transition-all flex items-start gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 shadow-inner">
+              <i data-lucide="life-buoy" class="w-6 h-6"></i>
             </div>
             <div>
-              <h4 class="font-bold text-slate-900 text-sm">Modo Ciudadano Abierto</h4>
-              <p class="text-xs text-slate-600 mt-1 leading-relaxed">Cualquier habitante puede consultar el semáforo de riesgo desde su teléfono sin requerir contraseñas ni registros.</p>
+              <div class="flex items-center gap-2">
+                <h4 class="font-bold text-slate-900 text-sm">Modo Pescador & Ribereño</h4>
+                <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-200 text-amber-800 font-bold">Libre</span>
+              </div>
+              <p class="text-xs text-slate-600 mt-1 leading-relaxed">Consulta instantánea para cooperativas pesqueras, lancheros de paso y familias en zonas bajas sin necesidad de registro ni contraseñas.</p>
             </div>
           </div>
 
-          <div class="p-5 rounded-2xl bg-white border border-emerald-100 hover:border-emerald-300 shadow-sm hover:shadow-md transition-all flex items-start gap-4">
-            <div class="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 shadow-inner">
-              <i data-lucide="database" class="w-5 h-5"></i>
+          <div class="p-5 rounded-2xl bg-gradient-to-r from-emerald-50/80 to-white border border-emerald-200 hover:border-emerald-400 shadow-sm transition-all flex items-start gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 shadow-inner">
+              <i data-lucide="database" class="w-6 h-6"></i>
             </div>
             <div>
-              <h4 class="font-bold text-slate-900 text-sm">Datos Abiertos en Supabase</h4>
-              <p class="text-xs text-slate-600 mt-1 leading-relaxed">Persistencia histórica de mediciones para modelado hidrológico y cálculo de tiempos de desagüe tras las crecidas.</p>
+              <div class="flex items-center gap-2">
+                <h4 class="font-bold text-slate-900 text-sm">Hidroinformática Abierta</h4>
+                <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-200 text-emerald-800 font-bold">PostgreSQL</span>
+              </div>
+              <p class="text-xs text-slate-600 mt-1 leading-relaxed">Registro histórico de hidrogramas y escorrentías en Supabase Cloud para modelación hidrodinámica y estimación del vaciado de lagunas.</p>
             </div>
           </div>
 
@@ -396,168 +483,186 @@
   </section>
 
   <!-- ========================================================================= -->
-  <!-- SECCIÓN 3: LOS 6 EJES OFICIALES — BENTO GRID CON VIDA Y COLORES NATURALES  -->
+  <!-- SECCIÓN 3: LOS 6 EJES DEL RETO — ESTACIONES HIDROLÓGICAS TEMÁTICAS         -->
   <!-- ========================================================================= -->
   <section id="ejes" class="py-24 relative z-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       
       <div class="max-w-3xl mb-14">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-100 text-sky-800 text-xs font-bold uppercase tracking-wider mb-3">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-100 text-cyan-800 text-xs font-bold uppercase tracking-wider mb-3">
           <i data-lucide="layers" class="w-3.5 h-3.5"></i>
-          <span>Impacto Multidimensional</span>
+          <span>Dimensiones de la Cuenca Fluvial y Marina</span>
         </div>
         <h2 class="font-black text-3xl sm:text-5xl text-slate-900 tracking-tight">
-          Los 6 Ejes del Reto
+          Los 6 Ejes del Reto Fluvial & Costero
         </h2>
         <p class="mt-3 text-base text-slate-600 leading-relaxed">
-          Nuestra estación meteorológica e hidrológica responde de manera directa, práctica y medible a cada dimensión de la convocatoria.
+          Cada eje de DesafIA 2026 está implementado con instrumental hidrométrico concreto para responder a los ciclos vivos del agua.
         </p>
       </div>
 
-      <!-- BENTO GRID ASIMÉTRICO LUMINOSO -->
+      <!-- BENTO GRID ASIMÉTRICO TOTALMENTE TEMATIZADO -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
 
-        <!-- CELDA 1: HERO TILE (EJE 02 - MONITOREO EN TIEMPO REAL / NÚCLEO) - Span 2 en Desktop -->
-        <div class="lg:col-span-2 rounded-3xl border-2 border-sky-400 bg-gradient-to-br from-sky-50/90 via-white to-cyan-50/80 p-8 shadow-xl shadow-sky-500/10 relative overflow-hidden flex flex-col justify-between">
-          <div class="absolute -right-16 -top-16 w-56 h-56 bg-cyan-200/30 rounded-full blur-3xl pointer-events-none"></div>
+        <!-- CELDA 1: HERO TILE (EJE 02 - SONDA ACÚSTICA & BATIMETRÍA EN TIEMPO REAL) - Span 2 en Desktop -->
+        <div class="lg:col-span-2 rounded-3xl border-2 border-sky-400 bg-gradient-to-br from-sky-50 via-white to-cyan-50/90 p-8 shadow-xl shadow-sky-500/10 relative overflow-hidden flex flex-col justify-between">
+          <div class="absolute -right-16 -top-16 w-56 h-56 bg-cyan-200/40 rounded-full blur-3xl pointer-events-none"></div>
 
           <div>
             <div class="flex items-center justify-between mb-4">
-              <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-sky-100 text-sky-800 border border-sky-200">02 / MONITOREO · NÚCLEO TECNOLÓGICO</span>
+              <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-sky-100 text-sky-800 border border-sky-200 flex items-center gap-1.5">
+                <i data-lucide="radio" class="w-3.5 h-3.5 text-sky-600"></i>
+                <span>02 / MONITOREO · SONDA ACÚSTICA & BATIMETRÍA</span>
+              </span>
               <div class="w-10 h-10 rounded-2xl bg-sky-600 text-white flex items-center justify-center shadow-md shadow-sky-600/30">
                 <i data-lucide="activity" class="w-5 h-5"></i>
               </div>
             </div>
 
-            <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Sensores y Datos Abiertos en Tiempo Real</h3>
-            <p class="text-sm font-semibold text-sky-700 mt-2">"Vigilancia continua de niveles en cauces vulnerables."</p>
+            <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Sonda Acústica y Telemetría del Espejo de Agua</h3>
+            <p class="text-sm font-semibold text-sky-700 mt-2">"Vigilancia continua del tirante hidráulico en cauces de alta vulnerabilidad."</p>
 
             <p class="text-xs sm:text-sm text-slate-600 mt-4 leading-relaxed max-w-2xl">
-              Sensor ultrasónico impermeable con compensación acústica de punto ciego (20 cm a 6.0 m) y tubo impreso 3D. Transmisión inalámbrica LoRa 915 MHz a 15 km de distancia y persistencia automática en base de datos PostgreSQL en Supabase.
+              Sensor ultrasónico estanco JSN-SR04T calibrado con compensación acústica de punto ciego (20 cm a 6.0 m) y tubo de conducción anti-turbulencia. Transmite paquetes de telemetría a través del aire y agua mediante LoRa 915 MHz hacia Supabase Cloud con latencia &lt; 2 segundos.
             </p>
           </div>
 
           <div class="mt-8 pt-5 border-t border-sky-200 flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-sky-800">
             <span class="flex items-center gap-2 font-bold">
               <span class="w-2.5 h-2.5 rounded-full bg-sky-500 animate-ping"></span>
-              <span>Telemetría continua activa</span>
+              <span>Telemetría de cauce activa cada 1.5s</span>
             </span>
-            <a href="dashboard_rio.html" class="text-sky-700 hover:text-sky-900 flex items-center gap-1 font-bold">Abrir consola &rarr;</a>
+            <a href="dashboard_rio.html" class="text-sky-700 hover:text-sky-900 flex items-center gap-1 font-bold">Abrir consola hidrológica &rarr;</a>
           </div>
         </div>
 
-        <!-- CELDA 2: EJE 01 - PREVENCIÓN (Verde Laguna) -->
-        <div class="rounded-3xl border border-emerald-200 hover:border-emerald-400 bg-gradient-to-b from-emerald-50/70 to-white p-7 transition-all duration-300 shadow-sm hover:shadow-md flex flex-col justify-between">
+        <!-- CELDA 2: EJE 01 - PREVENCIÓN (Dragado & Sedimentación) -->
+        <div class="glass-marine-card rounded-3xl p-7 border-emerald-200 hover:border-emerald-400 bg-gradient-to-b from-emerald-50/70 to-white flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-4">
-              <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">01 / PREVENCIÓN</span>
+              <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                <i data-lucide="shield" class="w-3 h-3 text-emerald-600"></i>
+                <span>01 / PREVENCIÓN</span>
+              </span>
               <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
                 <i data-lucide="shield" class="w-5 h-5"></i>
               </div>
             </div>
 
-            <h3 class="text-xl font-bold text-slate-900">Mitigación del Impacto</h3>
-            <p class="text-xs text-emerald-700 font-semibold mt-1">Infraestructura & azolvamiento</p>
+            <h3 class="text-xl font-bold text-slate-900">Dragado, Azolvamiento & Taludes</h3>
+            <p class="text-xs text-emerald-700 font-semibold mt-1">Control morfológico del río</p>
             <p class="text-xs text-slate-600 mt-3 leading-relaxed">
-              Monitoreo anticipado del fondo del cauce antes del temporal para detectar azolvamiento y planificar bordos de contención y zonas de amortiguamiento.
+              Monitoreo anticipado del fondo aluvial en época de estiaje para identificar acumulación de sedimentos y planificar obras de dragado antes de que inicien los ciclones tropicales.
             </p>
           </div>
 
           <div class="mt-6 pt-4 border-t border-emerald-100 text-[11px] font-mono text-emerald-700 font-semibold flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>Mapeo preventivo de cuencas</span>
+            <span>Mapeo preventivo de cuenca baja</span>
           </div>
         </div>
 
-        <!-- CELDA 3: EJE 03 - GESTIÓN DEL RIESGO (Ámbar Solar / Arena) -->
-        <div class="rounded-3xl border border-amber-200 hover:border-amber-400 bg-gradient-to-b from-amber-50/70 to-white p-7 transition-all duration-300 shadow-sm hover:shadow-md flex flex-col justify-between">
+        <!-- CELDA 3: EJE 03 - GESTIÓN DEL RIESGO (Gasto Hidráulico & Cotas de Alerta) -->
+        <div class="glass-marine-card rounded-3xl p-7 border-amber-200 hover:border-amber-400 bg-gradient-to-b from-amber-50/70 to-white flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-4">
-              <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">03 / RIESGO</span>
+              <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200 flex items-center gap-1">
+                <i data-lucide="triangle-alert" class="w-3 h-3 text-amber-600"></i>
+                <span>03 / RIESGO FLUVIAL</span>
+              </span>
               <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center">
-                <i data-lucide="triangle-alert" class="w-5 h-5"></i>
+                <i data-lucide="gauge" class="w-5 h-5"></i>
               </div>
             </div>
 
-            <h3 class="text-xl font-bold text-slate-900">Zonas Críticas</h3>
-            <p class="text-xs text-amber-700 font-semibold mt-1">Protocolos estandarizados</p>
+            <h3 class="text-xl font-bold text-slate-900">Gasto Hidráulico & Cotas Críticas</h3>
+            <p class="text-xs text-amber-700 font-semibold mt-1">Semáforo de seguridad fluvial</p>
             <p class="text-xs text-slate-600 mt-3 leading-relaxed">
-              Algoritmo de cálculo de corte transversal y umbrales calibrados por estación. Genera alertas automáticas: Normal (&lt;3.5m), Precaución (3.5-5.2m) y Desborde (&gt;5.2m).
+              Algoritmo de cálculo de corte transversal y umbrales calibrados por estación. Genera tres estados automáticos: Caudal Seguro (&lt;3.5m), Caudal Elevado (3.5-5.2m) y Desborde Ribereño (&gt;5.2m).
             </p>
           </div>
 
           <div class="mt-6 pt-4 border-t border-amber-100 text-[11px] font-mono text-amber-700 font-semibold flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-            <span>Semáforo de seguridad activo</span>
+            <span>Semáforo de tirante hidrométrico</span>
           </div>
         </div>
 
-        <!-- CELDA 4: EJE 04 - ALERTAMIENTO TEMPRANO (Coral Vivo) -->
-        <div class="rounded-3xl border border-rose-200 hover:border-rose-400 bg-gradient-to-b from-rose-50/70 to-white p-7 transition-all duration-300 shadow-sm hover:shadow-md flex flex-col justify-between">
+        <!-- CELDA 4: EJE 04 - ALERTAMIENTO TEMPRANO (Balizas y Sirenas de Marea) -->
+        <div class="glass-marine-card rounded-3xl p-7 border-rose-200 hover:border-rose-400 bg-gradient-to-b from-rose-50/70 to-white flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-4">
-              <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200">04 / ALERTA</span>
+              <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200 flex items-center gap-1">
+                <i data-lucide="bell-ring" class="w-3 h-3 text-rose-600"></i>
+                <span>04 / ALERTA COSTERA</span>
+              </span>
               <div class="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center">
-                <i data-lucide="bell-ring" class="w-5 h-5"></i>
+                <i data-lucide="life-buoy" class="w-5 h-5"></i>
               </div>
             </div>
 
-            <h3 class="text-xl font-bold text-slate-900">Avisos Inmediatos</h3>
-            <p class="text-xs text-rose-700 font-semibold mt-1">Comunicación comunitaria directa</p>
+            <h3 class="text-xl font-bold text-slate-900">Balizas & Sirenas a Comunidades</h3>
+            <p class="text-xs text-rose-700 font-semibold mt-1">Avisos a puertos y malecones</p>
             <p class="text-xs text-slate-600 mt-3 leading-relaxed">
-              Notificaciones visuales y sonoras en teléfonos celulares sin necesidad de instalar apps gracias a la arquitectura Web PWA con refresco continuo.
+              Alertas visuales con pulsos de alta visibilidad y avisos sonoros para proteger embarcaciones menores, pescadores y asentamientos frente al avance nocturno del río o la marejada.
             </p>
           </div>
 
           <div class="mt-6 pt-4 border-t border-rose-100 text-[11px] font-mono text-rose-700 font-semibold flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-            <span>Alerta sonora y visual</span>
+            <span>Alerta PWA inmediata en celular</span>
           </div>
         </div>
 
-        <!-- CELDA 5: EJE 05 - EDUCACIÓN COMUNITARIA (Turquesa Caribe) -->
-        <div class="rounded-3xl border border-cyan-200 hover:border-cyan-400 bg-gradient-to-b from-cyan-50/70 to-white p-7 transition-all duration-300 shadow-sm hover:shadow-md flex flex-col justify-between">
+        <!-- CELDA 5: EJE 05 - EDUCACIÓN COMUNITARIA (Bitácora del Agua y Saberes) -->
+        <div class="glass-marine-card rounded-3xl p-7 border-cyan-200 hover:border-cyan-400 bg-gradient-to-b from-cyan-50/70 to-white flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-4">
-              <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-cyan-100 text-cyan-800 border border-cyan-200">05 / EDUCACIÓN</span>
+              <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-cyan-100 text-cyan-800 border border-cyan-200 flex items-center gap-1">
+                <i data-lucide="graduation-cap" class="w-3 h-3 text-cyan-600"></i>
+                <span>05 / CULTURA FLUVIAL</span>
+              </span>
               <div class="w-10 h-10 rounded-2xl bg-cyan-100 text-cyan-700 flex items-center justify-center">
-                <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+                <i data-lucide="compass" class="w-5 h-5"></i>
               </div>
             </div>
 
-            <h3 class="text-xl font-bold text-slate-900">Cultura Hidrológica</h3>
-            <p class="text-xs text-cyan-700 font-semibold mt-1">Escuelas y comités de barrio</p>
+            <h3 class="text-xl font-bold text-slate-900">Bitácora del Río & Conciencia</h3>
+            <p class="text-xs text-cyan-700 font-semibold mt-1">Escuelas y comités ribereños</p>
             <p class="text-xs text-slate-600 mt-3 leading-relaxed">
-              "Modo Ciudadano" público sin contraseñas con explicaciones en lenguaje natural para que escuelas y familias entiendan el comportamiento de su río.
+              Modo Ciudadano abierto para que estudiantes, docentes de bachillerato y familias ribereñas comprendan cómo influyen las presas de la sierra y la luna en las mareas vivas.
             </p>
           </div>
 
           <div class="mt-6 pt-4 border-t border-cyan-100 text-[11px] font-mono text-cyan-700 font-semibold flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-cyan-500"></span>
-            <span>Acceso libre sin registro</span>
+            <span>Cultura del agua sin barreras</span>
           </div>
         </div>
 
-        <!-- CELDA 6: EJE 06 - RECUPERACIÓN POST-DESASTRE (Azul Océano Profundo) -->
-        <div class="rounded-3xl border border-sky-200 hover:border-sky-400 bg-gradient-to-b from-sky-50/70 to-white p-7 transition-all duration-300 shadow-sm hover:shadow-md flex flex-col justify-between">
+        <!-- CELDA 6: EJE 06 - RECUPERACIÓN POST-DESASTRE (Retorno de Mareas y Resiliencia) -->
+        <div class="glass-marine-card rounded-3xl p-7 border-sky-200 hover:border-sky-400 bg-gradient-to-b from-sky-50/70 to-white flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-4">
-              <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200">06 / RECUPERACIÓN</span>
+              <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200 flex items-center gap-1">
+                <i data-lucide="sprout" class="w-3 h-3 text-sky-600"></i>
+                <span>06 / RESILIENCIA DEL DELTA</span>
+              </span>
               <div class="w-10 h-10 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center">
-                <i data-lucide="sprout" class="w-5 h-5"></i>
+                <i data-lucide="anchor" class="w-5 h-5"></i>
               </div>
             </div>
 
-            <h3 class="text-xl font-bold text-slate-900">Historial de Crecidas</h3>
-            <p class="text-xs text-sky-700 font-semibold mt-1">Evidencia para reconstrucción</p>
+            <h3 class="text-xl font-bold text-slate-900">Retorno de Mareas & Vaciado</h3>
+            <p class="text-xs text-sky-700 font-semibold mt-1">Datos históricos de desagüe</p>
             <p class="text-xs text-slate-600 mt-3 leading-relaxed">
-              Historial analítico exportable en CSV para fundamentar solicitudes de apoyo agrícola, reactivación comercial y diseño de obras de desagüe permanente.
+              Trazabilidad en CSV del tiempo que tarda el agua en regresar a su cauce natural tras el temporal. Fundamental para reactivar campos de cultivo y planificar canales de alivio permanente.
             </p>
           </div>
 
           <div class="mt-6 pt-4 border-t border-sky-100 text-[11px] font-mono text-sky-700 font-semibold flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-sky-500"></span>
-            <span>Exportación y trazabilidad CSV</span>
+            <span>Exportación y trazabilidad hidrológica</span>
           </div>
         </div>
 
@@ -567,127 +672,157 @@
   </section>
 
   <!-- ========================================================================= -->
-  <!-- SECCIÓN 4: SIMULADOR HIDROLÓGICO TÁCTIL (AGUA FRESCA & COTAS FÍSICAS)      -->
+  <!-- SECCIÓN 4: SIMULADOR DE CORTE HIDRÁULICO TRANSVERSAL DE RÍO               -->
   <!-- ========================================================================= -->
-  <section id="simulador" class="py-24 border-y border-sky-100 bg-gradient-to-b from-sky-50/50 via-white to-sky-50/30 relative z-10">
+  <section id="simulador" class="py-24 border-y border-sky-200 bg-gradient-to-b from-sky-50/60 via-white to-emerald-50/40 relative z-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       
       <div class="text-center max-w-3xl mx-auto mb-14">
-        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-100 border border-sky-200 text-sky-800 text-xs font-bold uppercase tracking-wider mb-3">
-          <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
-          <span>Simulador en Tiempo Real</span>
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-100 border border-sky-200 text-sky-900 text-xs font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="sliders" class="w-3.5 h-3.5 text-sky-600"></i>
+          <span>Simulador Dinámico de Cauce</span>
         </div>
         <h2 class="font-black text-3xl sm:text-5xl text-slate-900 tracking-tight">
-          Simulador Dinámico de Caudal & Desborde
+          Corte Hidráulico Transversal del Río
         </h2>
         <p class="mt-3 text-base text-slate-600">
-          Ajusta la altura del agua para ver cómo responde el semáforo y las alertas ciudadanas ante cada escenario.
+          Modifica el tirante de agua para observar la elevación sobre el lecho fluvial, la boya de superficie y el comportamiento de las alertas ribereñas.
         </p>
       </div>
 
-      <!-- Interfaz del Simulador -->
-      <div class="max-w-4xl mx-auto rounded-3xl border border-sky-200 bg-white/95 p-6 sm:p-10 shadow-xl shadow-sky-900/5">
+      <!-- Interfaz del Simulador Fluvial -->
+      <div class="max-w-4xl mx-auto rounded-3xl border-2 border-sky-200 bg-white/95 p-6 sm:p-10 shadow-xl shadow-sky-900/5">
         
         <div class="grid md:grid-cols-12 gap-8 items-center">
           
-          <!-- Columna Gráfica Física del Agua -->
+          <!-- Columna Gráfica Física: SECCIÓN DEL RÍO CON LECHO, TALUDES Y BOYA -->
           <div class="md:col-span-5 flex flex-col items-center">
-            <div class="w-full max-w-[240px] h-[350px] rounded-2xl border-2 border-sky-300 bg-gradient-to-b from-sky-50 to-cyan-50/80 p-2 relative flex flex-col justify-end overflow-hidden shadow-inner">
+            
+            <div class="w-full max-w-[260px] h-[370px] rounded-3xl border-2 border-sky-300 bg-gradient-to-b from-sky-100/60 via-sky-50 to-amber-50/80 p-2.5 relative flex flex-col justify-end overflow-hidden shadow-inner">
               
-              <!-- Cotas y Escala Física -->
-              <div class="absolute inset-y-2 left-2 flex flex-col justify-between text-[10px] font-mono text-slate-500 pointer-events-none z-20 font-semibold">
-                <span>6.0m (Tope)</span>
-                <span class="text-rose-600 font-bold">5.2m (Desborde)</span>
-                <span class="text-amber-600 font-bold">3.5m (Alerta)</span>
-                <span>2.0m</span>
-                <span>0.0m (Fondo)</span>
+              <!-- Bordo Ribereño Izquierdo y Derecho (Talud) -->
+              <div class="absolute top-[13.3%] inset-x-0 border-b-2 border-dashed border-rose-500 z-20 flex justify-between px-3">
+                <span class="text-[9px] font-mono font-bold text-rose-700 bg-rose-100/90 px-1.5 py-0.5 rounded border border-rose-300">Bordo Izq.</span>
+                <span class="text-[9px] font-mono font-bold text-rose-700 bg-rose-100/90 px-1.5 py-0.5 rounded border border-rose-300">Cota 5.2m Desborde</span>
               </div>
 
-              <!-- Sensor Ultrasónico -->
-              <div class="absolute top-2 right-3 flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/90 border border-sky-200 text-[10px] font-mono font-bold text-sky-700 shadow-sm z-20">
+              <!-- Escala Hidrométrica Oficial (Regla graduada en el agua) -->
+              <div class="absolute inset-y-3 left-3 flex flex-col justify-between text-[9px] font-mono text-slate-600 pointer-events-none z-20 font-bold bg-white/70 px-1 rounded shadow-sm">
+                <span>6.0m Tope</span>
+                <span class="text-rose-600">5.2m Crítico</span>
+                <span class="text-amber-600">3.5m Alerta</span>
+                <span>2.0m Medio</span>
+                <span class="text-emerald-700">0.0m Lecho</span>
+              </div>
+
+              <!-- Sensor Acústico LoRa 32 montado en puente / estructura superior -->
+              <div class="absolute top-2 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/95 border border-sky-300 text-[10px] font-mono font-bold text-sky-800 shadow-sm z-20">
                 <i data-lucide="radio" class="w-3 h-3 text-sky-600"></i>
                 <span>JSN-SR04T</span>
               </div>
 
-              <!-- Línea Crítica de Desborde -->
-              <div class="absolute top-[13.3%] inset-x-0 border-b-2 border-dashed border-rose-500 z-20 flex justify-end px-2">
-                <span class="text-[9px] font-mono font-bold text-rose-700 bg-rose-100 px-1.5 py-0.5 rounded border border-rose-200">Cota Desborde</span>
+              <!-- Columna de Agua con Física Fluida y Boya Flotante -->
+              <div id="sim-water-column" class="w-full water-stream rounded-2xl relative transition-all duration-500 overflow-hidden" style="height: 40.3%;">
+                
+                <!-- Ondas de superficie del río -->
+                <div class="absolute top-0 inset-x-0 h-2.5 bg-white/70 animate-pulse"></div>
+                
+                <!-- BOYA AMARILLA EN LA SUPERFICIE DEL AGUA -->
+                <div class="absolute -top-3.5 right-6 w-7 h-7 bg-amber-400 border-2 border-amber-600 rounded-full shadow-md animate-buoy-bob flex items-center justify-center">
+                  <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+                </div>
+
+                <!-- Reflejos y luz submarina -->
+                <div class="absolute inset-0 river-caustics opacity-60"></div>
+                
+                <!-- Burbujas ascendentes -->
+                <div class="absolute bottom-2 left-5 w-2 h-2 rounded-full bg-white/40 animate-ping"></div>
+                <div class="absolute bottom-6 right-8 w-1.5 h-1.5 rounded-full bg-white/50"></div>
               </div>
 
-              <!-- Columna de Agua con Agua Viva y Ondulación -->
-              <div id="sim-water-column" class="w-full water-stream rounded-xl relative transition-all duration-500 overflow-hidden" style="height: 40.3%;">
-                <div class="absolute top-0 inset-x-0 h-2 bg-white/60 blur-[1px] animate-pulse"></div>
-                <div class="absolute top-2 left-3 w-2 h-2 rounded-full bg-white/40 animate-ping"></div>
+              <!-- Lecho del río (Grava, arena y limo fluvial al fondo) -->
+              <div class="w-full h-4 bg-gradient-to-r from-amber-700 via-amber-800 to-amber-900 rounded-b-xl border-t border-amber-600 flex items-center justify-center text-[8px] font-mono text-amber-200 font-bold tracking-widest z-20">
+                LECHO FLUVIAL (FONDO ALICIAL)
               </div>
 
             </div>
 
+            <!-- Baliza de Estado Hidrológico -->
             <div class="mt-4 text-center">
               <span id="sim-status-pill" class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-sm">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                <span>Condición Segura</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                <span>Régimen Normal · Agua en Cauce</span>
               </span>
             </div>
           </div>
 
-          <!-- Controles del Simulador -->
+          <!-- Controles del Simulador Hidráulico -->
           <div class="md:col-span-7 space-y-6">
             
             <div class="grid grid-cols-2 gap-4">
-              <div class="p-4 rounded-2xl bg-sky-50/80 border border-sky-200">
-                <p class="text-[11px] font-mono text-slate-500 uppercase font-semibold">Nivel del Río</p>
+              <div class="p-4 rounded-2xl bg-sky-50/90 border border-sky-200">
+                <p class="text-[11px] font-mono text-slate-600 uppercase font-bold flex items-center gap-1">
+                  <i data-lucide="droplet" class="w-3.5 h-3.5 text-sky-600"></i>
+                  <span>Tirante Hidráulico ($y$)</span>
+                </p>
                 <div class="flex items-baseline gap-1 mt-1">
                   <span id="sim-display-level" class="text-4xl font-black text-slate-900 font-mono">2.42</span>
-                  <span class="text-sm font-mono font-bold text-sky-600">m</span>
+                  <span class="text-base font-mono font-bold text-sky-700">m</span>
                 </div>
               </div>
 
-              <div class="p-4 rounded-2xl bg-sky-50/80 border border-sky-200">
-                <p class="text-[11px] font-mono text-slate-500 uppercase font-semibold">Capacidad de Cuenca</p>
+              <div class="p-4 rounded-2xl bg-sky-50/90 border border-sky-200">
+                <p class="text-[11px] font-mono text-slate-600 uppercase font-bold flex items-center gap-1">
+                  <i data-lucide="gauge" class="w-3.5 h-3.5 text-sky-600"></i>
+                  <span>Ocupación de Cuenca</span>
+                </p>
                 <div class="flex items-baseline gap-1 mt-1">
                   <span id="sim-display-pct" class="text-4xl font-black text-sky-700 font-mono">40.3%</span>
                 </div>
               </div>
             </div>
 
-            <!-- Slider Manual -->
+            <!-- Control Deslizante del Espejo de Agua -->
             <div>
-              <div class="flex justify-between text-xs font-mono text-slate-600 font-semibold mb-2">
-                <span>Ajustar Cota de Agua (0.20m a 6.00m)</span>
-                <span id="sim-slider-val" class="text-sky-700 font-bold">2.42 m</span>
+              <div class="flex justify-between text-xs font-mono text-slate-700 font-bold mb-2">
+                <span class="flex items-center gap-1">
+                  <i data-lucide="sliders" class="w-3.5 h-3.5 text-sky-600"></i>
+                  <span>Ajustar Tirante del Río (0.20m a 6.00m)</span>
+                </span>
+                <span id="sim-slider-val" class="text-sky-800 font-bold bg-sky-100 px-2 py-0.5 rounded border border-sky-200">2.42 m</span>
               </div>
               <input id="sim-range" type="range" min="0.20" max="6.00" step="0.05" value="2.42" 
-                     class="w-full h-3 bg-sky-100 rounded-lg appearance-none cursor-pointer accent-sky-600 focus:outline-none">
+                     class="w-full h-3.5 bg-sky-200 rounded-lg appearance-none cursor-pointer accent-sky-600 focus:outline-none shadow-inner">
             </div>
 
-            <!-- Botones de Escenario Rápido -->
+            <!-- Escenarios Fluvio-Marítimos Táctiles -->
             <div>
-              <p class="text-[11px] font-mono text-slate-500 uppercase tracking-wider font-bold mb-2">Cargar Escenarios Predefinidos:</p>
-              <div class="grid grid-cols-3 gap-2">
+              <p class="text-[11px] font-mono text-slate-600 uppercase tracking-wider font-bold mb-2">Escenarios Hidrológicos del Sureste:</p>
+              <div class="grid grid-cols-3 gap-2.5">
                 <button onclick="setSimScenario(1.80)" class="px-3 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-bold border border-sky-200 transition-all shadow-sm active:scale-[0.98]">
-                  Caudal Base (1.8m)
+                  🌊 Estiaje (1.8m)
                 </button>
                 <button onclick="setSimScenario(4.10)" class="px-3 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold border border-amber-200 transition-all shadow-sm active:scale-[0.98]">
-                  Crecida (4.1m)
+                  🌧️ Crecida (4.1m)
                 </button>
                 <button onclick="setSimScenario(5.50)" class="px-3 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-bold border border-rose-200 transition-all shadow-sm active:scale-[0.98]">
-                  Desborde (5.5m)
+                  🚨 Desborde (5.5m)
                 </button>
               </div>
             </div>
 
-            <!-- Caja de Recomendación Activa -->
-            <div id="sim-recommendation-box" class="p-4 rounded-2xl border border-emerald-300 bg-emerald-50/80 text-emerald-900 text-xs leading-relaxed shadow-sm">
+            <!-- Protocolo Comunitario Fluvial -->
+            <div id="sim-recommendation-box" class="p-4 rounded-2xl border border-emerald-300 bg-emerald-50/85 text-emerald-900 text-xs leading-relaxed shadow-sm">
               <div class="flex items-center gap-2 font-bold mb-1">
                 <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
-                <span id="sim-rec-title">PROTOCOLO COMUNITARIO: CONDICIÓN SEGURA</span>
+                <span id="sim-rec-title">CONDICIÓN SEGURA: AGUAS EN CAUCE NATURAL</span>
               </div>
-              <p id="sim-rec-text">El cauce opera dentro de los márgenes normales. No existe peligro para actividades de pesca, navegación ni asentamientos ribereños.</p>
+              <p id="sim-rec-text">El caudal del río se mantiene dentro del cauce ordinario. Vía libre y segura para navegación de lanchas, pesca artesanal y tránsito ribereño.</p>
             </div>
 
             <div class="pt-2 flex justify-end">
-              <a href="dashboard_rio.html" class="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-sky-600 hover:text-sky-800">
-                <span>Abrir Dashboard con datos de telemetría real</span>
+              <a href="dashboard_rio.html" class="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-sky-700 hover:text-sky-900">
+                <span>Ver telemetría en vivo desde las estaciones LoRa</span>
                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
               </a>
             </div>
@@ -701,29 +836,33 @@
     </div>
   </section>
 
-
-
   <!-- ========================================================================= -->
-  <!-- SECCIÓN 7: LLAMADO A LA ACCIÓN (CTA FINAL LUMINOSO Y ENÉRGICO)            -->
+  <!-- SECCIÓN 5: LLAMADO A LA ACCIÓN (FONDO OCEÁNICO CON ONDULACIÓN)             -->
   <!-- ========================================================================= -->
   <section class="py-24 relative z-10 overflow-hidden">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
       
-      <div class="rounded-3xl bg-gradient-to-br from-sky-600 via-cyan-600 to-teal-600 p-10 sm:p-14 shadow-2xl shadow-sky-600/25 relative overflow-hidden text-white">
+      <div class="rounded-3xl bg-gradient-to-br from-sky-600 via-cyan-600 to-teal-700 p-10 sm:p-14 shadow-2xl shadow-sky-600/30 relative overflow-hidden text-white border border-sky-400/40">
         
-        <!-- Líneas ondulantes de fondo -->
-        <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        <!-- Reflejos de agua viva en el fondo -->
+        <div class="absolute -right-24 -bottom-24 w-96 h-96 bg-white/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-24 -top-24 w-80 h-80 bg-teal-300/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/30 text-white text-xs font-mono font-bold uppercase tracking-wider mb-4">
+          <i data-lucide="waves" class="w-3.5 h-3.5 text-cyan-200"></i>
+          <span>Red Fluvial & Marítima en Tiempo Real</span>
+        </div>
 
         <h2 class="font-black text-3xl sm:text-5xl text-white tracking-tight max-w-2xl mx-auto leading-tight">
-          Explora la Telemetría en Vivo Ahora
+          Explora la Telemetría del Río en Tiempo Real
         </h2>
 
         <p class="mt-4 text-sky-100 text-sm sm:text-base max-w-xl mx-auto font-medium">
-          Accede al panel de control en tiempo real, verifica el estado de las estaciones o simula crecidas críticas directamente en el navegador.
+          Accede a la consola meteorológica y de tirantes de agua, simula escenarios de marea y conoce la tecnología que protege a Tabasco.
         </p>
 
         <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
-          <a href="dashboard_rio.html" class="flex items-center gap-2.5 px-8 py-4 rounded-xl bg-white text-sky-900 font-extrabold text-xs sm:text-sm uppercase tracking-wider shadow-lg hover:bg-sky-50 transition-all hover:-translate-y-0.5 active:scale-[0.98]">
+          <a href="dashboard_rio.html" class="flex items-center gap-2.5 px-8 py-4 rounded-xl bg-white text-sky-900 font-extrabold text-xs sm:text-sm uppercase tracking-wider shadow-xl hover:bg-sky-50 transition-all hover:-translate-y-0.5 active:scale-[0.98]">
             <i data-lucide="activity" class="w-4 h-4 text-sky-600"></i>
             <span>Lanzar Dashboard en Vivo</span>
           </a>
@@ -740,9 +879,9 @@
   </section>
 
   <!-- ========================================================================= -->
-  <!-- FOOTER PRINCIPAL (Elegante, contrastante y profesional)                   -->
+  <!-- PIE DE PÁGINA (Estilo Marino & Fluvial Profundo)                          -->
   <!-- ========================================================================= -->
-  <footer class="border-t border-slate-200 bg-slate-900 py-12 text-slate-400 text-xs relative z-10 font-mono">
+  <footer class="border-t border-slate-800 bg-slate-950 py-12 text-slate-400 text-xs relative z-10 font-mono">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       
       <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
@@ -750,42 +889,42 @@
         <div class="md:col-span-2">
           <div class="flex items-center gap-2 mb-3">
             <i data-lucide="waves" class="w-5 h-5 text-sky-400"></i>
-            <span class="font-extrabold text-sm text-white tracking-tight">Alerta Río & Mar · LoRa 32</span>
+            <span class="font-extrabold text-sm text-white tracking-tight">Alerta Río & Mar · Estación Hidrológica LoRa 32</span>
           </div>
-          <p class="text-xs text-slate-400 leading-relaxed max-w-sm">
-            Proyecto desarrollado para el reto "Hackeando las Inundaciones" de DesafIA 2026. Red distribuida de monitoreo hidrológico con microcontroladores Heltec LoRa 32 (915 MHz) y Supabase Cloud.
+          <p class="text-xs text-slate-400 leading-relaxed max-w-sm font-sans">
+            Desarrollado para el reto "Hackeando las Inundaciones" de DesafIA 2026. Telemetría de cauces en cuenca baja, detección de mareas vivas y alerta comunitaria con Heltec LoRa 32 (915 MHz) y Supabase Cloud.
           </p>
         </div>
 
         <div>
-          <h5 class="text-white font-bold uppercase mb-3 tracking-wider">Navegación</h5>
+          <h5 class="text-white font-bold uppercase mb-3 tracking-wider">Bitácora de Navegación</h5>
           <ul class="space-y-2">
-            <li><a href="#hero" class="hover:text-sky-400 transition">Inicio</a></li>
-            <li><a href="#reto" class="hover:text-sky-400 transition">El Reto DesafIA</a></li>
-            <li><a href="#ejes" class="hover:text-sky-400 transition">Los 6 Ejes Oficiales</a></li>
-            <li><a href="#simulador" class="hover:text-sky-400 transition">Simulador Hidrológico</a></li>
-            <li><a href="dashboard_rio.html" class="hover:text-sky-300 transition font-bold text-sky-400">Dashboard en Vivo</a></li>
+            <li><a href="#hero" class="hover:text-sky-400 transition">Inicio / Sonda Fluvial</a></li>
+            <li><a href="#reto" class="hover:text-sky-400 transition">El Reto de las Grandes Aguas</a></li>
+            <li><a href="#ejes" class="hover:text-sky-400 transition">Los 6 Ejes Hidrológicos</a></li>
+            <li><a href="#simulador" class="hover:text-sky-400 transition">Corte Hidráulico Transversal</a></li>
+            <li><a href="dashboard_rio.html" class="hover:text-sky-300 transition font-bold text-sky-400">Dashboard de Telemetría</a></li>
           </ul>
         </div>
 
         <div>
-          <h5 class="text-white font-bold uppercase mb-3 tracking-wider">Enlaces Oficiales</h5>
+          <h5 class="text-white font-bold uppercase mb-3 tracking-wider">Enlaces del Territorio</h5>
           <ul class="space-y-2">
             <li><a href="https://desafia.mx" target="_blank" rel="noopener noreferrer" class="hover:text-sky-400 transition">Sitio Oficial desafia.mx</a></li>
-            <li><a href="https://desafia.mx#registro" target="_blank" rel="noopener noreferrer" class="hover:text-sky-400 transition">Registro de Planteles</a></li>
-            <li><a href="https://supabase.com" target="_blank" rel="noopener noreferrer" class="hover:text-sky-400 transition">Infraestructura Supabase</a></li>
-            <li><span class="text-slate-500">Edición: Septiembre 2026</span></li>
+            <li><a href="https://desafia.mx#registro" target="_blank" rel="noopener noreferrer" class="hover:text-sky-400 transition">Convocatoria Tabasco</a></li>
+            <li><a href="https://supabase.com" target="_blank" rel="noopener noreferrer" class="hover:text-sky-400 transition">Nube de Datos Supabase</a></li>
+            <li><span class="text-slate-500">Sureste Mexicano · Septiembre 2026</span></li>
           </ul>
         </div>
 
       </div>
 
       <div class="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
-        <p>© 2026 Sistema de Monitoreo Hidrológico LoRa 32 · DesafIA 2026 Sureste Mexicano.</p>
+        <p>© 2026 Sistema Hidrológico y Marítimo LoRa 32 · DesafIA 2026 Sureste Mexicano.</p>
         <p class="flex items-center gap-2">
-          <span>Innovación Abierta para el Territorio</span>
+          <span>Ríos Grijalva & Usumacinta</span>
           <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
-          <span>Tabasco, México</span>
+          <span>Golfo de México</span>
         </p>
       </div>
 
@@ -793,13 +932,101 @@
   </footer>
 
   <!-- ========================================================================= -->
-  <!-- LÓGICA JAVASCRIPT: SIMULADOR, EFECTOS Y SUPABASE REALTIME                 -->
+  <!-- SCRIPTS: INTERACTIVIDAD, AMBIENTACIÓN FLUVIO-MARINA Y SUPABASE REALTIME   -->
   <!-- ========================================================================= -->
   <script>
     // Inicializar iconos de Lucide
     lucide.createIcons();
 
-    // Referencias del Simulador
+    // ==========================================
+    // AMBIENTACIÓN SONORA NATIVA (WEB AUDIO API)
+    // Sintentiza un suave rumor de agua de río corriente
+    // ==========================================
+    let audioCtx = null;
+    let waterGain = null;
+    let isWaterAudioPlaying = false;
+
+    function initWaterAudio() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+
+        // Crear generador de ruido marrón / rosa filtrado que emula agua corriente
+        const bufferSize = audioCtx.sampleRate * 2;
+        const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        let lastOut = 0.0;
+
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          output[i] = (lastOut + (0.02 * white)) / 1.02;
+          lastOut = output[i];
+          output[i] *= 3.5; // Ganancia inicial
+        }
+
+        const whiteNoise = audioCtx.createBufferSource();
+        whiteNoise.buffer = noiseBuffer;
+        whiteNoise.loop = true;
+
+        // Filtro pasa-bajas para el sonido profundo del caudal del río
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 420;
+
+        // Modulador sutil para el vaivén de las olas
+        const lfo = audioCtx.createOscillator();
+        lfo.frequency.value = 0.25; // ciclo lento de ola
+        const lfoGain = audioCtx.createGain();
+        lfoGain.gain.value = 120;
+        lfo.connect(lfoGain);
+        lfoGain.connect(filter.frequency);
+        lfo.start();
+
+        waterGain = audioCtx.createGain();
+        waterGain.gain.value = 0.05; // Volumen suave, relajante
+
+        whiteNoise.connect(filter);
+        filter.connect(waterGain);
+        waterGain.connect(audioCtx.destination);
+        whiteNoise.start();
+
+        return true;
+      } catch (e) {
+        console.warn('Web Audio API notice:', e);
+        return false;
+      }
+    }
+
+    function toggleWaterAudio() {
+      const audioIcon = document.getElementById('audio-icon');
+      const audioLabel = document.getElementById('audio-label');
+
+      if (!audioCtx) {
+        initWaterAudio();
+        isWaterAudioPlaying = true;
+      } else {
+        if (isWaterAudioPlaying) {
+          audioCtx.suspend();
+          isWaterAudioPlaying = false;
+        } else {
+          audioCtx.resume();
+          isWaterAudioPlaying = true;
+        }
+      }
+
+      if (isWaterAudioPlaying) {
+        audioLabel.textContent = 'Río Activo';
+        audioIcon.setAttribute('data-lucide', 'volume-2');
+      } else {
+        audioLabel.textContent = 'Ambiente Fluvial';
+        audioIcon.setAttribute('data-lucide', 'volume-x');
+      }
+      lucide.createIcons();
+    }
+
+    // ==========================================
+    // SIMULADOR HIDROLÓGICO DEL CORTE DE RÍO
+    // ==========================================
     const simRange = document.getElementById('sim-range');
     const simWaterColumn = document.getElementById('sim-water-column');
     const simDisplayLevel = document.getElementById('sim-display-level');
@@ -825,29 +1052,29 @@
       simRange.value = level;
 
       if (level >= CRITICAL_THRESHOLD) {
-        simWaterColumn.className = "w-full bg-gradient-to-t from-rose-600 via-rose-500 to-rose-400 rounded-xl relative transition-all duration-500 overflow-hidden shadow-lg shadow-rose-500/30";
+        simWaterColumn.className = "w-full bg-gradient-to-t from-rose-600 via-rose-500 to-rose-400 rounded-2xl relative transition-all duration-500 overflow-hidden shadow-lg shadow-rose-500/30";
         simStatusPill.className = "inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-300 animate-pulse shadow-sm";
-        simStatusPill.innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-500"></span><span>Peligro de Desborde</span>';
+        simStatusPill.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span><span>Peligro de Desborde Ribereño</span>';
 
         simRecommendationBox.className = "p-4 rounded-2xl border border-rose-300 bg-rose-50/90 text-rose-900 text-xs leading-relaxed shadow-sm";
-        simRecTitle.textContent = "ALERTA MÁXIMA: DESBORDE INMINENTE";
-        simRecText.textContent = "Nivel del río sobrepasa bordos de seguridad. Proceda a evacuar zonas bajas, desconectar interruptores eléctricos y resguardar personas vulnerables en albergues temporales.";
+        simRecTitle.textContent = "ALERTA MÁXIMA: RÍO SOBRE BORDO DE PROTECCIÓN";
+        simRecText.textContent = "El tirante de agua supera la cota de 5.20 m. Se activa evacuación preventiva en malecones y zonas de amortiguamiento. Amarre de embarcaciones mayores y desconexión de plantas ribereñas.";
       } else if (level >= WARNING_THRESHOLD) {
-        simWaterColumn.className = "w-full bg-gradient-to-t from-amber-600 via-amber-500 to-amber-400 rounded-xl relative transition-all duration-500 overflow-hidden shadow-lg shadow-amber-500/25";
+        simWaterColumn.className = "w-full bg-gradient-to-t from-amber-600 via-amber-500 to-amber-400 rounded-2xl relative transition-all duration-500 overflow-hidden shadow-lg shadow-amber-500/25";
         simStatusPill.className = "inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300 shadow-sm";
-        simStatusPill.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-500"></span><span>Precaución · Caudal Alto</span>';
+        simStatusPill.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span><span>Precaución · Crecida y Corriente Rápida</span>';
 
         simRecommendationBox.className = "p-4 rounded-2xl border border-amber-300 bg-amber-50/90 text-amber-900 text-xs leading-relaxed shadow-sm";
-        simRecTitle.textContent = "PRECAUCIÓN: CAUDAL EN ASCENSO";
-        simRecText.textContent = "Aumento rápido de corriente. Suspenda actividades acuáticas y pesca. Mantenga vigilancia permanente en malecones y retire vehículos de zonas bajas.";
+        simRecTitle.textContent = "PRECAUCIÓN: GASTO HIDRÁULICO EN AUMENTO";
+        simRecText.textContent = "Corriente fuerte por lluvias en cuenca alta o repunte de marea en desembocadura. Restricción preventiva a navegación menor y retiro de equipos de orilla de río.";
       } else {
-        simWaterColumn.className = "w-full water-stream rounded-xl relative transition-all duration-500 overflow-hidden";
+        simWaterColumn.className = "w-full water-stream rounded-2xl relative transition-all duration-500 overflow-hidden";
         simStatusPill.className = "inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-sm";
-        simStatusPill.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span><span>Condición Segura</span>';
+        simStatusPill.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span><span>Régimen Normal · Agua en Cauce</span>';
 
-        simRecommendationBox.className = "p-4 rounded-2xl border border-emerald-300 bg-emerald-50/80 text-emerald-900 text-xs leading-relaxed shadow-sm";
-        simRecTitle.textContent = "PROTOCOLO COMUNITARIO: CONDICIÓN SEGURA";
-        simRecText.textContent = "El cauce opera dentro de los márgenes normales. No existe peligro para actividades recreativas ni asentamientos ribereños.";
+        simRecommendationBox.className = "p-4 rounded-2xl border border-emerald-300 bg-emerald-50/85 text-emerald-900 text-xs leading-relaxed shadow-sm";
+        simRecTitle.textContent = "CONDICIÓN SEGURA: AGUAS EN CAUCE NATURAL";
+        simRecText.textContent = "El caudal del río se mantiene dentro del cauce ordinario. Vía libre y segura para navegación de lanchas, pesca artesanal y tránsito ribereño.";
       }
     }
 
@@ -882,13 +1109,13 @@
       if (heroStatBadge) {
         if (waterMeters >= CRITICAL_THRESHOLD) {
           heroStatBadge.textContent = 'Alerta de Desborde';
-          heroStatBadge.className = 'text-xs font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 border border-rose-300';
+          heroStatBadge.className = 'text-xs font-bold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-700 border border-rose-300';
         } else if (waterMeters >= WARNING_THRESHOLD) {
           heroStatBadge.textContent = 'Caudal Elevado';
-          heroStatBadge.className = 'text-xs font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-300';
+          heroStatBadge.className = 'text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-300';
         } else {
-          heroStatBadge.textContent = 'Caudal Seguro';
-          heroStatBadge.className = 'text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-300';
+          heroStatBadge.textContent = 'Caudal en Calma';
+          heroStatBadge.className = 'text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-300';
         }
       }
     }
@@ -928,7 +1155,7 @@
 
     initHeroSupabase();
 
-    // Micro fluctuación suave de reserva si la estación física está desconectada
+    // Micro fluctuación suave de reserva para emular el oleaje vivo si la estación está en reposo
     let currentHeroLevel = 2.42;
     setInterval(() => {
       const delta = (Math.random() - 0.5) * 0.015;
