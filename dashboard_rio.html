@@ -101,30 +101,30 @@
   <header class="bg-white/95 backdrop-blur-md border-b border-sky-200/80 sticky top-0 z-40 shadow-sm">
     <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 flex flex-wrap items-center justify-between gap-2.5">
       
-      <!-- Logotipo y Nombre del Sistema -->
-      <div class="flex items-center gap-3">
-        <div class="p-2.5 bg-gradient-to-tr from-sky-600 via-cyan-600 to-teal-600 rounded-xl shadow-md shadow-sky-600/20 flex items-center justify-center shrink-0">
+      <!-- LOGO FUSIONADO E INTERACTIVO (Regresar a la Página Principal) -->
+      <a href="index.html" class="group flex items-center gap-3 p-1.5 -m-1.5 rounded-2xl hover:bg-sky-50/80 border border-transparent hover:border-sky-200 transition-all cursor-pointer" title="← Regresar a la Página Principal (index.html)">
+        <div class="p-2.5 bg-gradient-to-tr from-sky-600 via-cyan-600 to-teal-600 rounded-xl shadow-md shadow-sky-600/20 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:rotate-[-4deg] transition-all relative">
           <i data-lucide="waves" class="w-5 h-5 text-white"></i>
+          <span class="absolute -bottom-1 -left-1 w-4 h-4 rounded-full bg-white text-sky-700 shadow-xs flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">
+            <i data-lucide="arrow-left" class="w-2.5 h-2.5"></i>
+          </span>
         </div>
         <div>
-          <div class="flex items-center gap-2">
-            <h1 class="font-extrabold text-base sm:text-lg text-slate-900 tracking-tight flex items-center gap-1.5">
-              <span>Alerta Río & Mar</span>
-              <span class="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-md bg-sky-100 text-sky-800 border border-sky-200">LoRa 32</span>
-            </h1>
+          <div class="flex items-center gap-1.5">
+            <span class="text-[10px] font-mono tracking-widest text-sky-700 uppercase font-extrabold flex items-center gap-1">
+              <i data-lucide="arrow-left" class="w-3 h-3 text-sky-600 group-hover:-translate-x-1 transition-transform"></i>
+              <span>Volver a Inicio</span>
+            </span>
+            <span class="text-[10px] uppercase font-bold tracking-widest px-1.5 py-0.2 rounded-md bg-sky-100 text-sky-800 border border-sky-200">LoRa 32</span>
           </div>
-          <p class="text-[11px] text-slate-500 hidden sm:block">Consola de Telemetría Hidrométrica & Alerta Temprana</p>
+          <h1 class="font-extrabold text-base sm:text-lg text-slate-900 tracking-tight leading-tight group-hover:text-sky-700 transition-colors">
+            Alerta Río & Mar
+          </h1>
         </div>
-      </div>
+      </a>
 
       <!-- Barra de Roles, Conectividad y Controles -->
       <div class="flex items-center gap-2 flex-wrap">
-        
-        <!-- BOTÓN PRINCIPAL: REGRESAR A LA LANDING PAGE -->
-        <a href="index.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-sky-200 bg-sky-50 hover:bg-sky-100 text-sky-800 hover:text-sky-950 text-xs font-bold transition shadow-xs active:scale-95" title="Regresar a la página principal">
-          <i data-lucide="arrow-left" class="w-3.5 h-3.5 text-sky-600"></i>
-          <span>Página Principal</span>
-        </a>
 
         <!-- Indicador de Sesión Activa (Entidad o Admin) -->
         <div id="session-badge-box" class="flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold shadow-xs bg-white border-sky-200 text-slate-800">
@@ -146,6 +146,13 @@
 
         <!-- ACCIONES EXCLUSIVAS DE ADMINISTRADOR (Ocultas para Entidades) -->
         <div id="admin-actions-bar" class="hidden flex items-center gap-1.5">
+          <!-- Botón Directo al Centro de Mando Admin (admin.html) -->
+          <a href="admin.html" class="flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow-xs transition active:scale-95" title="Ir al Centro de Mando Administrativo">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+            <span>Panel Admin</span>
+            <i data-lucide="external-link" class="w-3 h-3 opacity-70"></i>
+          </a>
+
           <!-- Botón Gestión de Estaciones -->
           <button id="btn-manage-stations" class="flex items-center gap-1 bg-sky-100 hover:bg-sky-200 text-sky-900 border border-sky-300 font-semibold px-2.5 py-1.5 rounded-xl text-xs transition active:scale-95" title="Calibrar cotas y añadir estaciones">
             <i data-lucide="radio" class="w-3.5 h-3.5 text-sky-700"></i>
@@ -947,6 +954,35 @@
       localStorage.setItem('entidades_acceso_lora', JSON.stringify(entities));
     }
 
+    function registrarActividad(action, details, userOverride) {
+      try {
+        const session = userOverride || currentUserSession || JSON.parse(localStorage.getItem('lora_rio_active_session') || 'null') || { name: 'Visitante', type: 'guest' };
+        const raw = localStorage.getItem('lora_rio_audit_log') || '[]';
+        let list = JSON.parse(raw);
+        if (!Array.isArray(list)) list = [];
+        
+        const event = {
+          id: 'act_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+          timestamp: Date.now(),
+          isoDate: new Date().toISOString(),
+          timeStr: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+          dateStr: new Date().toLocaleDateString('es-MX'),
+          userName: session.name || (session.type === 'admin' ? 'Administrador Maestro' : 'Entidad'),
+          userType: session.type || 'guest',
+          userKey: session.key || (session.type === 'admin' ? 'ROOT' : 'N/A'),
+          action: action,
+          details: details
+        };
+        
+        list.unshift(event);
+        if (list.length > 300) list = list.slice(0, 300);
+        localStorage.setItem('lora_rio_audit_log', JSON.stringify(list));
+        window.dispatchEvent(new CustomEvent('lora_rio_new_activity', { detail: event }));
+      } catch(e) {
+        console.warn('Error registrando auditoria:', e);
+      }
+    }
+
     let currentUserSession = null;
 
     function getAdminPin() {
@@ -1019,6 +1055,7 @@
       };
 
       localStorage.setItem('lora_rio_active_session', JSON.stringify(currentUserSession));
+      registrarActividad('LOGIN', 'Entidad "' + matched.name + '" inició sesión en el Dashboard con clave ' + matched.key, currentUserSession);
       aplicarSesionUsuario();
       playAlarmTone(1046, 'sine', 0.15);
     }
@@ -1038,6 +1075,7 @@
           name: 'Administrador Maestro'
         };
         localStorage.setItem('lora_rio_active_session', JSON.stringify(currentUserSession));
+        registrarActividad('LOGIN_ADMIN', 'Administrador Maestro inició sesión en la consola hidrológica', currentUserSession);
         aplicarSesionUsuario();
         playAlarmTone(1046, 'sine', 0.15);
       } else {
@@ -1047,6 +1085,9 @@
     }
 
     function cerrarSesionUsuario() {
+      if (currentUserSession) {
+        registrarActividad('LOGOUT', (currentUserSession.name || 'Usuario') + ' cerró sesión');
+      }
       currentUserSession = null;
       localStorage.removeItem('lora_rio_active_session');
       const overlay = document.getElementById('gate-login-overlay');
@@ -1494,6 +1535,10 @@
       }
       currentViewMode = stId;
       actualizarEstilosPestañaActiva();
+
+      if (currentUserSession) {
+        registrarActividad('VIEW_STATION', (currentUserSession.name || 'Usuario') + ' consultó: ' + (stId === 'ALL' ? 'Resumen General' : stId));
+      }
 
       const viewAll = document.getElementById('view-all-stations');
       const viewSingle = document.getElementById('view-single-station');
@@ -2574,6 +2619,7 @@
       a.download = 'Monitoreo_Rio_Mar_' + new Date().toISOString().slice(0, 10) + '.csv';
       a.click();
       URL.revokeObjectURL(url);
+      registrarActividad('EXPORT_CSV', (currentUserSession ? currentUserSession.name : 'Usuario') + ' descargó reporte histórico en CSV (' + rows.length + ' lecturas)');
     });
 
     // ==========================================

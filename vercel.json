@@ -2,6 +2,7 @@
   "cleanUrls": true,
   "rewrites": [
     { "source": "/dashboard", "destination": "/dashboard_rio.html" },
+    { "source": "/admin", "destination": "/admin.html" },
     { "source": "/landing", "destination": "/landing.html" }
   ]
 }

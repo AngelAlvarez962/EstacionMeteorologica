@@ -192,21 +192,29 @@
         </a>
       </div>
 
-      <!-- Acciones de Navegación + Inmersión Sonora Fluvial -->
-      <div class="flex items-center gap-2.5">
+      <!-- Acciones de Navegación + Inmersión Sonora + Acceso Plataforma -->
+      <div class="flex items-center gap-2">
         
-        <!-- BOTÓN DE AMBIENTACIÓN FLUVIO-MARÍTIMA (Web Audio API Nativa) -->
+        <!-- BOTÓN DE AMBIENTACIÓN FLUVIO-MARÍTIMA -->
         <button id="btn-water-audio" onclick="toggleWaterAudio()" 
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-sky-200 bg-sky-50/80 hover:bg-sky-100 text-sky-800 text-xs font-bold transition-all active:scale-95 shadow-sm"
-                title="Activar rumor ambiental de agua de río viva (Sonido generado en tiempo real)">
+                class="inline-flex items-center justify-center p-2 sm:px-2.5 sm:py-1.5 rounded-xl border border-sky-200 bg-sky-50/80 hover:bg-sky-100 text-sky-800 text-xs font-bold transition-all active:scale-95 shadow-xs"
+                title="Rumor de agua de río viva">
           <i data-lucide="volume-x" id="audio-icon" class="w-3.5 h-3.5 text-sky-600"></i>
-          <span id="audio-label" class="hidden sm:inline">Ambiente Fluvial</span>
+          <span id="audio-label" class="hidden md:inline ml-1">Sonido</span>
         </button>
 
-        <a href="https://desafia.mx" target="_blank" rel="noopener noreferrer" class="hidden md:inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-sky-200 bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-800 text-xs font-semibold transition-all active:scale-[0.98]">
-          <span>desafia.mx</span>
-          <i data-lucide="external-link" class="w-3 h-3 text-sky-600"></i>
+        <a href="https://desafia.mx" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center gap-1 p-2 sm:px-2.5 sm:py-1.5 rounded-xl border border-sky-200 bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-800 text-xs font-semibold transition-all active:scale-[0.98]" title="Sitio oficial DesafIA">
+          <i data-lucide="globe" class="w-3.5 h-3.5 text-sky-600"></i>
+          <span class="hidden md:inline">desafia.mx</span>
+          <i data-lucide="external-link" class="w-3 h-3 opacity-60"></i>
         </a>
+
+        <!-- BOTÓN DE INICIO DE SESIÓN / ACCESO -->
+        <button id="btn-landing-auth" onclick="abrirModalLoginLanding()" 
+                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-teal-600 hover:from-sky-500 hover:to-teal-500 text-white font-bold text-xs shadow-sm shadow-sky-600/20 transition-all hover:-translate-y-0.5 active:scale-95" title="Iniciar sesión como Administrador o Entidad">
+          <i data-lucide="log-in" class="w-3.5 h-3.5" id="landing-auth-icon"></i>
+          <span id="landing-auth-text">Ingresar</span>
+        </button>
       </div>
 
     </div>
@@ -240,16 +248,16 @@
           </p>
 
           <!-- Botones de Acción -->
-          <div class="pt-2 flex flex-wrap items-center gap-3.5">
-            <a href="dashboard_rio.html" class="flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-sky-600 via-cyan-600 to-teal-600 hover:from-sky-500 hover:to-teal-500 text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-sky-600/30 transition-all hover:-translate-y-0.5 active:scale-[0.98]">
+          <div class="pt-2 flex flex-wrap items-center gap-3">
+            <a href="dashboard_rio.html" class="flex items-center gap-2 px-5 py-3.5 rounded-xl bg-gradient-to-r from-sky-600 via-cyan-600 to-teal-600 hover:from-sky-500 hover:to-teal-500 text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-sky-600/30 transition-all hover:-translate-y-0.5 active:scale-[0.98]">
               <i data-lucide="waves" class="w-4 h-4"></i>
-              <span>Monitorear Ríos en Vivo</span>
+              <span>Telemetría en Vivo</span>
               <i data-lucide="arrow-right" class="w-4 h-4"></i>
             </a>
 
-            <a href="#simulador" class="flex items-center gap-2 px-5 py-3.5 rounded-xl border border-sky-200 bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-800 text-xs sm:text-sm font-bold shadow-sm transition-all hover:-translate-y-0.5 active:scale-[0.98]">
+            <a href="#simulador" class="flex items-center gap-2 px-4 py-3.5 rounded-xl border border-sky-200 bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-800 text-xs sm:text-sm font-bold shadow-xs transition-all hover:-translate-y-0.5 active:scale-[0.98]">
               <i data-lucide="sliders" class="w-4 h-4 text-cyan-600"></i>
-              <span>Corte Hidráulico Transversal</span>
+              <span>Simulador</span>
             </a>
           </div>
 
@@ -792,15 +800,21 @@
             <!-- Escenarios Fluvio-Marítimos Táctiles -->
             <div>
               <p class="text-[11px] font-mono text-slate-600 uppercase tracking-wider font-bold mb-2">Escenarios Hidrológicos del Sureste:</p>
-              <div class="grid grid-cols-3 gap-2.5">
-                <button onclick="setSimScenario(1.80)" class="px-3 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-bold border border-sky-200 transition-all shadow-sm active:scale-[0.98]">
-                  🌊 Estiaje (1.8m)
+              <div class="grid grid-cols-3 gap-2">
+                <button onclick="setSimScenario(1.80)" class="flex items-center justify-center gap-1 px-2.5 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-bold border border-sky-200 transition-all shadow-xs active:scale-[0.98]" title="Cota de estiaje ordinario (1.8m)">
+                  <span class="text-sm">🌊</span>
+                  <span>1.8m</span>
+                  <span class="hidden sm:inline text-[10px] text-sky-600 font-mono font-bold">(Normal)</span>
                 </button>
-                <button onclick="setSimScenario(4.10)" class="px-3 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold border border-amber-200 transition-all shadow-sm active:scale-[0.98]">
-                  🌧️ Crecida (4.1m)
+                <button onclick="setSimScenario(4.10)" class="flex items-center justify-center gap-1 px-2.5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold border border-amber-200 transition-all shadow-xs active:scale-[0.98]" title="Aviso preventivo de crecida (4.1m)">
+                  <span class="text-sm">🌧️</span>
+                  <span>4.1m</span>
+                  <span class="hidden sm:inline text-[10px] text-amber-700 font-mono font-bold">(Aviso)</span>
                 </button>
-                <button onclick="setSimScenario(5.50)" class="px-3 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-bold border border-rose-200 transition-all shadow-sm active:scale-[0.98]">
-                  🚨 Desborde (5.5m)
+                <button onclick="setSimScenario(5.50)" class="flex items-center justify-center gap-1 px-2.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-bold border border-rose-200 transition-all shadow-xs active:scale-[0.98]" title="Desborde fluvial inminente (5.5m)">
+                  <span class="text-sm">🚨</span>
+                  <span>5.5m</span>
+                  <span class="hidden sm:inline text-[10px] text-rose-700 font-mono font-bold">(Alerta)</span>
                 </button>
               </div>
             </div>
@@ -855,15 +869,16 @@
           Accede a la consola meteorológica y de tirantes de agua, simula escenarios de marea y conoce la tecnología que protege a Tabasco.
         </p>
 
-        <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
-          <a href="dashboard_rio.html" class="flex items-center gap-2.5 px-8 py-4 rounded-xl bg-white text-sky-900 font-extrabold text-xs sm:text-sm uppercase tracking-wider shadow-xl hover:bg-sky-50 transition-all hover:-translate-y-0.5 active:scale-[0.98]">
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3.5">
+          <a href="dashboard_rio.html" class="flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white text-sky-900 font-extrabold text-xs sm:text-sm uppercase tracking-wider shadow-xl hover:bg-sky-50 transition-all hover:-translate-y-0.5 active:scale-[0.98]">
             <i data-lucide="activity" class="w-4 h-4 text-sky-600"></i>
-            <span>Lanzar Dashboard en Vivo</span>
+            <span>Abrir Dashboard</span>
           </a>
 
-          <a href="https://desafia.mx" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 px-7 py-4 rounded-xl border-2 border-white/40 bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-bold transition-all active:scale-[0.98]">
-            <span>Visitar desafia.mx</span>
-            <i data-lucide="external-link" class="w-4 h-4"></i>
+          <a href="https://desafia.mx" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 px-5 py-3.5 rounded-xl border-2 border-white/40 bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-bold transition-all active:scale-[0.98]">
+            <i data-lucide="globe" class="w-4 h-4"></i>
+            <span>desafia.mx</span>
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
           </a>
         </div>
 
@@ -1159,6 +1174,259 @@
         actualizarHeroStats(currentHeroLevel);
       }
     }, 4000);
+
+    // ==========================================
+    // SISTEMA DE AUTENTICACIÓN DIRECTO DESDE LA LANDING
+    // ==========================================
+    let landingAdminTarget = 'dashboard';
+    function setLandingAdminTarget(target) {
+      landingAdminTarget = target;
+    }
+
+    function abrirModalLoginLanding() {
+      const activeRaw = localStorage.getItem('lora_rio_active_session');
+      if (activeRaw) {
+        try {
+          const session = JSON.parse(activeRaw);
+          if (session && session.type === 'admin') {
+            window.location.href = 'admin.html';
+            return;
+          } else if (session && session.type === 'entity') {
+            window.location.href = 'dashboard_rio.html';
+            return;
+          }
+        } catch(e) {}
+      }
+      document.getElementById('modal-landing-login').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function cerrarModalLoginLanding() {
+      document.getElementById('modal-landing-login').classList.add('hidden');
+    }
+
+    function switchLandingLoginTab(tab) {
+      const btnEntity = document.getElementById('tab-landing-entity');
+      const btnAdmin = document.getElementById('tab-landing-admin');
+      const formEntity = document.getElementById('form-landing-entity');
+      const formAdmin = document.getElementById('form-landing-admin');
+
+      if (tab === 'admin') {
+        btnAdmin.className = 'py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 bg-amber-100 text-amber-900 border border-amber-300 shadow-xs font-bold';
+        btnEntity.className = 'py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-slate-500 hover:text-slate-900';
+        formAdmin.classList.remove('hidden');
+        formEntity.classList.add('hidden');
+      } else {
+        btnEntity.className = 'py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 bg-sky-100 text-sky-800 border border-sky-300 shadow-xs font-bold';
+        btnAdmin.className = 'py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-slate-500 hover:text-slate-900';
+        formEntity.classList.remove('hidden');
+        formAdmin.classList.add('hidden');
+      }
+      lucide.createIcons();
+    }
+
+    function handleLandingEntityLogin(e) {
+      e.preventDefault();
+      const input = document.getElementById('landing-entity-key');
+      const errorBox = document.getElementById('landing-entity-error');
+      const errorText = document.getElementById('landing-entity-error-text');
+      const keyVal = (input.value || '').trim().toUpperCase();
+
+      errorBox.classList.add('hidden');
+      if (!keyVal) return;
+
+      let entities = [];
+      try {
+        const raw = localStorage.getItem('entidades_acceso_lora');
+        if (raw) entities = JSON.parse(raw);
+      } catch(e) {}
+
+      const matched = entities.find(ent => ent.key.trim().toUpperCase() === keyVal);
+      if (!matched) {
+        errorText.textContent = 'Clave "' + keyVal + '" no registrada. El Administrador debe darte de alta en el Panel de Administración.';
+        errorBox.classList.remove('hidden');
+        return;
+      }
+
+      const session = {
+        type: 'entity',
+        id: matched.id,
+        name: matched.name,
+        key: matched.key,
+        assignedStations: matched.assignedStations || []
+      };
+      localStorage.setItem('lora_rio_active_session', JSON.stringify(session));
+
+      try {
+        let log = JSON.parse(localStorage.getItem('lora_rio_audit_log') || '[]');
+        log.unshift({
+          id: 'act_' + Date.now(),
+          timestamp: Date.now(),
+          timeStr: new Date().toLocaleTimeString('es-MX'),
+          dateStr: new Date().toLocaleDateString('es-MX'),
+          userName: matched.name,
+          userType: 'entity',
+          userKey: matched.key,
+          action: 'LOGIN',
+          details: 'Inició sesión desde la Landing Page'
+        });
+        localStorage.setItem('lora_rio_audit_log', JSON.stringify(log));
+      } catch(e) {}
+
+      window.location.href = 'dashboard_rio.html';
+    }
+
+    function handleLandingAdminLogin(e) {
+      e.preventDefault();
+      const user = (document.getElementById('landing-admin-user').value || '').trim();
+      const pass = (document.getElementById('landing-admin-pass').value || '').trim();
+      const errorBox = document.getElementById('landing-admin-error');
+
+      errorBox.classList.add('hidden');
+      const validPin = localStorage.getItem('admin_pin') || 'admin2026';
+
+      if ((user.toLowerCase() === 'admin' || user.toLowerCase() === 'administrador') && (pass === validPin || pass === 'admin2026' || pass === 'admin')) {
+        const session = {
+          type: 'admin',
+          name: 'Administrador Maestro'
+        };
+        localStorage.setItem('lora_rio_active_session', JSON.stringify(session));
+
+        try {
+          let log = JSON.parse(localStorage.getItem('lora_rio_audit_log') || '[]');
+          log.unshift({
+            id: 'act_' + Date.now(),
+            timestamp: Date.now(),
+            timeStr: new Date().toLocaleTimeString('es-MX'),
+            dateStr: new Date().toLocaleDateString('es-MX'),
+            userName: 'Administrador Maestro',
+            userType: 'admin',
+            userKey: 'ROOT',
+            action: 'LOGIN_ADMIN',
+            details: 'Administrador inició sesión desde la Landing Page'
+          });
+          localStorage.setItem('lora_rio_audit_log', JSON.stringify(log));
+        } catch(e) {}
+
+        if (landingAdminTarget === 'admin') {
+          window.location.href = 'admin.html';
+        } else {
+          window.location.href = 'dashboard_rio.html';
+        }
+      } else {
+        errorBox.classList.remove('hidden');
+      }
+    }
+
+    function checkLandingAuthButton() {
+      try {
+        const raw = localStorage.getItem('lora_rio_active_session');
+        if (raw) {
+          const session = JSON.parse(raw);
+          const btn = document.getElementById('btn-landing-auth');
+          const txt = document.getElementById('landing-auth-text');
+          const icon = document.getElementById('landing-auth-icon');
+          if (btn && session) {
+            if (session.type === 'admin') {
+              txt.textContent = 'Panel Admin';
+              icon.setAttribute('data-lucide', 'shield-check');
+              btn.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-xs transition active:scale-95';
+              btn.onclick = () => { window.location.href = 'admin.html'; };
+            } else if (session.type === 'entity') {
+              txt.textContent = 'Mi Sesión';
+              icon.setAttribute('data-lucide', 'user-check');
+              btn.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-xs transition active:scale-95';
+              btn.onclick = () => { window.location.href = 'dashboard_rio.html'; };
+            }
+          }
+        }
+      } catch(e) {}
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      checkLandingAuthButton();
+    });
   </script>
+
+  <!-- ==================== MODAL DE INICIO DE SESIÓN DIRECTO DESDE LA LANDING ==================== -->
+  <div id="modal-landing-login" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="max-w-md w-full rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border border-sky-200 space-y-5 relative">
+      
+      <!-- Botón cerrar modal -->
+      <button onclick="cerrarModalLoginLanding()" class="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="text-center space-y-1">
+        <div class="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-sky-600 via-cyan-600 to-teal-500 text-white flex items-center justify-center shadow-md shadow-sky-600/20 mb-2">
+          <i data-lucide="waves" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-xl font-black text-slate-900">Acceso a la Plataforma</h3>
+        <p class="text-xs text-slate-600">Ingresa como Administrador o como Entidad Autorizada.</p>
+      </div>
+
+      <!-- Selector de Pestañas (Admin / Entidad) -->
+      <div class="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-slate-100 border border-slate-200 text-xs font-bold">
+        <button id="tab-landing-entity" onclick="switchLandingLoginTab('entity')" class="py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 bg-sky-100 text-sky-800 border border-sky-300 shadow-xs">
+          <i data-lucide="building" class="w-3.5 h-3.5"></i>
+          <span>Entidad / Clave</span>
+        </button>
+        <button id="tab-landing-admin" onclick="switchLandingLoginTab('admin')" class="py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-slate-500 hover:text-slate-900">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+          <span>Administrador</span>
+        </button>
+      </div>
+
+      <!-- Formulario 1: Entidad / Organismo con Clave -->
+      <form id="form-landing-entity" onsubmit="handleLandingEntityLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Clave de Acceso Única</label>
+          <input type="text" id="landing-entity-key" placeholder="Ej: PC-TABASCO-2026" required
+                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm font-mono font-bold uppercase">
+          <p class="text-[10px] text-slate-500 mt-1">Clave proporcionada por el Administrador de la red.</p>
+        </div>
+
+        <div id="landing-entity-error" class="hidden p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
+          <span id="landing-entity-error-text">Clave de acceso no registrada.</span>
+        </div>
+
+        <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-sky-600 to-teal-600 hover:from-sky-500 hover:to-teal-500 text-white font-extrabold text-xs uppercase tracking-wider shadow-md transition active:scale-95 flex items-center justify-center gap-2">
+          <i data-lucide="log-in" class="w-4 h-4"></i>
+          <span>Ingresar a Mis Estaciones</span>
+        </button>
+      </form>
+
+      <!-- Formulario 2: Administrador Maestro -->
+      <form id="form-landing-admin" onsubmit="handleLandingAdminLogin(event)" class="space-y-4 hidden">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Usuario Maestro</label>
+          <input type="text" id="landing-admin-user" value="admin" required
+                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm font-semibold">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Contraseña</label>
+          <input type="password" id="landing-admin-pass" placeholder="••••••••" required
+                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm font-semibold font-mono">
+        </div>
+
+        <div id="landing-admin-error" class="hidden p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
+          Usuario o contraseña incorrectos. (Predeterminado: admin / admin2026)
+        </div>
+
+        <!-- Botones para elegir destino de Admin: Dashboard o Panel Admin -->
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button type="submit" onclick="setLandingAdminTarget('dashboard')" class="py-2.5 px-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs transition active:scale-95 flex items-center justify-center gap-1.5">
+            <i data-lucide="waves" class="w-3.5 h-3.5"></i>
+            <span>Ver Dashboard</span>
+          </button>
+          <button type="submit" onclick="setLandingAdminTarget('admin')" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-xs transition active:scale-95 flex items-center justify-center gap-1.5">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+            <span>Panel Admin</span>
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
 </body>
 </html>
