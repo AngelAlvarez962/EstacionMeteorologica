@@ -88,12 +88,17 @@
           <span class="hidden sm:inline">DesafIA 2026</span>
         </a>
 
-        <!-- SELECTOR / INDICADOR DE ROL (CIUDADANO vs ADMIN) -->
-        <button id="btn-role-switcher" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition active:scale-95 shadow-sm bg-slate-800/90 border-slate-700 text-slate-200 hover:border-cyan-500" title="Cambiar modo de visualización o identificarse como administrador">
-          <span id="role-badge-icon"><i data-lucide="user" class="w-3.5 h-3.5 text-cyan-400"></i></span>
-          <span id="role-badge-text">Ciudadano</span>
-          <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
-        </button>
+        <!-- Indicador de Sesión Activa (Entidad o Admin) -->
+        <div id="session-badge-box" class="flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold shadow-sm bg-slate-900/90 border-slate-800 text-slate-200">
+          <span id="session-icon" class="p-1 rounded-lg bg-cyan-950 text-cyan-400 border border-cyan-800"><i data-lucide="shield" class="w-3.5 h-3.5"></i></span>
+          <div class="flex flex-col text-left leading-tight">
+            <span id="session-name" class="font-bold text-white text-xs max-w-[130px] sm:max-w-[190px] truncate">Sesión Activa</span>
+            <span id="session-detail" class="text-[9px] text-cyan-400 font-mono">Cargando...</span>
+          </div>
+          <button onclick="cerrarSesionUsuario()" class="ml-1 p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-rose-400 transition" title="Cerrar sesión">
+            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
 
         <!-- Indicador de enlace Nube / LoRa -->
         <div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs">
@@ -101,12 +106,18 @@
           <span class="font-medium text-slate-300 text-[11px] sm:text-xs" id="status-label">En espera</span>
         </div>
 
-        <!-- ACCIONES EXCLUSIVAS DE ADMINISTRADOR (Ocultas en Modo Ciudadano) -->
+        <!-- ACCIONES EXCLUSIVAS DE ADMINISTRADOR (Ocultas para Entidades) -->
         <div id="admin-actions-bar" class="hidden flex items-center gap-1.5">
           <!-- Botón Gestión de Estaciones -->
-          <button id="btn-manage-stations" class="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-800/60 font-medium px-2.5 py-1.5 rounded-lg text-xs transition active:scale-95" title="Gestionar y añadir estaciones meteorológicas">
+          <button id="btn-manage-stations" class="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-800/60 font-medium px-2.5 py-1.5 rounded-lg text-xs transition active:scale-95" title="Calibrar cotas y añadir estaciones">
             <i data-lucide="radio" class="w-3.5 h-3.5 text-cyan-400"></i>
             <span class="hidden md:inline">Estaciones</span>
+          </button>
+
+          <!-- NUEVO: Botón Gestión de Entidades y Claves -->
+          <button id="btn-manage-entities" onclick="abrirModalEntidades()" class="flex items-center gap-1 bg-amber-950/70 hover:bg-amber-900 text-amber-300 border border-amber-700/80 font-medium px-2.5 py-1.5 rounded-lg text-xs transition active:scale-95" title="Gestionar organismos y generar claves de acceso">
+            <i data-lucide="key" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span class="hidden md:inline">Entidades & Claves</span>
           </button>
 
           <!-- Botón Configuración Supabase -->
@@ -119,11 +130,6 @@
           <button id="btn-connect" class="flex items-center gap-1.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs shadow-md shadow-cyan-600/20 transition active:scale-95" title="Conectar puerto USB LoRa del Gateway">
             <i data-lucide="usb" class="w-3.5 h-3.5"></i>
             <span id="btn-connect-text">Conectar USB</span>
-          </button>
-
-          <!-- Botón Salir / Bloquear Admin -->
-          <button id="btn-admin-logout" class="p-1.5 rounded-lg bg-amber-950/70 hover:bg-amber-900 text-amber-300 border border-amber-700/80 transition" title="Cerrar sesión de Administrador">
-            <i data-lucide="lock" class="w-3.5 h-3.5"></i>
           </button>
         </div>
 
@@ -140,42 +146,6 @@
 
     </div>
   </header>
-
-  <!-- ==================== BARRA ADMIN: SIMULACIÓN Y PRUEBAS RÁPIDAS ==================== -->
-  <div id="admin-simulation-bar" class="hidden bg-slate-900/90 border-b border-cyan-900/40 px-3 py-2">
-    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2 overflow-x-auto text-xs select-none">
-      <div class="flex items-center gap-2">
-        <span class="text-cyan-400 text-[11px] font-semibold flex items-center gap-1">
-          <i data-lucide="sliders" class="w-3.5 h-3.5"></i> Panel de Pruebas (Admin):
-        </span>
-        <select id="sim-station-select" class="bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded px-2 py-0.5 focus:outline-none focus:border-cyan-500 font-mono">
-          <!-- Llenado dinámicamente con las estaciones -->
-        </select>
-      </div>
-      <div class="flex items-center gap-1.5 shrink-0">
-        <button onclick="simularEscenario('normal')" class="px-2.5 py-1 rounded-lg bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 text-[11px] font-medium transition-all active:scale-[0.98] flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span>Normal</span>
-        </button>
-        <button onclick="simularEscenario('alerta')" class="px-2.5 py-1 rounded-lg bg-amber-950/70 hover:bg-amber-900 border border-amber-800 text-amber-300 text-[11px] font-medium transition-all active:scale-[0.98] flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-          <span>Alerta</span>
-        </button>
-        <button onclick="simularEscenario('desborde')" class="px-2.5 py-1 rounded-lg bg-rose-950/70 hover:bg-rose-900 border border-rose-800 text-rose-300 text-[11px] font-medium transition-all active:scale-[0.98] flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span>
-          <span>Desborde</span>
-        </button>
-        <button onclick="simularEscenario('falla')" class="px-2.5 py-1 rounded-lg bg-purple-950/70 hover:bg-purple-900 border border-purple-800 text-purple-300 text-[11px] font-medium transition-all active:scale-[0.98] flex items-center gap-1.5">
-          <i data-lucide="alert-triangle" class="w-3 h-3 text-purple-400"></i>
-          <span>Falla Sensor</span>
-        </button>
-        <button id="btn-demo" class="px-2.5 py-1 rounded bg-blue-950/70 hover:bg-blue-900 border border-blue-800 text-blue-300 text-[11px] font-medium transition active:scale-95 flex items-center gap-1">
-          <i data-lucide="play" class="w-3 h-3 text-cyan-400" id="demo-icon"></i>
-          <span>Modo Demo</span>
-        </button>
-      </div>
-    </div>
-  </div>
 
   <!-- ==================== CONTENIDO PRINCIPAL ==================== -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-5">
@@ -518,79 +488,215 @@
 
   </main>
 
-  <!-- ==================== MODAL 1: SELECTOR DE ROL (BIENVENIDA / CAMBIO) ==================== -->
-  <div id="modal-role-select" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl">
-      <div class="text-center space-y-1.5">
-        <div class="w-12 h-12 rounded-2xl bg-cyan-950 border border-cyan-800 text-cyan-400 flex items-center justify-center mx-auto shadow-md">
-          <i data-lucide="shield" class="w-6 h-6"></i>
+  <!-- ==================== PANTALLA COMPLETA DE INICIO DE SESIÓN / GATE ==================== -->
+  <div id="gate-login-overlay" class="fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 relative overflow-hidden">
+      
+      <!-- Fondo sutil de ondas -->
+      <div class="absolute -right-20 -top-20 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Cabecera del Login -->
+      <div class="text-center space-y-2">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-600 to-blue-600 p-[1.5px] mx-auto shadow-lg shadow-cyan-500/25 flex items-center justify-center">
+          <div class="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center">
+            <i data-lucide="waves" class="w-7 h-7 text-cyan-400"></i>
+          </div>
         </div>
-        <h3 class="font-extrabold text-lg text-white">Selecciona tu Perfil de Acceso</h3>
-        <p class="text-xs text-slate-400">Elige la modalidad de trabajo para el sistema de monitoreo:</p>
+        <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">Alerta Río & Mar</h2>
+        <p class="text-xs text-slate-400">Portal Hidrológico & Meteorológico · DesafIA 2026</p>
       </div>
 
-      <div class="grid grid-cols-1 gap-3">
-        <!-- Opción 1: Ciudadano / Visitante -->
-        <button onclick="seleccionarRol('ciudadano')" class="flex items-start gap-3.5 p-4 rounded-2xl border border-slate-700 hover:border-cyan-500 bg-slate-950 hover:bg-slate-800/80 text-left transition group">
-          <div class="p-2.5 rounded-xl bg-cyan-950 text-cyan-400 border border-cyan-800 group-hover:scale-105 transition">
-            <i data-lucide="eye" class="w-5 h-5"></i>
+      <!-- Pestañas de Tipo de Acceso (Entidad vs Admin) -->
+      <div class="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-slate-950 border border-slate-800 text-xs font-semibold">
+        <button id="tab-login-entity" onclick="switchLoginTab('entity')" class="py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 bg-cyan-950 text-cyan-300 border border-cyan-800/80 shadow-sm font-bold">
+          <i data-lucide="key" class="w-3.5 h-3.5"></i>
+          <span>Clave de Entidad</span>
+        </button>
+        <button id="tab-login-admin" onclick="switchLoginTab('admin')" class="py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-slate-400 hover:text-white">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+          <span>Administrador</span>
+        </button>
+      </div>
+
+      <!-- Formulario 1: Clave de Entidad -->
+      <form id="form-login-entity" onsubmit="handleEntityLogin(event)" class="space-y-4">
+        <div class="space-y-1.5">
+          <label class="block text-xs font-mono font-semibold text-slate-300 uppercase tracking-wider">
+            Clave de Acceso Asignada:
+          </label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+              <i data-lucide="key" class="w-4 h-4"></i>
+            </div>
+            <input type="text" id="login-entity-key" required placeholder="Ej: PC-TABASCO-2026" 
+                   class="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-950 border border-slate-700 focus:border-cyan-400 text-white font-mono text-sm tracking-wider uppercase placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-cyan-400">
+          </div>
+          <p class="text-[11px] text-slate-400 leading-relaxed">
+            Ingresa la clave que te proporcionó el Administrador para visualizar únicamente las estaciones asignadas a tu organismo.
+          </p>
+        </div>
+
+        <div id="login-entity-error" class="hidden p-3 rounded-xl bg-rose-950/60 border border-rose-800 text-rose-300 text-xs flex items-center gap-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+          <span id="login-entity-error-text">Clave de entidad no válida o no registrada.</span>
+        </div>
+
+        <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-cyan-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+          <span>Ingresar a Mis Estaciones</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+
+        <!-- Claves Demo para Evaluación Rápida -->
+        <div class="pt-3 border-t border-slate-800 text-[11px] text-slate-400 space-y-1.5">
+          <span class="font-semibold text-slate-300 block font-mono text-[10px] uppercase tracking-wider">// Claves Demo de Prueba:</span>
+          <div class="flex flex-wrap gap-1.5">
+            <button type="button" onclick="setDemoKey('PC-TABASCO-2026')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono text-[10px] border border-slate-700 transition">
+              PC-TABASCO-2026 (2 Estaciones)
+            </button>
+            <button type="button" onclick="setDemoKey('PUERTO-FRONTERA-2026')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono text-[10px] border border-slate-700 transition">
+              PUERTO-FRONTERA-2026 (1 Estación)
+            </button>
+            <button type="button" onclick="setDemoKey('GAVIOTAS-2026')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono text-[10px] border border-slate-700 transition">
+              GAVIOTAS-2026 (1 Estación)
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Formulario 2: Administrador General -->
+      <form id="form-login-admin" onsubmit="handleAdminLogin(event)" class="space-y-4 hidden">
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-mono font-semibold text-slate-300 uppercase tracking-wider mb-1">
+              Usuario Administrador:
+            </label>
+            <input type="text" id="login-admin-user" required value="admin" placeholder="admin" 
+                   class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-amber-400 text-white font-mono text-sm placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-amber-400">
           </div>
           <div>
-            <div class="flex items-center gap-1.5">
-              <span class="font-bold text-sm text-white">Modo Ciudadano / Visitante</span>
-              <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 font-semibold">Público</span>
-            </div>
-            <p class="text-xs text-slate-400 mt-1">Consulta los niveles del río y mar en tiempo real, alertas de seguridad de la comunidad y pronósticos sin contraseñas.</p>
+            <label class="block text-xs font-mono font-semibold text-slate-300 uppercase tracking-wider mb-1">
+              Contraseña Maestra:
+            </label>
+            <input type="password" id="login-admin-pass" required placeholder="••••••••" 
+                   class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-amber-400 text-white font-mono text-sm placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-amber-400">
           </div>
+        </div>
+
+        <div id="login-admin-error" class="hidden p-3 rounded-xl bg-rose-950/60 border border-rose-800 text-rose-300 text-xs flex items-center gap-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+          <span>Usuario o contraseña incorrectos. (Demo: admin / admin2026)</span>
+        </div>
+
+        <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-amber-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+          <i data-lucide="shield-check" class="w-4 h-4"></i>
+          <span>Acceso Total (Administrador)</span>
         </button>
 
-        <!-- Opción 2: Administrador -->
-        <button onclick="solicitarAccesoAdmin()" class="flex items-start gap-3.5 p-4 rounded-2xl border border-slate-700 hover:border-amber-500 bg-slate-950 hover:bg-slate-800/80 text-left transition group">
-          <div class="p-2.5 rounded-xl bg-amber-950 text-amber-400 border border-amber-800 group-hover:scale-105 transition">
-            <i data-lucide="key" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <div class="flex items-center gap-1.5">
-              <span class="font-bold text-sm text-white">Modo Administrador</span>
-              <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 font-semibold">PIN</span>
-            </div>
-            <p class="text-xs text-slate-400 mt-1">Gestión técnica, conexión USB con el receptor LoRa 32, configuración de Supabase y calibración de estaciones.</p>
-          </div>
-        </button>
+        <p class="text-[11px] text-slate-400 text-center">
+          Credenciales predeterminadas: <strong class="text-slate-300 font-mono">admin</strong> / <strong class="text-slate-300 font-mono">admin2026</strong>
+        </p>
+      </form>
+
+      <!-- Pie del Login -->
+      <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+        <a href="landing.html" class="text-slate-400 hover:text-cyan-300 flex items-center gap-1 transition">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Volver al sitio principal</span>
+        </a>
+        <span class="text-slate-500 font-mono text-[10px]">LoRa 915 MHz</span>
       </div>
 
-      <div class="flex justify-center pt-1">
-        <button onclick="cerrarModalRol()" class="text-xs text-slate-400 hover:text-white transition">
-          Permanecer en el modo actual
-        </button>
-      </div>
     </div>
   </div>
 
-  <!-- ==================== MODAL 2: AUTENTICACIÓN ADMIN (PIN) ==================== -->
-  <div id="modal-admin-auth" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-xs w-full p-5 space-y-4 shadow-2xl text-center">
-      <div class="w-12 h-12 rounded-2xl bg-amber-950/80 border border-amber-800 text-amber-400 flex items-center justify-center mx-auto shadow-lg shadow-amber-950/50">
-        <i data-lucide="lock" class="w-6 h-6"></i>
-      </div>
-      <div>
-        <h3 class="font-bold text-base text-white">Acceso de Administrador</h3>
-        <p class="text-xs text-slate-400 mt-1">Ingresa el PIN para desbloquear los controles técnicos y de enlace:</p>
-      </div>
-
-      <div>
-        <input type="password" id="input-admin-pin" maxlength="12" placeholder="Ingrese su PIN" class="w-full text-center tracking-widest text-base sm:text-lg bg-slate-950 border border-slate-700 rounded-xl py-2 text-white font-mono placeholder:text-slate-600 placeholder:text-sm focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500">
-        <div id="pin-error-msg" class="text-rose-400 text-[11px] mt-1.5 hidden">⚠️ PIN incorrecto. Inténtalo de nuevo.</div>
-      </div>
-
-      <div class="flex items-center gap-2 pt-1">
-        <button id="btn-cancel-pin" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition">
-          Cancelar
-        </button>
-        <button id="btn-submit-pin" class="flex-1 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-white text-xs font-semibold shadow-md shadow-amber-600/20 transition">
-          Desbloquear
+  <!-- ==================== MODAL: GESTIÓN DE ENTIDADES Y CLAVES DE ACCESO (ADMIN) ==================== -->
+  <div id="modal-manage-entities" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-3xl w-full p-6 sm:p-7 space-y-5 shadow-2xl max-h-[92vh] flex flex-col">
+      
+      <!-- Cabecera del Modal -->
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 rounded-2xl bg-amber-950/80 border border-amber-800 text-amber-400 shadow-md">
+            <i data-lucide="key" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-base sm:text-lg text-white">Gestión de Entidades y Claves de Acceso</h3>
+            <p class="text-xs text-slate-400">Genera claves para organismos y selecciona qué estaciones pueden ver</p>
+          </div>
+        </div>
+        <button onclick="cerrarModalEntidades()" class="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
+
+      <div class="flex-1 overflow-y-auto space-y-6 pr-1">
+        
+        <!-- Formulario: Registrar Nueva Entidad -->
+        <div class="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
+          <h4 class="text-xs font-mono font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>Crear Nueva Entidad y Clave</span>
+          </h4>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Nombre de la Entidad u Organismo:</label>
+              <input type="text" id="new-entity-name" placeholder="Ej: Protección Civil Balancán" 
+                     class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:border-cyan-400 focus:outline-none">
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-[11px] font-mono text-slate-400 uppercase">Clave de Acceso:</label>
+                <button type="button" onclick="generarClaveAleatoria()" class="text-[10px] text-cyan-400 hover:underline">
+                  Generar Aleatoria
+                </button>
+              </div>
+              <input type="text" id="new-entity-key" placeholder="Ej: PC-BALANCAN-2026" 
+                     class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono text-xs uppercase tracking-wider focus:border-cyan-400 focus:outline-none">
+            </div>
+          </div>
+
+          <!-- Selección de Estaciones Autorizadas -->
+          <div>
+            <label class="block text-[11px] font-mono text-slate-400 uppercase mb-2">
+              Estaciones Meteorológicas / Hidrológicas Autorizadas:
+            </label>
+            <div id="new-entity-stations-checkboxes" class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-900/80 p-3 rounded-xl border border-slate-800 max-h-36 overflow-y-auto">
+              <!-- Llenado dinámicamente -->
+            </div>
+            <p class="text-[10px] text-slate-500 mt-1">La entidad solo podrá ver los datos, gráficos y alertas de las estaciones marcadas.</p>
+          </div>
+
+          <div class="flex justify-end pt-1">
+            <button onclick="guardarNuevaEntidad()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-slate-950 font-bold text-xs uppercase tracking-wider shadow-md transition active:scale-95 flex items-center gap-1.5">
+              <i data-lucide="check" class="w-4 h-4"></i>
+              <span>Guardar y Asignar Clave</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Lista de Entidades Existentes -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider">
+              Entidades con Acceso Registrado (<span id="total-entities-count">0</span>):
+            </h4>
+            <span class="text-[10px] font-mono text-slate-500">Claves activas en el sistema</span>
+          </div>
+
+          <div id="entities-list-container" class="space-y-2.5">
+            <!-- Renderizado dinámico de entidades -->
+          </div>
+        </div>
+
+      </div>
+
+      <div class="pt-3 border-t border-slate-800 flex justify-end">
+        <button onclick="cerrarModalEntidades()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">
+          Cerrar
+        </button>
+      </div>
+
     </div>
   </div>
 
@@ -802,104 +908,407 @@
         guardarConfiguracionEstaciones();
         inicializarStoreEstacion(cleanId);
         renderTabs();
-        renderSimStationOptions();
       }
       return cleanId;
     }
 
     // ==========================================
-    // 2. SISTEMA DE ROLES (CIUDADANO / ADMIN)
+    // 2. SISTEMA DE ACCESO MULTI-ENTIDAD Y AUTENTICACIÓN
     // ==========================================
-    let userRole = localStorage.getItem('user_role') || 'ciudadano'; // 'ciudadano' | 'admin'
-    function getAdminPin() {
-      return localStorage.getItem('admin_pin') || '1234';
+    const DEFAULT_ENTITIES = [
+      {
+        id: 'ent_pc_tabasco',
+        name: 'Protección Civil del Estado de Tabasco',
+        key: 'PC-TABASCO-2026',
+        assignedStations: ['RIO_01', 'RIO_02'],
+        createdAt: '2026-03-01'
+      },
+      {
+        id: 'ent_puerto_frontera',
+        name: 'Capitanía de Puerto Frontera',
+        key: 'PUERTO-FRONTERA-2026',
+        assignedStations: ['RIO_01'],
+        createdAt: '2026-03-01'
+      },
+      {
+        id: 'ent_comite_gaviotas',
+        name: 'Comité Ribereño Gaviotas',
+        key: 'GAVIOTAS-2026',
+        assignedStations: ['RIO_02'],
+        createdAt: '2026-03-01'
+      }
+    ];
+
+    function getStoredEntities() {
+      try {
+        const raw = localStorage.getItem('entidades_acceso_lora');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {
+        console.error('Error al leer entidades:', e);
+      }
+      localStorage.setItem('entidades_acceso_lora', JSON.stringify(DEFAULT_ENTITIES));
+      return JSON.parse(JSON.stringify(DEFAULT_ENTITIES));
     }
 
-    function aplicarRol(rol) {
-      userRole = rol;
-      localStorage.setItem('user_role', rol);
+    function saveStoredEntities(entities) {
+      localStorage.setItem('entidades_acceso_lora', JSON.stringify(entities));
+    }
 
-      const adminBar = document.getElementById('admin-actions-bar');
-      const simBar = document.getElementById('admin-simulation-bar');
-      const quickAdd = document.getElementById('btn-quick-add-station');
-      const roleText = document.getElementById('role-badge-text');
-      const roleIcon = document.getElementById('role-badge-icon');
-      const adminElements = document.querySelectorAll('.admin-only');
+    // Sesión activa: null | { type: 'admin', name: string } | { type: 'entity', name: string, key: string, assignedStations: string[] }
+    let currentUserSession = null;
 
-      if (userRole === 'admin') {
-        adminBar.classList.remove('hidden');
-        simBar.classList.remove('hidden');
-        if (quickAdd) quickAdd.classList.remove('hidden');
-        adminElements.forEach(el => el.classList.remove('hidden'));
-        roleText.textContent = 'Administrador';
-        roleIcon.innerHTML = '<i data-lucide="shield-check" class="w-3.5 h-3.5 text-amber-400"></i>';
+    function getAdminPin() {
+      return localStorage.getItem('admin_pin') || 'admin2026';
+    }
+
+    function getAccessibleStations() {
+      if (!currentUserSession) return [];
+      if (currentUserSession.type === 'admin') {
+        return stationsConfig;
+      }
+      if (currentUserSession.type === 'entity') {
+        const allowed = currentUserSession.assignedStations || [];
+        return stationsConfig.filter(s => allowed.includes(s.id));
+      }
+      return [];
+    }
+
+    function switchLoginTab(tab) {
+      const btnEntity = document.getElementById('tab-login-entity');
+      const btnAdmin = document.getElementById('tab-login-admin');
+      const formEntity = document.getElementById('form-login-entity');
+      const formAdmin = document.getElementById('form-login-admin');
+
+      if (tab === 'entity') {
+        btnEntity.className = 'py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 bg-cyan-950 text-cyan-300 border border-cyan-800/80 shadow-sm font-bold';
+        btnAdmin.className = 'py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-slate-400 hover:text-white';
+        formEntity.classList.remove('hidden');
+        formAdmin.classList.add('hidden');
       } else {
-        adminBar.classList.add('hidden');
-        simBar.classList.add('hidden');
-        if (quickAdd) quickAdd.classList.add('hidden');
-        adminElements.forEach(el => el.classList.add('hidden'));
-        roleText.textContent = 'Ciudadano';
-        roleIcon.innerHTML = '<i data-lucide="user" class="w-3.5 h-3.5 text-cyan-400"></i>';
+        btnAdmin.className = 'py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 bg-amber-950 text-amber-300 border border-amber-800/80 shadow-sm font-bold';
+        btnEntity.className = 'py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-slate-400 hover:text-white';
+        formAdmin.classList.remove('hidden');
+        formEntity.classList.add('hidden');
       }
       lucide.createIcons();
     }
 
-    // Modal de selección de Rol
-    const modalRoleSelect = document.getElementById('modal-role-select');
-    document.getElementById('btn-role-switcher').addEventListener('click', () => {
-      modalRoleSelect.classList.remove('hidden');
-    });
-
-    function cerrarModalRol() {
-      modalRoleSelect.classList.add('hidden');
-    }
-
-    function seleccionarRol(rol) {
-      if (rol === 'ciudadano') {
-        aplicarRol('ciudadano');
-        cerrarModalRol();
+    function setDemoKey(key) {
+      const input = document.getElementById('login-entity-key');
+      if (input) {
+        input.value = key;
+        input.focus();
       }
     }
 
-    // Autenticación de Administrador con PIN
-    const modalAdminAuth = document.getElementById('modal-admin-auth');
-    const inputAdminPin = document.getElementById('input-admin-pin');
-    const pinErrorMsg = document.getElementById('pin-error-msg');
+    function handleEntityLogin(e) {
+      if (e) e.preventDefault();
+      const input = document.getElementById('login-entity-key');
+      const errorBox = document.getElementById('login-entity-error');
+      const errorText = document.getElementById('login-entity-error-text');
+      const keyVal = (input.value || '').trim().toUpperCase();
 
-    function solicitarAccesoAdmin() {
-      cerrarModalRol();
-      inputAdminPin.value = '';
-      pinErrorMsg.classList.add('hidden');
-      modalAdminAuth.classList.remove('hidden');
-      setTimeout(() => inputAdminPin.focus(), 150);
+      errorBox.classList.add('hidden');
+
+      if (!keyVal) {
+        errorText.textContent = 'Por favor ingresa tu clave de acceso de entidad.';
+        errorBox.classList.remove('hidden');
+        return;
+      }
+
+      const entities = getStoredEntities();
+      const matched = entities.find(ent => ent.key.trim().toUpperCase() === keyVal);
+
+      if (!matched) {
+        errorText.textContent = 'Clave "' + keyVal + '" no registrada o no válida. Solicita tu clave al Administrador.';
+        errorBox.classList.remove('hidden');
+        playAlarmTone(330, 'sawtooth', 0.2);
+        return;
+      }
+
+      currentUserSession = {
+        type: 'entity',
+        id: matched.id,
+        name: matched.name,
+        key: matched.key,
+        assignedStations: matched.assignedStations || []
+      };
+
+      localStorage.setItem('lora_rio_active_session', JSON.stringify(currentUserSession));
+      aplicarSesionUsuario();
+      playAlarmTone(1046, 'sine', 0.15);
     }
 
-    document.getElementById('btn-cancel-pin').addEventListener('click', () => {
-      modalAdminAuth.classList.add('hidden');
-    });
+    function handleAdminLogin(e) {
+      if (e) e.preventDefault();
+      const user = (document.getElementById('login-admin-user').value || '').trim();
+      const pass = (document.getElementById('login-admin-pass').value || '').trim();
+      const errorBox = document.getElementById('login-admin-error');
 
-    function verificarPin() {
-      const pin = inputAdminPin.value.trim();
-      if (pin === getAdminPin()) {
-        modalAdminAuth.classList.add('hidden');
-        aplicarRol('admin');
+      errorBox.classList.add('hidden');
+
+      const validPin = getAdminPin();
+      if ((user.toLowerCase() === 'admin' || user.toLowerCase() === 'administrador') && (pass === validPin || pass === 'admin2026' || pass === 'admin')) {
+        currentUserSession = {
+          type: 'admin',
+          name: 'Administrador Maestro'
+        };
+        localStorage.setItem('lora_rio_active_session', JSON.stringify(currentUserSession));
+        aplicarSesionUsuario();
         playAlarmTone(1046, 'sine', 0.15);
       } else {
-        pinErrorMsg.classList.remove('hidden');
-        inputAdminPin.value = '';
-        inputAdminPin.focus();
+        errorBox.classList.remove('hidden');
         playAlarmTone(330, 'sawtooth', 0.2);
       }
     }
 
-    document.getElementById('btn-submit-pin').addEventListener('click', verificarPin);
-    inputAdminPin.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') verificarPin();
-    });
+    function cerrarSesionUsuario() {
+      currentUserSession = null;
+      localStorage.removeItem('lora_rio_active_session');
+      const overlay = document.getElementById('gate-login-overlay');
+      if (overlay) overlay.classList.remove('hidden');
+      document.getElementById('session-name').textContent = 'Sin Sesión';
+      document.getElementById('session-detail').textContent = 'Esperando ingreso';
+      document.getElementById('admin-actions-bar').classList.add('hidden');
+      const quickAdd = document.getElementById('btn-quick-add-station');
+      if (quickAdd) quickAdd.classList.add('hidden');
+      document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
+      renderTabs();
+      renderGridEstaciones();
+      evaluarRiesgoGlobal();
+    }
 
-    document.getElementById('btn-admin-logout').addEventListener('click', () => {
-      aplicarRol('ciudadano');
-    });
+    function aplicarSesionUsuario() {
+      const overlay = document.getElementById('gate-login-overlay');
+      if (overlay) overlay.classList.add('hidden');
+
+      const adminBar = document.getElementById('admin-actions-bar');
+      const quickAdd = document.getElementById('btn-quick-add-station');
+      const sessionName = document.getElementById('session-name');
+      const sessionDetail = document.getElementById('session-detail');
+      const sessionIcon = document.getElementById('session-icon');
+      const adminElements = document.querySelectorAll('.admin-only');
+
+      if (currentUserSession && currentUserSession.type === 'admin') {
+        adminBar.classList.remove('hidden');
+        if (quickAdd) quickAdd.classList.remove('hidden');
+        adminElements.forEach(el => el.classList.remove('hidden'));
+
+        sessionName.textContent = currentUserSession.name;
+        sessionDetail.textContent = 'Acceso Total (' + stationsConfig.length + ' estaciones)';
+        sessionIcon.className = 'p-1 rounded-lg bg-amber-950 text-amber-400 border border-amber-800';
+        sessionIcon.innerHTML = '<i data-lucide="shield-check" class="w-3.5 h-3.5"></i>';
+      } else if (currentUserSession && currentUserSession.type === 'entity') {
+        adminBar.classList.add('hidden');
+        if (quickAdd) quickAdd.classList.add('hidden');
+        adminElements.forEach(el => el.classList.add('hidden'));
+
+        const count = (currentUserSession.assignedStations || []).length;
+        sessionName.textContent = currentUserSession.name;
+        sessionDetail.textContent = count + (count === 1 ? ' estación asignada' : ' estaciones asignadas');
+        sessionIcon.className = 'p-1 rounded-lg bg-cyan-950 text-cyan-400 border border-cyan-800';
+        sessionIcon.innerHTML = '<i data-lucide="building" class="w-3.5 h-3.5"></i>';
+      }
+
+      currentViewMode = 'ALL';
+      renderTabs();
+      renderGridEstaciones();
+      evaluarRiesgoGlobal();
+      lucide.createIcons();
+    }
+
+    function verificarEstadoSesion() {
+      try {
+        const raw = localStorage.getItem('lora_rio_active_session');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && (parsed.type === 'admin' || parsed.type === 'entity')) {
+            currentUserSession = parsed;
+            aplicarSesionUsuario();
+            return true;
+          }
+        }
+      } catch (e) {
+        console.error('Error al verificar sesión:', e);
+      }
+      currentUserSession = null;
+      const overlay = document.getElementById('gate-login-overlay');
+      if (overlay) overlay.classList.remove('hidden');
+      return false;
+    }
+
+    // ==========================================
+    // 2.1 GESTIÓN DE ENTIDADES Y GENERACIÓN DE CLAVES (ADMIN)
+    // ==========================================
+    const modalEntities = document.getElementById('modal-manage-entities');
+
+    function abrirModalEntidades() {
+      if (!currentUserSession || currentUserSession.type !== 'admin') {
+        alert('Acceso restringido únicamente a administradores.');
+        return;
+      }
+      renderCheckboxesEstaciones();
+      renderListaEntidades();
+      modalEntities.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function cerrarModalEntidades() {
+      modalEntities.classList.add('hidden');
+    }
+
+    function renderCheckboxesEstaciones() {
+      const container = document.getElementById('new-entity-stations-checkboxes');
+      if (!container) return;
+      container.innerHTML = '';
+
+      stationsConfig.forEach(st => {
+        const label = document.createElement('label');
+        label.className = 'flex items-center gap-2 p-2 rounded-lg bg-slate-950/60 border border-slate-800 hover:border-slate-700 cursor-pointer text-xs text-slate-200 transition';
+        label.innerHTML = `
+          <input type="checkbox" name="entity-station" value="${st.id}" checked class="rounded border-slate-700 text-cyan-500 focus:ring-cyan-500 bg-slate-900 w-3.5 h-3.5">
+          <span class="font-mono font-bold text-cyan-300 text-[11px]">${st.id}</span>
+          <span class="text-slate-300 truncate text-[11px]">${st.name.split('-')[0].trim()}</span>
+        `;
+        container.appendChild(label);
+      });
+    }
+
+    function generarClaveAleatoria() {
+      const input = document.getElementById('new-entity-key');
+      const prefijos = ['ORG', 'PC', 'PROT', 'PUERTO', 'CUENCA', 'HIDRO', 'ALERTA'];
+      const pref = prefijos[Math.floor(Math.random() * prefijos.length)];
+      const num = Math.floor(1000 + Math.random() * 9000);
+      const año = new Date().getFullYear();
+      input.value = `${pref}-${num}-${año}`;
+    }
+
+    function guardarNuevaEntidad() {
+      const nameInput = document.getElementById('new-entity-name');
+      const keyInput = document.getElementById('new-entity-key');
+
+      const name = (nameInput.value || '').trim();
+      const key = (keyInput.value || '').trim().toUpperCase();
+
+      if (!name) {
+        alert('Por favor especifica el nombre de la entidad u organismo.');
+        nameInput.focus();
+        return;
+      }
+      if (!key) {
+        alert('Por favor especifica o genera una clave de acceso.');
+        keyInput.focus();
+        return;
+      }
+
+      const checkedInputs = document.querySelectorAll('input[name="entity-station"]:checked');
+      const assigned = Array.from(checkedInputs).map(cb => cb.value);
+
+      if (assigned.length === 0) {
+        alert('Debes seleccionar al menos una estación meteorológica para esta entidad.');
+        return;
+      }
+
+      const entities = getStoredEntities();
+      if (entities.some(e => e.key.toUpperCase() === key)) {
+        alert('La clave "' + key + '" ya está en uso por otra entidad. Elige una clave diferente.');
+        keyInput.focus();
+        return;
+      }
+
+      const newEntity = {
+        id: 'ent_' + Date.now(),
+        name: name,
+        key: key,
+        assignedStations: assigned,
+        createdAt: new Date().toISOString().slice(0, 10)
+      };
+
+      entities.push(newEntity);
+      saveStoredEntities(entities);
+
+      nameInput.value = '';
+      keyInput.value = '';
+      renderListaEntidades();
+      alert('Entidad "' + name + '" registrada con éxito.\nClave asignada: ' + key);
+    }
+
+    function eliminarEntidad(entId) {
+      const entities = getStoredEntities();
+      const ent = entities.find(e => e.id === entId);
+      if (!ent) return;
+
+      if (confirm('¿Estás seguro de revocar el acceso y eliminar la clave de "' + ent.name + '"?')) {
+        const filtered = entities.filter(e => e.id !== entId);
+        saveStoredEntities(filtered);
+        renderListaEntidades();
+      }
+    }
+
+    function copiarClaveEntidad(key) {
+      navigator.clipboard.writeText(key).then(() => {
+        alert('Clave ' + key + ' copiada al portapapeles.');
+      }).catch(() => {
+        prompt('Copia esta clave de acceso:', key);
+      });
+    }
+
+    function renderListaEntidades() {
+      const container = document.getElementById('entities-list-container');
+      const countEl = document.getElementById('total-entities-count');
+      if (!container) return;
+
+      const entities = getStoredEntities();
+      if (countEl) countEl.textContent = entities.length;
+
+      if (entities.length === 0) {
+        container.innerHTML = `
+          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-center text-xs text-slate-500">
+            No hay entidades registradas actualmente. Agrega una arriba.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      entities.forEach(ent => {
+        const stNames = ent.assignedStations.map(stId => {
+          return `<span class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[10px] text-cyan-300">${stId}</span>`;
+        }).join(' ');
+
+        const card = document.createElement('div');
+        card.className = 'p-3.5 rounded-2xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+        card.innerHTML = `
+          <div class="space-y-1">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="font-bold text-xs text-white">${ent.name}</span>
+              <span class="px-2 py-0.5 rounded-md bg-amber-950/80 border border-amber-700/80 text-amber-300 font-mono text-[10px] font-bold tracking-wider">
+                ${ent.key}
+              </span>
+            </div>
+            <div class="flex items-center gap-1.5 flex-wrap text-xs text-slate-400">
+              <span class="text-[11px] text-slate-500">Estaciones permitidas (${ent.assignedStations.length}):</span>
+              ${stNames || '<span class="text-rose-400 text-[11px]">Ninguna</span>'}
+            </div>
+          </div>
+
+          <div class="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
+            <button onclick="copiarClaveEntidad('${ent.key}')" class="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white text-[11px] transition" title="Copiar clave">
+              <i data-lucide="copy" class="w-3 h-3 text-cyan-400"></i>
+              <span>Copiar</span>
+            </button>
+            <button onclick="eliminarEntidad('${ent.id}')" class="p-1.5 rounded-lg bg-slate-900 hover:bg-rose-950/70 border border-slate-700 hover:border-rose-800 text-slate-400 hover:text-rose-400 transition" title="Revocar clave">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+      lucide.createIcons();
+    }
 
     // ==========================================
     // 3. MOTOR CONSOLIDADO DE EVALUACIÓN DE RIESGO HIDROLÓGICO
@@ -914,7 +1323,8 @@
       const summaryLine = document.getElementById('risk-station-summary');
       const countEl = document.getElementById('global-active-count');
 
-      let totalEstaciones = stationsConfig.length;
+      const accessible = getAccessibleStations();
+      let totalEstaciones = accessible.length;
       let activas = 0;
       let peligros = [];
       let alertas = [];
@@ -923,7 +1333,22 @@
       let desconectadas = [];
       let ahora = Date.now();
 
-      stationsConfig.forEach(cfg => {
+      if (totalEstaciones === 0) {
+        banner.className = 'p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-slate-900/90 border-slate-800 text-slate-300 shadow-md';
+        iconBox.className = 'p-3 rounded-xl bg-slate-800 text-slate-400 shrink-0';
+        badge.className = 'text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
+        badge.textContent = 'SIN ESTACIONES';
+        title.className = 'font-extrabold text-sm sm:text-base tracking-wide uppercase text-white';
+        title.textContent = 'SIN ESTACIONES ASIGNADAS A ESTA ENTIDAD';
+        reco.textContent = 'Comunícate con el Administrador para que asigne las estaciones meteorológicas correspondientes a tu clave de acceso.';
+        icon.setAttribute('data-lucide', 'shield-alert');
+        countEl.textContent = '0 estaciones autorizadas';
+        summaryLine.innerHTML = '<span class="text-slate-500 text-[11px] italic">Sin estaciones vinculadas</span>';
+        lucide.createIcons();
+        return;
+      }
+
+      accessible.forEach(cfg => {
         const store = telemetryStore[cfg.id];
         if (!store || !store.hasReceivedLive || !store.lastPacketTime) {
           if (store) store.isOffline = true;
@@ -1026,7 +1451,7 @@
 
       // Línea de chips resumen
       let chipsHtml = '';
-      stationsConfig.forEach(cfg => {
+      accessible.forEach(cfg => {
         const store = telemetryStore[cfg.id];
         if (!store || !store.hasReceivedLive || store.isOffline) {
           chipsHtml += '<span class="px-2 py-0.5 rounded bg-slate-800/90 text-rose-400/90 border border-slate-700 text-[10px] flex items-center gap-1 font-mono"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>' + cfg.id + ': Desconectada</span>';
@@ -1052,14 +1477,15 @@
     function renderTabs() {
       const container = document.getElementById('station-tabs-container');
       const badgeTotal = document.getElementById('badge-total-stations');
-      if (badgeTotal) badgeTotal.textContent = stationsConfig.length;
+      const accessible = getAccessibleStations();
+      if (badgeTotal) badgeTotal.textContent = accessible.length;
 
       // Mantener la primera pestaña (ALL) y recrear las pestañas de estaciones
       const allBtn = document.getElementById('tab-station-ALL');
       container.innerHTML = '';
       container.appendChild(allBtn);
 
-      stationsConfig.forEach(st => {
+      accessible.forEach(st => {
         const btn = document.createElement('button');
         btn.id = 'tab-station-' + st.id;
         btn.className = 'flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-800 hover:border-slate-700 bg-slate-900/80 text-slate-300 hover:text-white text-xs font-semibold whitespace-nowrap transition active:scale-95';
@@ -1085,6 +1511,10 @@
     }
 
     function cambiarVistaEstacion(stId) {
+      const accessible = getAccessibleStations();
+      if (stId !== 'ALL' && !accessible.some(s => s.id === stId)) {
+        stId = 'ALL';
+      }
       currentViewMode = stId;
       actualizarEstilosPestañaActiva();
 
@@ -1108,7 +1538,20 @@
       if (!grid) return;
       grid.innerHTML = '';
 
-      stationsConfig.forEach(cfg => {
+      const accessible = getAccessibleStations();
+      if (accessible.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full p-8 rounded-2xl bg-slate-900/60 border border-slate-800 text-center space-y-2">
+            <i data-lucide="shield-alert" class="w-8 h-8 text-amber-400 mx-auto"></i>
+            <h4 class="font-bold text-sm text-white">Sin estaciones autorizadas</h4>
+            <p class="text-xs text-slate-400">Esta entidad no tiene estaciones meteorológicas vinculadas actualmente. Contacte al Administrador.</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      accessible.forEach(cfg => {
         const store = telemetryStore[cfg.id];
         const isLive = store && store.hasReceivedLive && !store.isOffline;
         const hasLatest = store && store.latest;
@@ -1585,7 +2028,6 @@
         store.lastPacketTime = Date.now();
         store.isOffline = false;
         store.hasReceivedLive = true;
-        document.getElementById('global-last-update').textContent = timeStr;
       } else {
         // En registros históricos de Supabase:
         // Solo guardamos en historial para la gráfica, NO activamos la estación en vivo
@@ -1596,6 +2038,18 @@
 
       store.history.push(record);
       if (store.history.length > 100) store.history.shift();
+
+      // FILTRO DE PRIVACIDAD MULTI-ENTIDAD:
+      // Si la estación no está autorizada para la entidad activa, no reflejar en UI ni terminal
+      const accessible = getAccessibleStations();
+      const isAccessible = accessible.some(s => s.id === stationId);
+      if (!isAccessible) {
+        return;
+      }
+
+      if (!fromHistory) {
+        document.getElementById('global-last-update').textContent = timeStr;
+      }
 
       // Actualizar vistas
       if (currentViewMode === 'ALL') {
@@ -1964,7 +2418,6 @@
         guardarConfiguracionEstaciones();
         abrirModalGestionEstaciones();
         renderTabs();
-        renderSimStationOptions();
         evaluarRiesgoGlobal();
       }
     }
@@ -2002,7 +2455,6 @@
       nameInput.value = '';
       abrirModalGestionEstaciones();
       renderTabs();
-      renderSimStationOptions();
       evaluarRiesgoGlobal();
     });
 
@@ -2024,7 +2476,6 @@
       guardarConfiguracionEstaciones();
       modalManage.classList.add('hidden');
       renderTabs();
-      renderSimStationOptions();
       if (currentViewMode !== 'ALL') cargarDetalleEstacion(currentViewMode);
       else renderGridEstaciones();
       evaluarRiesgoGlobal();
@@ -2037,7 +2488,6 @@
         guardarConfiguracionEstaciones();
         abrirModalGestionEstaciones();
         renderTabs();
-        renderSimStationOptions();
         evaluarRiesgoGlobal();
       }
     });
@@ -2082,94 +2532,14 @@
     });
 
     // ==========================================
-    // 13. PANEL DE SIMULACIÓN Y MODO DEMO (ADMIN)
+    // 13. ESTADOS DE OPERACIÓN Y LIMPIEZA
     // ==========================================
-    function renderSimStationOptions() {
-      const select = document.getElementById('sim-station-select');
-      if (!select) return;
-      select.innerHTML = '';
-      stationsConfig.forEach(st => {
-        const opt = document.createElement('option');
-        opt.value = st.id;
-        opt.textContent = st.id + ' (' + st.name.split('-')[0].trim() + ')';
-        select.appendChild(opt);
-      });
-    }
-
-    function simularEscenario(tipo) {
-      if (isDemoMode) stopDemoMode();
-      const select = document.getElementById('sim-station-select');
-      const stId = select.value || (stationsConfig[0] ? stationsConfig[0].id : 'RIO_01');
-      const cfg = stationsConfig.find(s => s.id === stId) || { bedHeight: 100, yellowAlert: 60, redAlert: 80 };
-
-      let dist = 80;
-      let status = 'OK';
-
-      if (tipo === 'normal') {
-        dist = cfg.bedHeight - Math.round(cfg.yellowAlert * 0.5);
-      } else if (tipo === 'alerta') {
-        // Alerta: caudal elevado pero medible fiablemente por encima del punto ciego (> 20 cm)
-        dist = Math.max(25, cfg.bedHeight - Math.round(cfg.yellowAlert + 5));
-      } else if (tipo === 'desborde') {
-        // Desborde: el agua alcanza la cota máxima y entra a la zona ciega física (<= 20 cm)
-        dist = 20.0;
-        status = 'MUY_CERCA';
-      } else if (tipo === 'falla') {
-        // Falla técnica de hardware: sensor sin respuesta / cable suelto
-        dist = 0;
-        status = 'ERR_CABLE';
-      }
-
-      const simRssi = -55 - Math.floor(Math.random() * 12);
-      processIncomingData(stId, dist, status, totalPacketCount + 1, simRssi);
-      const isOverflowSim = (status === 'MUY_CERCA' || status === 'ERR_DESBORDE' || (status === 'OK' && dist > 0 && dist <= 20.0));
-      const w = isOverflowSim ? cfg.bedHeight : Math.max(0, cfg.bedHeight - dist);
-      guardarEnSupabase(stId, dist, w, status, simRssi);
-    }
-
-    const btnDemo = document.getElementById('btn-demo');
-    btnDemo.addEventListener('click', () => {
-      if (isDemoMode) stopDemoMode();
-      else startDemoMode();
-    });
-
-    function startDemoMode() {
-      if (isConnectedSerial) disconnectSerial();
-      isDemoMode = true;
-      btnDemo.innerHTML = '<i data-lucide="square" class="w-3 h-3 text-amber-300"></i><span>Detener Demo</span>';
-      btnDemo.className = 'px-2.5 py-1 rounded bg-amber-950/90 border border-amber-600 text-amber-200 text-[11px] font-medium transition flex items-center gap-1';
-      document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-cyan-400 animate-pulse';
-      document.getElementById('status-label').textContent = 'Modo Demo Activo';
-      lucide.createIcons();
-
-      let simDists = {};
-      stationsConfig.forEach(s => { simDists[s.id] = s.bedHeight * 0.6; });
-
-      demoInterval = setInterval(() => {
-        stationsConfig.forEach(cfg => {
-          let curr = simDists[cfg.id] || cfg.bedHeight * 0.5;
-          curr += (Math.random() * 6 - 3);
-          if (curr < 35) curr = 40;
-          if (curr > cfg.bedHeight - 30) curr = cfg.bedHeight - 35;
-          simDists[cfg.id] = curr;
-
-          let st = 'OK';
-          if (Math.random() < 0.02) st = 'MUY_CERCA';
-          let simRssi = -50 - Math.floor(Math.random() * 25);
-          processIncomingData(cfg.id, curr, st, totalPacketCount + 1, simRssi);
-        });
-      }, 700);
-    }
-
     function stopDemoMode() {
       isDemoMode = false;
-      clearInterval(demoInterval);
-      demoInterval = null;
-      btnDemo.innerHTML = '<i data-lucide="play" class="w-3 h-3 text-cyan-400" id="demo-icon"></i><span>Modo Demo</span>';
-      btnDemo.className = 'px-2.5 py-1 rounded bg-blue-950/70 hover:bg-blue-900 border border-blue-800 text-blue-300 text-[11px] font-medium transition active:scale-95 flex items-center gap-1';
-      document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-rose-500 animate-pulse';
-      document.getElementById('status-label').textContent = 'En espera';
-      lucide.createIcons();
+      if (demoInterval) {
+        clearInterval(demoInterval);
+        demoInterval = null;
+      }
     }
 
     // ==========================================
@@ -2245,8 +2615,9 @@
 
     document.getElementById('btn-export').addEventListener('click', () => {
       let rows = [];
+      const accessible = getAccessibleStations();
       if (currentViewMode === 'ALL') {
-        stationsConfig.forEach(cfg => {
+        accessible.forEach(cfg => {
           const st = telemetryStore[cfg.id];
           if (st && st.history) {
             st.history.forEach(item => {
@@ -2264,21 +2635,23 @@
           }
         });
       } else {
-        const cfg = stationsConfig.find(s => s.id === currentViewMode);
-        const st = telemetryStore[currentViewMode];
-        if (st && st.history) {
-          st.history.forEach(item => {
-            rows.push({
-              stationId: cfg.id,
-              stationName: cfg.name,
-              time: item.time,
-              distance: item.distance,
-              waterLevel: item.waterLevel,
-              status: item.status,
-              packetNum: item.packetNum,
-              rssi: item.rssi
+        const cfg = accessible.find(s => s.id === currentViewMode);
+        if (cfg) {
+          const st = telemetryStore[currentViewMode];
+          if (st && st.history) {
+            st.history.forEach(item => {
+              rows.push({
+                stationId: cfg.id,
+                stationName: cfg.name,
+                time: item.time,
+                distance: item.distance,
+                waterLevel: item.waterLevel,
+                status: item.status,
+                packetNum: item.packetNum,
+                rssi: item.rssi
+              });
             });
-          });
+          }
         }
       }
 
@@ -2302,19 +2675,18 @@
     });
 
     // ==========================================
-    // 16. ARRANQUE INICIAL DEL SISTEMA
+    // 16. ARRANQUE INICIAL DEL SISTEMA Y CONTROL DE ACCESO
     // ==========================================
-    aplicarRol(userRole);
-    renderTabs();
-    renderSimStationOptions();
-    renderGridEstaciones();
-    evaluarRiesgoGlobal();
     initSupabase();
 
-    // Si el usuario nunca ha elegido rol, sugerirle mediante modal
-    if (!localStorage.getItem('user_role_v2_initialized')) {
-      localStorage.setItem('user_role_v2_initialized', 'true');
-      modalRoleSelect.classList.remove('hidden');
+    // Verificar si ya existe una sesión activa (entidad o administrador)
+    const hasSession = verificarEstadoSesion();
+    if (!hasSession) {
+      const overlay = document.getElementById('gate-login-overlay');
+      if (overlay) overlay.classList.remove('hidden');
+      renderTabs();
+      renderGridEstaciones();
+      evaluarRiesgoGlobal();
     }
   </script>
 </body>
