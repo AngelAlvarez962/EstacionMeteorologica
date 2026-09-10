@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="es" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Sistema Hidrológico & Marítimo - Red de Estaciones LoRa 32</title>
+  <title>Sistema Hidrológico & Marítimo — Red de Estaciones LoRa 32 | DesafIA 2026</title>
   
   <!-- Soporte PWA y Móvil -->
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Alerta Río & Mar">
-  <meta name="theme-color" content="#090d16">
+  <meta name="theme-color" content="#0284c7">
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%230284c7'/><path d='M20,60 Q35,40 50,60 T80,60' stroke='white' stroke-width='8' fill='none'/><path d='M20,72 Q35,52 50,72 T80,72' stroke='white' stroke-width='8' fill='none'/></svg>">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%230284c7'/><path d='M18,58 Q34,42 50,58 T82,58' stroke='white' stroke-width='7' fill='none' stroke-linecap='round'/><path d='M18,72 Q34,56 50,72 T82,72' stroke='%2338bdf8' stroke-width='6' fill='none' stroke-linecap='round'/></svg>">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -22,16 +22,52 @@
   <!-- Supabase JS Client CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
           colors: {
-            brand: {
+            ocean: {
               50: '#f0f9ff',
-              500: '#0284c7',
-              600: '#0369a1'
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+              950: '#082f49',
+            },
+            fluvial: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              200: '#99f6e4',
+              300: '#5eead4',
+              400: '#2dd4bf',
+              500: '#14b8a6',
+              600: '#0d9488',
+              700: '#0f766e',
+              800: '#115e59',
+              900: '#134e4a',
+            },
+            estuary: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              200: '#a7f3d0',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
             }
           }
         }
@@ -46,99 +82,101 @@
     }
     .wave-animate-1 { animation: wave 10s linear infinite; }
     .wave-animate-2 { animation: wave 6s linear infinite reverse; }
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: #0b1120; }
-    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f0f9ff; }
+    ::-webkit-scrollbar-thumb { background: #bae6fd; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #7dd3fc; }
     .touch-action-manipulation { touch-action: manipulation; }
     .station-tab-active {
-      background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(59, 130, 246, 0.2));
-      border-color: #06b6d4;
-      color: #ffffff;
+      background: linear-gradient(135deg, #0284c7, #0d9488);
+      border-color: #0284c7;
+      color: #ffffff !important;
+      box-shadow: 0 4px 12px -2px rgba(2, 132, 199, 0.35);
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-cyan-500 selection:text-white pb-8">
+<body class="bg-gradient-to-b from-sky-50 via-cyan-50/40 to-slate-50 text-slate-800 min-h-screen flex flex-col font-sans antialiased selection:bg-cyan-500 selection:text-white pb-8">
 
   <!-- ==================== HEADER PRINCIPAL ==================== -->
-  <header class="bg-slate-900/95 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50 shadow-md">
+  <header class="bg-white/95 backdrop-blur-md border-b border-sky-200/80 sticky top-0 z-40 shadow-sm">
     <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 flex flex-wrap items-center justify-between gap-2.5">
       
       <!-- Logotipo y Nombre del Sistema -->
       <div class="flex items-center gap-3">
-        <div class="p-2.5 bg-gradient-to-tr from-cyan-600 to-blue-600 rounded-xl shadow-lg shadow-cyan-500/25 flex items-center justify-center shrink-0">
+        <div class="p-2.5 bg-gradient-to-tr from-sky-600 via-cyan-600 to-teal-600 rounded-xl shadow-md shadow-sky-600/20 flex items-center justify-center shrink-0">
           <i data-lucide="waves" class="w-5 h-5 text-white"></i>
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="font-extrabold text-base sm:text-lg text-white tracking-tight flex items-center gap-1.5">
+            <h1 class="font-extrabold text-base sm:text-lg text-slate-900 tracking-tight flex items-center gap-1.5">
               <span>Alerta Río & Mar</span>
-              <span class="text-[10px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800/80">LoRa 32</span>
+              <span class="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-md bg-sky-100 text-sky-800 border border-sky-200">LoRa 32</span>
             </h1>
           </div>
-          <p class="text-[11px] text-slate-400 hidden sm:block">Red Hidrológica y Mareas en Tiempo Real (Vercel + Supabase)</p>
+          <p class="text-[11px] text-slate-500 hidden sm:block">Consola de Telemetría Hidrométrica & Alerta Temprana</p>
         </div>
       </div>
 
       <!-- Barra de Roles, Conectividad y Controles -->
       <div class="flex items-center gap-2 flex-wrap">
         
-        <!-- ENLACE A LA LANDING PAGE DESAFIA 2026 -->
-        <a href="landing.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition active:scale-95 shadow-sm bg-cyan-950/70 border-cyan-700/60 text-cyan-300 hover:bg-cyan-900/80" title="Ver Landing Page DesafIA 2026">
-          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-cyan-400"></i>
-          <span class="hidden sm:inline">DesafIA 2026</span>
+        <!-- BOTÓN PRINCIPAL: REGRESAR A LA LANDING PAGE -->
+        <a href="index.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-sky-200 bg-sky-50 hover:bg-sky-100 text-sky-800 hover:text-sky-950 text-xs font-bold transition shadow-xs active:scale-95" title="Regresar a la página principal">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5 text-sky-600"></i>
+          <span>Página Principal</span>
         </a>
 
         <!-- Indicador de Sesión Activa (Entidad o Admin) -->
-        <div id="session-badge-box" class="flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold shadow-sm bg-slate-900/90 border-slate-800 text-slate-200">
-          <span id="session-icon" class="p-1 rounded-lg bg-cyan-950 text-cyan-400 border border-cyan-800"><i data-lucide="shield" class="w-3.5 h-3.5"></i></span>
+        <div id="session-badge-box" class="flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold shadow-xs bg-white border-sky-200 text-slate-800">
+          <span id="session-icon" class="p-1 rounded-lg bg-sky-100 text-sky-700 border border-sky-200"><i data-lucide="shield" class="w-3.5 h-3.5"></i></span>
           <div class="flex flex-col text-left leading-tight">
-            <span id="session-name" class="font-bold text-white text-xs max-w-[130px] sm:max-w-[190px] truncate">Sesión Activa</span>
-            <span id="session-detail" class="text-[9px] text-cyan-400 font-mono">Cargando...</span>
+            <span id="session-name" class="font-bold text-slate-900 text-xs max-w-[130px] sm:max-w-[190px] truncate">Sesión Activa</span>
+            <span id="session-detail" class="text-[9px] text-sky-700 font-mono">Cargando...</span>
           </div>
-          <button onclick="cerrarSesionUsuario()" class="ml-1 p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-rose-400 transition" title="Cerrar sesión">
+          <button onclick="cerrarSesionUsuario()" class="ml-1 p-1 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition" title="Cerrar sesión">
             <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
           </button>
         </div>
 
         <!-- Indicador de enlace Nube / LoRa -->
-        <div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs">
+        <div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white border border-sky-200 text-xs shadow-xs">
           <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse" id="status-dot"></span>
-          <span class="font-medium text-slate-300 text-[11px] sm:text-xs" id="status-label">En espera</span>
+          <span class="font-medium text-slate-600 text-[11px] sm:text-xs" id="status-label">En espera</span>
         </div>
 
         <!-- ACCIONES EXCLUSIVAS DE ADMINISTRADOR (Ocultas para Entidades) -->
         <div id="admin-actions-bar" class="hidden flex items-center gap-1.5">
           <!-- Botón Gestión de Estaciones -->
-          <button id="btn-manage-stations" class="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-800/60 font-medium px-2.5 py-1.5 rounded-lg text-xs transition active:scale-95" title="Calibrar cotas y añadir estaciones">
-            <i data-lucide="radio" class="w-3.5 h-3.5 text-cyan-400"></i>
+          <button id="btn-manage-stations" class="flex items-center gap-1 bg-sky-100 hover:bg-sky-200 text-sky-900 border border-sky-300 font-semibold px-2.5 py-1.5 rounded-xl text-xs transition active:scale-95" title="Calibrar cotas y añadir estaciones">
+            <i data-lucide="radio" class="w-3.5 h-3.5 text-sky-700"></i>
             <span class="hidden md:inline">Estaciones</span>
           </button>
 
-          <!-- NUEVO: Botón Gestión de Entidades y Claves -->
-          <button id="btn-manage-entities" onclick="abrirModalEntidades()" class="flex items-center gap-1 bg-amber-950/70 hover:bg-amber-900 text-amber-300 border border-amber-700/80 font-medium px-2.5 py-1.5 rounded-lg text-xs transition active:scale-95" title="Gestionar organismos y generar claves de acceso">
-            <i data-lucide="key" class="w-3.5 h-3.5 text-amber-400"></i>
+          <!-- Botón Gestión de Entidades y Claves -->
+          <button id="btn-manage-entities" onclick="abrirModalEntidades()" class="flex items-center gap-1 bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 font-semibold px-2.5 py-1.5 rounded-xl text-xs transition active:scale-95" title="Gestionar organismos y generar claves de acceso">
+            <i data-lucide="key" class="w-3.5 h-3.5 text-amber-700"></i>
             <span class="hidden md:inline">Entidades & Claves</span>
           </button>
 
           <!-- Botón Configuración Supabase -->
-          <button id="btn-open-supabase" class="flex items-center gap-1 bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-700/80 font-medium px-2.5 py-1.5 rounded-lg text-xs transition active:scale-95" title="Configurar conexión con Supabase">
-            <i data-lucide="database" class="w-3.5 h-3.5 text-emerald-400"></i>
+          <button id="btn-open-supabase" class="flex items-center gap-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border border-emerald-300 font-semibold px-2.5 py-1.5 rounded-xl text-xs transition active:scale-95" title="Configurar conexión con Supabase">
+            <i data-lucide="database" class="w-3.5 h-3.5 text-emerald-700"></i>
             <span class="hidden md:inline">Supabase</span>
           </button>
 
           <!-- Botón Conectar USB LoRa (Web Serial) -->
-          <button id="btn-connect" class="flex items-center gap-1.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs shadow-md shadow-cyan-600/20 transition active:scale-95" title="Conectar puerto USB LoRa del Gateway">
+          <button id="btn-connect" class="flex items-center gap-1.5 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-500 hover:to-cyan-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow-sm transition active:scale-95" title="Conectar puerto USB LoRa del Gateway">
             <i data-lucide="usb" class="w-3.5 h-3.5"></i>
             <span id="btn-connect-text">Conectar USB</span>
           </button>
         </div>
 
         <!-- Controles Comunes (Sonido y Exportar) -->
-        <button id="btn-sound" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition" title="Silenciar / Activar alarma audible">
+        <button id="btn-sound" class="p-1.5 rounded-xl bg-white hover:bg-sky-50 text-slate-600 border border-sky-200 transition shadow-xs" title="Silenciar / Activar alarma audible">
           <i data-lucide="volume-2" class="w-4 h-4" id="sound-icon"></i>
         </button>
 
-        <button id="btn-export" class="flex items-center p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition" title="Descargar datos en CSV">
+        <button id="btn-export" class="flex items-center p-1.5 rounded-xl bg-white hover:bg-sky-50 text-slate-600 border border-sky-200 transition shadow-xs" title="Descargar datos en CSV">
           <i data-lucide="download" class="w-4 h-4"></i>
         </button>
 
@@ -151,41 +189,41 @@
   <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-5">
 
     <!-- 1. MOTOR DE EVALUACIÓN INTEGRAL DE RIESGO HIDROLÓGICO Y MARÍTIMO -->
-    <div id="consolidated-risk-banner" class="p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-slate-900/90 border-slate-800 text-slate-300 shadow-md">
+    <div id="consolidated-risk-banner" class="p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-white/95 border-sky-200/90 text-slate-800 shadow-sm">
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
         
         <div class="flex items-start gap-3.5">
           <!-- Icono de Estado Global -->
-          <div id="risk-icon-box" class="p-3 rounded-xl bg-slate-800 text-slate-400 shrink-0 mt-0.5">
+          <div id="risk-icon-box" class="p-3 rounded-xl bg-sky-50 text-sky-600 border border-sky-200 shrink-0 mt-0.5">
             <i data-lucide="shield-check" class="w-7 h-7" id="risk-icon"></i>
           </div>
 
           <div class="space-y-1">
             <div class="flex items-center gap-2 flex-wrap">
-              <span class="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700" id="risk-badge-category">
+              <span class="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200" id="risk-badge-category">
                 EVALUACIÓN INTEGRAL
               </span>
-              <h2 class="font-extrabold text-sm sm:text-base tracking-wide uppercase text-white" id="risk-title">
-                SISTEMA A LA ESPERA DE DATOS
+              <h2 class="font-extrabold text-sm sm:text-base tracking-wide uppercase text-slate-900" id="risk-title">
+                SISTEMA A LA ESPERA DE ESTACIONES
               </h2>
             </div>
             
-            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed" id="risk-recommendation">
-              Esperando tramas de telemetría de las estaciones meteorológicas o conexión a la nube Supabase.
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed" id="risk-recommendation">
+              Aún no hay estaciones agregadas. Accede como Administrador y haz clic en "Estaciones" o "+ Nueva Estación" para comenzar a recibir telemetría.
             </p>
 
             <!-- Diagnóstico específico por estación -->
             <div class="pt-1 flex items-center gap-2 flex-wrap text-xs font-mono" id="risk-station-summary">
               <span class="text-slate-500 text-[11px]">Estaciones analizadas:</span>
-              <span class="text-slate-400 text-[11px] italic">Iniciando verificación...</span>
+              <span class="text-slate-400 text-[11px] italic">Sin estaciones vinculadas</span>
             </div>
           </div>
         </div>
 
         <!-- Reloj y Última Actualización Global -->
-        <div class="text-left md:text-right shrink-0 border-t md:border-t-0 pt-2 md:pt-0 border-slate-800/80">
-          <span class="text-[10px] text-slate-500 uppercase font-semibold block">Última lectura recibida:</span>
-          <div class="font-mono text-sm sm:text-base font-bold text-cyan-300" id="global-last-update">--:--:--</div>
+        <div class="text-left md:text-right shrink-0 border-t md:border-t-0 pt-2 md:pt-0 border-sky-100">
+          <span class="text-[10px] text-slate-400 uppercase font-semibold block">Última lectura recibida:</span>
+          <div class="font-mono text-sm sm:text-base font-bold text-sky-700" id="global-last-update">--:--:--</div>
           <span class="text-[10px] text-slate-500 block" id="global-active-count">0 estaciones activas</span>
         </div>
 
@@ -193,20 +231,19 @@
     </div>
 
     <!-- 2. PESTAÑAS SELECTORAS DE ESTACIONES (TABS) -->
-    <div class="flex items-center justify-between gap-2 overflow-x-auto pb-1 border-b border-slate-800/80">
+    <div class="flex items-center justify-between gap-2 overflow-x-auto pb-1 border-b border-sky-200/80">
       <div class="flex items-center gap-2" id="station-tabs-container">
         <!-- Pestaña: Resumen Global -->
-        <button onclick="cambiarVistaEstacion('ALL')" id="tab-station-ALL" class="station-tab-active flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-700 text-xs font-semibold whitespace-nowrap transition active:scale-95 shadow-sm">
-          <i data-lucide="layout-grid" class="w-4 h-4 text-cyan-400"></i>
-          <span>Resumen de Todas</span>
-          <span class="px-1.5 py-0.2 rounded-full bg-slate-800 text-[10px] font-mono text-cyan-300" id="badge-total-stations">0</span>
+        <button onclick="cambiarVistaEstacion('ALL')" id="tab-station-ALL" class="station-tab-active flex items-center gap-2 px-3.5 py-2 rounded-xl border border-sky-500 text-xs font-semibold whitespace-nowrap transition active:scale-95 shadow-sm">
+          <i data-lucide="layout-grid" class="w-4 h-4 text-white"></i>
+          <span>Resumen General</span>
+          <span class="px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-mono text-white" id="badge-total-stations">0</span>
         </button>
-        <!-- Las pestañas individuales de estaciones se insertan dinámicamente aquí -->
       </div>
 
       <!-- Botón para añadir estación rápida (solo admin) -->
-      <button id="btn-quick-add-station" class="admin-only hidden flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-dashed border-slate-700 text-slate-300 hover:text-white text-xs font-medium whitespace-nowrap transition">
-        <i data-lucide="plus" class="w-3.5 h-3.5 text-cyan-400"></i>
+      <button id="btn-quick-add-station" class="admin-only hidden flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-sky-50 border border-dashed border-sky-300 text-sky-800 text-xs font-bold whitespace-nowrap transition shadow-xs active:scale-95">
+        <i data-lucide="plus" class="w-3.5 h-3.5 text-sky-600"></i>
         <span>Nueva Estación</span>
       </button>
     </div>
@@ -215,10 +252,10 @@
     <section id="view-all-stations" class="space-y-4">
       <div class="flex items-center justify-between">
         <div>
-          <h3 class="font-bold text-sm text-slate-200">Red de Monitoreo Distribuido</h3>
-          <p class="text-xs text-slate-400">Estado consolidado de todas las estaciones meteorológicas enlazadas</p>
+          <h3 class="font-bold text-sm text-slate-900">Red de Monitoreo Distribuido</h3>
+          <p class="text-xs text-slate-500">Estado consolidado de las estaciones meteorológicas LoRa enlazadas</p>
         </div>
-        <span class="text-xs text-slate-500 font-mono" id="label-network-status">Monitoreo continuo</span>
+        <span class="text-xs text-sky-700 font-mono font-semibold" id="label-network-status">Monitoreo continuo</span>
       </div>
 
       <!-- Tarjetas de cada estación en formato Grid -->
@@ -231,22 +268,22 @@
     <section id="view-single-station" class="hidden space-y-4 sm:space-y-6">
       
       <!-- Barra descriptiva de la estación seleccionada -->
-      <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 flex flex-wrap items-center justify-between gap-2">
+      <div class="bg-white/90 border border-sky-200/90 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-2 shadow-sm">
         <div class="flex items-center gap-2.5">
-          <div class="p-2 rounded-lg bg-cyan-950 border border-cyan-800 text-cyan-400">
+          <div class="p-2 rounded-xl bg-sky-100 border border-sky-200 text-sky-700">
             <i data-lucide="map-pin" class="w-4 h-4"></i>
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <h3 class="font-bold text-sm text-white" id="detail-station-name">Estación Seleccionada</h3>
-              <span class="px-2 py-0.5 text-[10px] font-mono font-bold rounded-full bg-slate-800 text-cyan-300 border border-slate-700" id="detail-station-id">ID: --</span>
+              <h3 class="font-bold text-sm text-slate-900" id="detail-station-name">Estación Seleccionada</h3>
+              <span class="px-2 py-0.5 text-[10px] font-mono font-bold rounded-full bg-sky-50 text-sky-800 border border-sky-200" id="detail-station-id">ID: --</span>
             </div>
-            <p class="text-[11px] text-slate-400" id="detail-station-desc">Sensor ultrasónico de nivel de agua y enlace LoRa 32</p>
+            <p class="text-[11px] text-slate-500" id="detail-station-desc">Sensor ultrasónico de nivel de agua y enlace LoRa 32</p>
           </div>
         </div>
 
         <div class="flex items-center gap-2 text-xs">
-          <button onclick="cambiarVistaEstacion('ALL')" class="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition">
+          <button onclick="cambiarVistaEstacion('ALL')" class="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 text-xs font-semibold transition">
             <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
             <span>Volver a Resumen</span>
           </button>
@@ -257,82 +294,82 @@
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
 
         <!-- DISTANCIA DEL SENSOR -->
-        <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between shadow-sm">
-          <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold uppercase tracking-wider mb-1">
+        <div class="bg-white/95 border border-sky-100 p-4 rounded-2xl flex flex-col justify-between shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 text-[11px] font-semibold uppercase tracking-wider mb-1">
             <span>Distancia Sensor ➔ Agua</span>
-            <i data-lucide="arrow-down-up" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <i data-lucide="arrow-down-up" class="w-3.5 h-3.5 text-sky-600"></i>
           </div>
           <div>
             <div class="flex items-baseline gap-1">
-              <span class="text-3xl sm:text-4xl font-extrabold font-mono text-white tracking-tight" id="metric-distance">--.-</span>
+              <span class="text-3xl sm:text-4xl font-extrabold font-mono text-slate-900 tracking-tight" id="metric-distance">--.-</span>
               <span class="text-slate-400 font-medium text-xs">cm</span>
             </div>
-            <div class="text-[11px] text-slate-400 mt-0.5 font-mono" id="metric-meters">--.-- metros</div>
-            <div class="text-[10px] text-slate-500 mt-1">Lectura directa del eco ultrasónico</div>
+            <div class="text-[11px] text-slate-500 mt-0.5 font-mono" id="metric-meters">--.-- metros</div>
+            <div class="text-[10px] text-slate-400 mt-1">Lectura directa del eco ultrasónico</div>
           </div>
-          <div class="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
-            <span class="text-slate-500">Rango Útil:</span>
-            <span class="text-slate-300 font-mono" id="card-sensor-range">20 - 100 cm (Máx: 600cm)</span>
+          <div class="mt-3 pt-2 border-t border-sky-100 flex items-center justify-between text-[11px]">
+            <span class="text-slate-400">Rango Útil:</span>
+            <span class="text-slate-700 font-mono font-medium" id="card-sensor-range">20 - 100 cm (Máx: 600cm)</span>
           </div>
         </div>
 
         <!-- NIVEL DEL RÍO / MAR CALCULADO -->
-        <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between shadow-sm">
-          <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold uppercase tracking-wider mb-1">
+        <div class="bg-white/95 border border-sky-100 p-4 rounded-2xl flex flex-col justify-between shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 text-[11px] font-semibold uppercase tracking-wider mb-1">
             <span>Nivel / Profundidad Río</span>
-            <i data-lucide="droplet" class="w-3.5 h-3.5 text-blue-400"></i>
+            <i data-lucide="droplet" class="w-3.5 h-3.5 text-cyan-600"></i>
           </div>
           <div>
             <div class="flex items-baseline gap-1">
-              <span class="text-3xl sm:text-4xl font-extrabold font-mono text-cyan-400 tracking-tight" id="metric-water-level">--.-</span>
+              <span class="text-3xl sm:text-4xl font-extrabold font-mono text-sky-700 tracking-tight" id="metric-water-level">--.-</span>
               <span class="text-slate-400 font-medium text-xs">cm</span>
             </div>
-            <div class="text-[11px] text-slate-400 mt-0.5" id="metric-water-percent">Capacidad: --%</div>
-            <div class="text-[10px] text-cyan-400/80 mt-1 font-mono">Fórmula: Lecho (100cm) - Distancia</div>
+            <div class="text-[11px] text-slate-600 mt-0.5 font-medium" id="metric-water-percent">Capacidad: --%</div>
+            <div class="text-[10px] text-sky-600 mt-1 font-mono">Fórmula: Lecho - Distancia</div>
           </div>
-          <div class="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
-            <span class="text-slate-500">Altura Instalación:</span>
-            <span class="text-slate-300 font-mono" id="card-bed-height">100 cm (1.0 m)</span>
+          <div class="mt-3 pt-2 border-t border-sky-100 flex items-center justify-between text-[11px]">
+            <span class="text-slate-400">Altura Instalación:</span>
+            <span class="text-slate-700 font-mono font-medium" id="card-bed-height">100 cm (1.0 m)</span>
           </div>
         </div>
 
         <!-- ESTADO DEL SENSOR -->
-        <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between shadow-sm">
-          <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold uppercase tracking-wider mb-1">
+        <div class="bg-white/95 border border-sky-100 p-4 rounded-2xl flex flex-col justify-between shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 text-[11px] font-semibold uppercase tracking-wider mb-1">
             <span>Diagnóstico Sensor</span>
-            <i data-lucide="activity" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <i data-lucide="activity" class="w-3.5 h-3.5 text-teal-600"></i>
           </div>
           <div>
-            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 font-semibold text-xs sm:text-sm" id="sensor-badge">
-              <span class="w-2 h-2 rounded-full bg-slate-500" id="sensor-badge-dot"></span>
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-50 border border-sky-200 text-slate-700 font-semibold text-xs sm:text-sm" id="sensor-badge">
+              <span class="w-2 h-2 rounded-full bg-slate-400" id="sensor-badge-dot"></span>
               <span id="sensor-status-text">INACTIVO</span>
             </div>
-            <div class="text-[11px] text-slate-400 mt-1 line-clamp-1" id="sensor-status-desc">Sin datos recibidos</div>
+            <div class="text-[11px] text-slate-500 mt-1 line-clamp-1" id="sensor-status-desc">Sin datos recibidos</div>
           </div>
-          <div class="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
-            <span class="text-slate-500">Pines:</span>
-            <span class="text-slate-300 font-mono">Trig 13 / Echo 23</span>
+          <div class="mt-3 pt-2 border-t border-sky-100 flex items-center justify-between text-[11px]">
+            <span class="text-slate-400">Pines:</span>
+            <span class="text-slate-700 font-mono">Trig 13 / Echo 23</span>
           </div>
         </div>
 
         <!-- SEÑAL LORA (RSSI) -->
-        <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between shadow-sm">
-          <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold uppercase tracking-wider mb-1">
+        <div class="bg-white/95 border border-sky-100 p-4 rounded-2xl flex flex-col justify-between shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 text-[11px] font-semibold uppercase tracking-wider mb-1">
             <span>Enlace LoRa (RSSI)</span>
-            <i data-lucide="radio" class="w-3.5 h-3.5 text-amber-400"></i>
+            <i data-lucide="radio" class="w-3.5 h-3.5 text-sky-600"></i>
           </div>
           <div>
             <div class="flex items-baseline gap-1">
-              <span class="text-3xl sm:text-4xl font-extrabold font-mono text-white tracking-tight" id="metric-rssi">--</span>
+              <span class="text-3xl sm:text-4xl font-extrabold font-mono text-slate-900 tracking-tight" id="metric-rssi">--</span>
               <span class="text-slate-400 font-medium text-xs">dBm</span>
             </div>
-            <div class="w-full bg-slate-800 rounded-full h-1.5 mt-2 overflow-hidden flex">
-              <div id="rssi-bar" class="bg-slate-700 h-full transition-all duration-300" style="width: 0%"></div>
+            <div class="w-full bg-slate-100 rounded-full h-1.5 mt-2 overflow-hidden flex border border-slate-200">
+              <div id="rssi-bar" class="bg-sky-500 h-full transition-all duration-300" style="width: 0%"></div>
             </div>
           </div>
-          <div class="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
-            <span class="text-slate-500">Paquetes:</span>
-            <span class="text-slate-300 font-mono" id="metric-packets">#0</span>
+          <div class="mt-3 pt-2 border-t border-sky-100 flex items-center justify-between text-[11px]">
+            <span class="text-slate-400">Paquetes:</span>
+            <span class="text-slate-700 font-mono font-medium" id="metric-packets">#0</span>
           </div>
         </div>
 
@@ -342,61 +379,61 @@
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
 
         <!-- CORTE TRANSVERSAL FÍSICO DEL CAUCE -->
-        <div class="lg:col-span-4 bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-sm">
-          <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div class="lg:col-span-4 bg-white/95 border border-sky-100 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-sm">
+          <div class="flex items-center justify-between pb-2 border-b border-sky-100">
             <div>
-              <h3 class="font-bold text-sm text-slate-200">Corte Transversal en Vivo</h3>
-              <p class="text-[11px] text-slate-400" id="ruler-station-caption">Columna física de agua</p>
+              <h3 class="font-bold text-sm text-slate-900">Corte Transversal en Vivo</h3>
+              <p class="text-[11px] text-slate-500" id="ruler-station-caption">Columna física de agua</p>
             </div>
-            <div class="p-1.5 bg-slate-800 rounded-lg text-cyan-400">
+            <div class="p-1.5 bg-sky-50 border border-sky-200 rounded-lg text-sky-700">
               <i data-lucide="gauge" class="w-4 h-4"></i>
             </div>
           </div>
 
-          <div class="my-3 relative h-72 sm:h-80 w-full bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex">
+          <div class="my-3 relative h-72 sm:h-80 w-full bg-sky-50/50 rounded-2xl border border-sky-200 overflow-hidden flex">
             <!-- Regla métrica izquierda -->
-            <div class="w-14 bg-slate-900/90 border-r border-slate-800/80 flex flex-col justify-between py-2 text-[10px] font-mono text-slate-400 text-right pr-2 select-none z-20">
-              <div id="ruler-max-cm">100cm <span class="text-rose-400 font-bold">▲ MAX</span></div>
+            <div class="w-14 bg-white/90 border-r border-sky-200 flex flex-col justify-between py-2 text-[10px] font-mono text-slate-500 text-right pr-2 select-none z-20">
+              <div id="ruler-max-cm">100cm <span class="text-rose-600 font-bold">▲ MAX</span></div>
               <div id="ruler-75-cm">75cm</div>
               <div id="ruler-50-cm">50cm</div>
               <div id="ruler-25-cm">25cm</div>
-              <div>0cm <span class="text-slate-500">FONDO</span></div>
+              <div>0cm <span class="text-slate-400">FONDO</span></div>
             </div>
 
-            <div class="relative flex-1 bg-slate-950 flex flex-col justify-end overflow-hidden">
+            <div class="relative flex-1 bg-gradient-to-b from-sky-50/20 to-sky-100/40 flex flex-col justify-end overflow-hidden">
               <!-- Sensor en lo alto -->
               <div class="absolute top-2 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center">
-                <div class="px-2 py-0.5 rounded bg-slate-800/90 border border-slate-700 text-[10px] font-mono text-amber-300 flex items-center gap-1 shadow">
-                  <i data-lucide="radar" class="w-3 h-3 text-amber-400"></i>
-                  SENSOR ULTRASÓNICO (Ciego: 20cm)
+                <div class="px-2 py-0.5 rounded bg-white border border-sky-200 text-[10px] font-mono font-semibold text-amber-700 flex items-center gap-1 shadow-xs">
+                  <i data-lucide="radar" class="w-3 h-3 text-amber-600"></i>
+                  SENSOR (Zona ciega: 20cm)
                 </div>
-                <div class="w-0.5 h-2 bg-dashed bg-amber-400/40"></div>
+                <div class="w-0.5 h-2 bg-dashed bg-amber-400"></div>
               </div>
 
               <!-- Línea de Peligro Rojo -->
-              <div id="line-red-alert" class="absolute top-[20%] w-full border-b border-rose-500/50 border-dashed z-10 flex items-center justify-end pr-2">
-                <span id="label-red-alert" class="text-[9px] text-rose-400 font-mono uppercase font-semibold">Límite Desborde (80cm)</span>
+              <div id="line-red-alert" class="absolute top-[20%] w-full border-b border-rose-500 border-dashed z-10 flex items-center justify-end pr-2">
+                <span id="label-red-alert" class="text-[9px] text-rose-700 font-mono uppercase font-bold bg-white/80 px-1 rounded">Límite Desborde (80cm)</span>
               </div>
 
               <!-- Línea de Alerta Amarilla -->
-              <div id="line-yellow-alert" class="absolute top-[40%] w-full border-b border-amber-500/50 border-dashed z-10 flex items-center justify-end pr-2">
-                <span id="label-yellow-alert" class="text-[9px] text-amber-400 font-mono uppercase font-semibold">Alerta Amarilla (60cm)</span>
+              <div id="line-yellow-alert" class="absolute top-[40%] w-full border-b border-amber-500 border-dashed z-10 flex items-center justify-end pr-2">
+                <span id="label-yellow-alert" class="text-[9px] text-amber-800 font-mono uppercase font-bold bg-white/80 px-1 rounded">Alerta Amarilla (60cm)</span>
               </div>
 
               <!-- Columna de Agua con Animación de Olas -->
-              <div id="water-column" class="relative w-full transition-all duration-500 ease-out flex flex-col justify-end bg-gradient-to-t from-blue-900/95 via-cyan-700/85 to-cyan-500/95" style="height: 0%;">
-                <div class="absolute -top-3 w-[200%] h-4 opacity-70 wave-animate-1 flex">
-                  <svg class="w-full h-full text-cyan-400" viewBox="0 0 1200 120" preserveAspectRatio="none">
+              <div id="water-column" class="relative w-full transition-all duration-500 ease-out flex flex-col justify-end bg-gradient-to-t from-sky-700 via-cyan-600 to-teal-500 shadow-inner" style="height: 0%;">
+                <div class="absolute -top-3 w-[200%] h-4 opacity-75 wave-animate-1 flex text-cyan-300">
+                  <svg class="w-full h-full" viewBox="0 0 1200 120" preserveAspectRatio="none">
                     <path d="M0,0 C150,90 350,-40 500,50 C650,140 900,-30 1200,40 L1200,120 L0,120 Z" fill="currentColor"></path>
                   </svg>
                 </div>
-                <div class="absolute -top-2 w-[200%] h-4 opacity-50 wave-animate-2 flex">
-                  <svg class="w-full h-full text-blue-300" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <div class="absolute -top-2 w-[200%] h-4 opacity-60 wave-animate-2 flex text-sky-200">
+                  <svg class="w-full h-full" viewBox="0 0 1200 120" preserveAspectRatio="none">
                     <path d="M0,0 C200,60 400,-20 600,40 C800,100 1000,-10 1200,30 L1200,120 L0,120 Z" fill="currentColor"></path>
                   </svg>
                 </div>
                 <div class="z-20 text-center pb-3 select-none">
-                  <span class="px-2.5 py-1 bg-slate-900/90 backdrop-blur rounded-lg text-xs font-mono font-bold text-white shadow border border-slate-700" id="water-badge-level">
+                  <span class="px-2.5 py-1 bg-white/95 backdrop-blur rounded-xl text-xs font-mono font-bold text-sky-900 shadow-md border border-sky-200" id="water-badge-level">
                     -- cm de agua
                   </span>
                 </div>
@@ -406,32 +443,32 @@
 
           <!-- Umbrales en Mini-Tarjetas -->
           <div class="grid grid-cols-3 gap-1.5 text-center text-[10px] pt-1">
-            <div class="p-1.5 rounded bg-emerald-950/40 border border-emerald-900/60 text-emerald-400">
+            <div class="p-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800">
               <span class="block font-bold">Normal</span> <span id="badge-range-green">&lt; 60cm</span>
             </div>
-            <div class="p-1.5 rounded bg-amber-950/40 border border-amber-900/60 text-amber-400">
+            <div class="p-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800">
               <span class="block font-bold">Alerta</span> <span id="badge-range-yellow">60-80cm</span>
             </div>
-            <div class="p-1.5 rounded bg-rose-950/40 border border-rose-900/60 text-rose-400">
+            <div class="p-1.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800">
               <span class="block font-bold">Peligro</span> <span id="badge-range-red">&gt; 80cm</span>
             </div>
           </div>
         </div>
 
         <!-- GRÁFICA HISTÓRICA EN TIEMPO REAL -->
-        <div class="lg:col-span-8 bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-sm">
-          <div class="flex flex-wrap items-center justify-between pb-2 border-b border-slate-800 gap-2">
+        <div class="lg:col-span-8 bg-white/95 border border-sky-100 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-sm">
+          <div class="flex flex-wrap items-center justify-between pb-2 border-b border-sky-100 gap-2">
             <div>
-              <h3 class="font-bold text-sm text-slate-200">Tendencia Histórica en Vivo</h3>
-              <p class="text-[11px] text-slate-400" id="chart-station-caption">Telemetría acumulada para esta estación</p>
+              <h3 class="font-bold text-sm text-slate-900">Tendencia Histórica en Vivo</h3>
+              <p class="text-[11px] text-slate-500" id="chart-station-caption">Telemetría acumulada para esta estación</p>
             </div>
             
             <div class="flex items-center gap-1.5">
-              <div class="inline-flex rounded-lg bg-slate-800 p-0.5 text-xs">
-                <button class="px-2 py-0.5 rounded-md bg-cyan-600 text-white font-medium" id="btn-win-30">30 pts</button>
-                <button class="px-2 py-0.5 rounded-md text-slate-400 hover:text-white" id="btn-win-60">60 pts</button>
+              <div class="inline-flex rounded-xl bg-sky-50 border border-sky-200 p-0.5 text-xs">
+                <button class="px-2.5 py-1 rounded-lg bg-sky-600 text-white font-bold" id="btn-win-30">30 pts</button>
+                <button class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-sky-800 font-medium" id="btn-win-60">60 pts</button>
               </div>
-              <button id="btn-clear-chart" class="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition" title="Limpiar gráfica">
+              <button id="btn-clear-chart" class="p-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-slate-500 hover:text-slate-800 border border-sky-200 transition" title="Limpiar gráfica">
                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
               </button>
             </div>
@@ -441,18 +478,18 @@
             <canvas id="riverChart"></canvas>
           </div>
 
-          <div class="mt-3 pt-2 border-t border-slate-800/80 flex flex-wrap items-center justify-between text-xs text-slate-400 gap-2">
+          <div class="mt-3 pt-2 border-t border-sky-100 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-2">
             <div class="flex items-center gap-3">
               <div class="flex items-center gap-1">
-                <span class="w-2.5 h-0.5 bg-cyan-400"></span>
-                <span class="text-[11px]">Nivel Agua (cm)</span>
+                <span class="w-2.5 h-0.5 bg-sky-600"></span>
+                <span class="text-[11px] font-medium text-slate-700">Nivel Agua (cm)</span>
               </div>
               <div class="flex items-center gap-1">
-                <span class="w-2.5 h-0.5 bg-rose-400 border-b border-dashed border-rose-400"></span>
-                <span class="text-[11px]" id="chart-legend-red">Límite Desborde</span>
+                <span class="w-2.5 h-0.5 bg-rose-500 border-b border-dashed border-rose-500"></span>
+                <span class="text-[11px] font-medium text-rose-700" id="chart-legend-red">Límite Desborde</span>
               </div>
             </div>
-            <div class="font-mono text-[11px] text-slate-400" id="chart-stats">
+            <div class="font-mono text-[11px] text-sky-800 font-semibold" id="chart-stats">
               Mín: -- cm | Máx: -- cm | Prom: -- cm
             </div>
           </div>
@@ -463,168 +500,156 @@
     </section>
 
     <!-- 3. TERMINAL DE TELEMETRÍA (DIAGNÓSTICO TÉCNICO) -->
-    <div id="section-terminal" class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-sm">
-      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+    <div id="section-terminal" class="bg-white/95 border border-sky-200/90 rounded-2xl p-4 shadow-sm">
+      <div class="flex items-center justify-between pb-2 border-b border-sky-100">
         <div class="flex items-center gap-2">
-          <i data-lucide="terminal" class="w-4 h-4 text-cyan-400"></i>
-          <h3 class="font-bold text-xs sm:text-sm text-slate-200">Terminal de Telemetría LoRa & Supabase</h3>
-          <span class="text-[10px] text-slate-500 font-mono hidden sm:inline">(Canal en Vivo)</span>
+          <i data-lucide="terminal" class="w-4 h-4 text-sky-600"></i>
+          <h3 class="font-bold text-xs sm:text-sm text-slate-900">Terminal de Telemetría LoRa & Supabase</h3>
+          <span class="text-[10px] text-slate-400 font-mono hidden sm:inline">(Canal en Vivo)</span>
         </div>
         <div class="flex items-center gap-2 text-xs">
-          <label class="flex items-center gap-1 text-slate-400 select-none cursor-pointer text-[11px]">
-            <input type="checkbox" id="autoscroll-chk" checked class="rounded bg-slate-800 border-slate-700 text-cyan-500 focus:ring-0">
+          <label class="flex items-center gap-1 text-slate-600 select-none cursor-pointer text-[11px]">
+            <input type="checkbox" id="autoscroll-chk" checked class="rounded border-sky-300 text-sky-600 focus:ring-0">
             Auto-scroll
           </label>
-          <button id="btn-clear-terminal" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] transition">
+          <button id="btn-clear-terminal" class="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 text-[11px] font-semibold transition">
             Limpiar
           </button>
         </div>
       </div>
 
-      <div id="terminal-logs" class="mt-2.5 h-28 bg-slate-950 rounded-xl p-2.5 font-mono text-[11px] text-cyan-300/90 overflow-y-auto space-y-1 border border-slate-800/80 select-text">
-        <div class="text-slate-500 italic">// Enlace listo. Esperando tramas de telemetría de Supabase o enlace LoRa.</div>
+      <div id="terminal-logs" class="mt-2.5 h-28 bg-slate-950 rounded-xl p-2.5 font-mono text-[11px] text-cyan-300 overflow-y-auto space-y-1 border border-slate-800 select-text">
+        <div class="text-slate-500 italic">// Consola lista. Esperando tramas de telemetría de Supabase o enlace LoRa USB.</div>
       </div>
     </div>
 
   </main>
 
   <!-- ==================== PANTALLA COMPLETA DE INICIO DE SESIÓN / GATE ==================== -->
-  <div id="gate-login-overlay" class="fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-50 flex items-center justify-center p-4 overflow-y-auto">
-    <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 relative overflow-hidden">
+  <div id="gate-login-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="max-w-md w-full bg-white border border-sky-200 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 relative overflow-hidden">
       
-      <!-- Fondo sutil de ondas -->
-      <div class="absolute -right-20 -top-20 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <!-- Fondo sutil de ondas decorativas -->
+      <div class="absolute -right-20 -top-20 w-48 h-48 bg-sky-400/15 rounded-full blur-3xl pointer-events-none"></div>
 
       <!-- Cabecera del Login -->
       <div class="text-center space-y-2">
-        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-600 to-blue-600 p-[1.5px] mx-auto shadow-lg shadow-cyan-500/25 flex items-center justify-center">
-          <div class="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center">
-            <i data-lucide="waves" class="w-7 h-7 text-cyan-400"></i>
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-sky-600 via-cyan-600 to-teal-600 p-[1.5px] mx-auto shadow-md shadow-sky-600/25 flex items-center justify-center">
+          <div class="w-full h-full bg-white rounded-[14px] flex items-center justify-center">
+            <i data-lucide="waves" class="w-7 h-7 text-sky-600"></i>
           </div>
         </div>
-        <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">Alerta Río & Mar</h2>
-        <p class="text-xs text-slate-400">Portal Hidrológico & Meteorológico · DesafIA 2026</p>
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Alerta Río & Mar</h2>
+        <p class="text-xs text-slate-500">Portal de Acceso Hidrológico & Meteorológico · DesafIA 2026</p>
       </div>
 
-      <!-- Pestañas de Tipo de Acceso (Entidad vs Admin) -->
-      <div class="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-slate-950 border border-slate-800 text-xs font-semibold">
-        <button id="tab-login-entity" onclick="switchLoginTab('entity')" class="py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 bg-cyan-950 text-cyan-300 border border-cyan-800/80 shadow-sm font-bold">
+      <!-- Pestañas de Tipo de Acceso (Admin vs Entidad) -->
+      <div class="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-sky-50 border border-sky-200 text-xs font-semibold">
+        <button id="tab-login-admin" onclick="switchLoginTab('admin')" class="py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 bg-amber-100 text-amber-900 border border-amber-300 shadow-xs font-bold">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-amber-700"></i>
+          <span>Administrador</span>
+        </button>
+        <button id="tab-login-entity" onclick="switchLoginTab('entity')" class="py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-slate-500 hover:text-slate-900">
           <i data-lucide="key" class="w-3.5 h-3.5"></i>
           <span>Clave de Entidad</span>
         </button>
-        <button id="tab-login-admin" onclick="switchLoginTab('admin')" class="py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-slate-400 hover:text-white">
-          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-          <span>Administrador</span>
-        </button>
       </div>
 
-      <!-- Formulario 1: Clave de Entidad -->
-      <form id="form-login-entity" onsubmit="handleEntityLogin(event)" class="space-y-4">
-        <div class="space-y-1.5">
-          <label class="block text-xs font-mono font-semibold text-slate-300 uppercase tracking-wider">
-            Clave de Acceso Asignada:
-          </label>
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-              <i data-lucide="key" class="w-4 h-4"></i>
-            </div>
-            <input type="text" id="login-entity-key" required placeholder="Ej: PC-TABASCO-2026" 
-                   class="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-950 border border-slate-700 focus:border-cyan-400 text-white font-mono text-sm tracking-wider uppercase placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-cyan-400">
-          </div>
-          <p class="text-[11px] text-slate-400 leading-relaxed">
-            Ingresa la clave que te proporcionó el Administrador para visualizar únicamente las estaciones asignadas a tu organismo.
-          </p>
-        </div>
-
-        <div id="login-entity-error" class="hidden p-3 rounded-xl bg-rose-950/60 border border-rose-800 text-rose-300 text-xs flex items-center gap-2">
-          <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
-          <span id="login-entity-error-text">Clave de entidad no válida o no registrada.</span>
-        </div>
-
-        <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-cyan-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-          <span>Ingresar a Mis Estaciones</span>
-          <i data-lucide="arrow-right" class="w-4 h-4"></i>
-        </button>
-
-        <!-- Claves Demo para Evaluación Rápida -->
-        <div class="pt-3 border-t border-slate-800 text-[11px] text-slate-400 space-y-1.5">
-          <span class="font-semibold text-slate-300 block font-mono text-[10px] uppercase tracking-wider">// Claves Demo de Prueba:</span>
-          <div class="flex flex-wrap gap-1.5">
-            <button type="button" onclick="setDemoKey('PC-TABASCO-2026')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono text-[10px] border border-slate-700 transition">
-              PC-TABASCO-2026 (2 Estaciones)
-            </button>
-            <button type="button" onclick="setDemoKey('PUERTO-FRONTERA-2026')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono text-[10px] border border-slate-700 transition">
-              PUERTO-FRONTERA-2026 (1 Estación)
-            </button>
-            <button type="button" onclick="setDemoKey('GAVIOTAS-2026')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono text-[10px] border border-slate-700 transition">
-              GAVIOTAS-2026 (1 Estación)
-            </button>
-          </div>
-        </div>
-      </form>
-
-      <!-- Formulario 2: Administrador General -->
-      <form id="form-login-admin" onsubmit="handleAdminLogin(event)" class="space-y-4 hidden">
+      <!-- Formulario 1: Administrador General (Por defecto para comenzar de 0) -->
+      <form id="form-login-admin" onsubmit="handleAdminLogin(event)" class="space-y-4">
         <div class="space-y-3">
           <div>
-            <label class="block text-xs font-mono font-semibold text-slate-300 uppercase tracking-wider mb-1">
+            <label class="block text-xs font-mono font-semibold text-slate-700 uppercase tracking-wider mb-1">
               Usuario Administrador:
             </label>
             <input type="text" id="login-admin-user" required value="admin" placeholder="admin" 
-                   class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-amber-400 text-white font-mono text-sm placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-amber-400">
+                   class="w-full px-4 py-2.5 rounded-xl bg-sky-50/40 border border-sky-200 focus:border-sky-500 text-slate-900 font-mono text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-sky-400">
           </div>
           <div>
-            <label class="block text-xs font-mono font-semibold text-slate-300 uppercase tracking-wider mb-1">
+            <label class="block text-xs font-mono font-semibold text-slate-700 uppercase tracking-wider mb-1">
               Contraseña Maestra:
             </label>
             <input type="password" id="login-admin-pass" required placeholder="••••••••" 
-                   class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-amber-400 text-white font-mono text-sm placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-amber-400">
+                   class="w-full px-4 py-2.5 rounded-xl bg-sky-50/40 border border-sky-200 focus:border-sky-500 text-slate-900 font-mono text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-sky-400">
           </div>
         </div>
 
-        <div id="login-admin-error" class="hidden p-3 rounded-xl bg-rose-950/60 border border-rose-800 text-rose-300 text-xs flex items-center gap-2">
-          <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
-          <span>Usuario o contraseña incorrectos. (Demo: admin / admin2026)</span>
+        <div id="login-admin-error" class="hidden p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 text-rose-600"></i>
+          <span>Usuario o contraseña incorrectos. (Predeterminado: admin / admin2026)</span>
         </div>
 
-        <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-amber-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+        <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-md shadow-amber-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
           <i data-lucide="shield-check" class="w-4 h-4"></i>
           <span>Acceso Total (Administrador)</span>
         </button>
 
-        <p class="text-[11px] text-slate-400 text-center">
-          Credenciales predeterminadas: <strong class="text-slate-300 font-mono">admin</strong> / <strong class="text-slate-300 font-mono">admin2026</strong>
+        <p class="text-[11px] text-slate-500 text-center">
+          Credenciales maestras: <strong class="text-slate-800 font-mono">admin</strong> / <strong class="text-slate-800 font-mono">admin2026</strong>
+        </p>
+      </form>
+
+      <!-- Formulario 2: Clave de Entidad -->
+      <form id="form-login-entity" onsubmit="handleEntityLogin(event)" class="space-y-4 hidden">
+        <div class="space-y-1.5">
+          <label class="block text-xs font-mono font-semibold text-slate-700 uppercase tracking-wider">
+            Clave de Acceso Asignada:
+          </label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <i data-lucide="key" class="w-4 h-4"></i>
+            </div>
+            <input type="text" id="login-entity-key" placeholder="Ej: PC-TABASCO-2026" 
+                   class="w-full pl-10 pr-4 py-3 rounded-xl bg-sky-50/40 border border-sky-200 focus:border-sky-500 text-slate-900 font-mono text-sm tracking-wider uppercase placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-sky-400">
+          </div>
+          <p class="text-[11px] text-slate-500 leading-relaxed">
+            Ingresa la clave que te generó el Administrador para consultar únicamente tus estaciones meteorológicas asignadas.
+          </p>
+        </div>
+
+        <div id="login-entity-error" class="hidden p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 text-rose-600"></i>
+          <span id="login-entity-error-text">Clave de entidad no válida o no registrada.</span>
+        </div>
+
+        <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-sky-600 via-cyan-600 to-teal-600 hover:from-sky-500 hover:to-teal-500 text-white font-extrabold text-xs uppercase tracking-wider shadow-md shadow-sky-600/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+          <span>Ingresar a Mis Estaciones</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+
+        <p class="text-[11px] text-slate-400 text-center italic">
+          Las claves de entidad son creadas por el Administrador desde su panel de control.
         </p>
       </form>
 
       <!-- Pie del Login -->
-      <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
-        <a href="landing.html" class="text-slate-400 hover:text-cyan-300 flex items-center gap-1 transition">
+      <div class="pt-3 border-t border-sky-100 flex items-center justify-between text-xs">
+        <a href="index.html" class="text-sky-700 hover:text-sky-900 font-semibold flex items-center gap-1 transition">
           <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
           <span>Volver al sitio principal</span>
         </a>
-        <span class="text-slate-500 font-mono text-[10px]">LoRa 915 MHz</span>
+        <span class="text-slate-400 font-mono text-[10px]">LoRa 915 MHz</span>
       </div>
 
     </div>
   </div>
 
   <!-- ==================== MODAL: GESTIÓN DE ENTIDADES Y CLAVES DE ACCESO (ADMIN) ==================== -->
-  <div id="modal-manage-entities" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-3xl w-full p-6 sm:p-7 space-y-5 shadow-2xl max-h-[92vh] flex flex-col">
+  <div id="modal-manage-entities" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white border border-sky-200 rounded-3xl max-w-3xl w-full p-6 sm:p-7 space-y-5 shadow-2xl max-h-[92vh] flex flex-col">
       
       <!-- Cabecera del Modal -->
-      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+      <div class="flex items-center justify-between pb-4 border-b border-sky-100">
         <div class="flex items-center gap-3">
-          <div class="p-2.5 rounded-2xl bg-amber-950/80 border border-amber-800 text-amber-400 shadow-md">
+          <div class="p-2.5 rounded-2xl bg-amber-100 border border-amber-300 text-amber-800 shadow-xs">
             <i data-lucide="key" class="w-6 h-6"></i>
           </div>
           <div>
-            <h3 class="font-bold text-base sm:text-lg text-white">Gestión de Entidades y Claves de Acceso</h3>
-            <p class="text-xs text-slate-400">Genera claves para organismos y selecciona qué estaciones pueden ver</p>
+            <h3 class="font-bold text-base sm:text-lg text-slate-900">Gestión de Entidades y Claves de Acceso</h3>
+            <p class="text-xs text-slate-500">Genera claves para organismos y selecciona qué estaciones pueden ver</p>
           </div>
         </div>
-        <button onclick="cerrarModalEntidades()" class="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
+        <button onclick="cerrarModalEntidades()" class="p-1.5 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-800 transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -632,43 +657,43 @@
       <div class="flex-1 overflow-y-auto space-y-6 pr-1">
         
         <!-- Formulario: Registrar Nueva Entidad -->
-        <div class="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
-          <h4 class="text-xs font-mono font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
-            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+        <div class="p-4 sm:p-5 rounded-2xl bg-sky-50/50 border border-sky-200 space-y-4">
+          <h4 class="text-xs font-mono font-bold text-sky-800 uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="plus-circle" class="w-4 h-4 text-sky-600"></i>
             <span>Crear Nueva Entidad y Clave</span>
           </h4>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Nombre de la Entidad u Organismo:</label>
+              <label class="block text-[11px] font-mono text-slate-600 uppercase mb-1">Nombre de la Entidad u Organismo:</label>
               <input type="text" id="new-entity-name" placeholder="Ej: Protección Civil Balancán" 
-                     class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:border-cyan-400 focus:outline-none">
+                     class="w-full px-3 py-2 rounded-xl bg-white border border-sky-200 text-slate-900 text-xs focus:border-sky-500 focus:outline-none">
             </div>
             <div>
               <div class="flex items-center justify-between mb-1">
-                <label class="block text-[11px] font-mono text-slate-400 uppercase">Clave de Acceso:</label>
-                <button type="button" onclick="generarClaveAleatoria()" class="text-[10px] text-cyan-400 hover:underline">
+                <label class="block text-[11px] font-mono text-slate-600 uppercase">Clave de Acceso:</label>
+                <button type="button" onclick="generarClaveAleatoria()" class="text-[10px] text-sky-700 hover:underline font-bold">
                   Generar Aleatoria
                 </button>
               </div>
               <input type="text" id="new-entity-key" placeholder="Ej: PC-BALANCAN-2026" 
-                     class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono text-xs uppercase tracking-wider focus:border-cyan-400 focus:outline-none">
+                     class="w-full px-3 py-2 rounded-xl bg-white border border-sky-200 text-slate-900 font-mono text-xs uppercase tracking-wider focus:border-sky-500 focus:outline-none">
             </div>
           </div>
 
           <!-- Selección de Estaciones Autorizadas -->
           <div>
-            <label class="block text-[11px] font-mono text-slate-400 uppercase mb-2">
+            <label class="block text-[11px] font-mono text-slate-600 uppercase mb-2">
               Estaciones Meteorológicas / Hidrológicas Autorizadas:
             </label>
-            <div id="new-entity-stations-checkboxes" class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-900/80 p-3 rounded-xl border border-slate-800 max-h-36 overflow-y-auto">
+            <div id="new-entity-stations-checkboxes" class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-white p-3 rounded-xl border border-sky-200 max-h-36 overflow-y-auto">
               <!-- Llenado dinámicamente -->
             </div>
             <p class="text-[10px] text-slate-500 mt-1">La entidad solo podrá ver los datos, gráficos y alertas de las estaciones marcadas.</p>
           </div>
 
           <div class="flex justify-end pt-1">
-            <button onclick="guardarNuevaEntidad()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-slate-950 font-bold text-xs uppercase tracking-wider shadow-md transition active:scale-95 flex items-center gap-1.5">
+            <button onclick="guardarNuevaEntidad()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-bold text-xs uppercase tracking-wider shadow-xs transition active:scale-95 flex items-center gap-1.5">
               <i data-lucide="check" class="w-4 h-4"></i>
               <span>Guardar y Asignar Clave</span>
             </button>
@@ -678,10 +703,10 @@
         <!-- Lista de Entidades Existentes -->
         <div class="space-y-3">
           <div class="flex items-center justify-between">
-            <h4 class="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider">
+            <h4 class="text-xs font-mono font-bold text-slate-700 uppercase tracking-wider">
               Entidades con Acceso Registrado (<span id="total-entities-count">0</span>):
             </h4>
-            <span class="text-[10px] font-mono text-slate-500">Claves activas en el sistema</span>
+            <span class="text-[10px] font-mono text-slate-400">Claves activas en el sistema</span>
           </div>
 
           <div id="entities-list-container" class="space-y-2.5">
@@ -691,8 +716,8 @@
 
       </div>
 
-      <div class="pt-3 border-t border-slate-800 flex justify-end">
-        <button onclick="cerrarModalEntidades()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">
+      <div class="pt-3 border-t border-sky-100 flex justify-end">
+        <button onclick="cerrarModalEntidades()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
           Cerrar
         </button>
       </div>
@@ -700,20 +725,20 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL 3: GESTIÓN DE ESTACIONES METEOROLÓGICAS ==================== -->
-  <div id="modal-manage-stations" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 space-y-4 shadow-2xl max-h-[90vh] flex flex-col">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+  <!-- ==================== MODAL: GESTIÓN DE ESTACIONES METEOROLÓGICAS ==================== -->
+  <div id="modal-manage-stations" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-sky-200 rounded-3xl max-w-2xl w-full p-6 space-y-4 shadow-2xl max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-sky-100">
         <div class="flex items-center gap-2.5">
-          <div class="p-2 rounded-xl bg-cyan-950 border border-cyan-800 text-cyan-400">
+          <div class="p-2 rounded-xl bg-sky-100 border border-sky-200 text-sky-700">
             <i data-lucide="radio" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="font-bold text-base text-white">Configuración de Estaciones Hidrológicas</h3>
-            <p class="text-xs text-slate-400">Define los IDs LoRa, nombres de ubicación y alturas de lecho</p>
+            <h3 class="font-bold text-base text-slate-900">Configuración de Estaciones Hidrológicas</h3>
+            <p class="text-xs text-slate-500">Define los IDs LoRa, nombres de ubicación y alturas de lecho</p>
           </div>
         </div>
-        <button id="btn-close-manage-stations" class="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white">
+        <button id="btn-close-manage-stations" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-800">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -724,81 +749,81 @@
       </div>
 
       <!-- Formulario para agregar una nueva estación -->
-      <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
-        <h4 class="text-xs font-bold text-cyan-300 uppercase tracking-wide flex items-center gap-1.5">
-          <i data-lucide="plus-circle" class="w-4 h-4"></i> Añadir Nueva Estación LoRa
+      <div class="p-4 rounded-2xl bg-sky-50/60 border border-sky-200 space-y-3">
+        <h4 class="text-xs font-bold text-sky-900 uppercase tracking-wide flex items-center gap-1.5">
+          <i data-lucide="plus-circle" class="w-4 h-4 text-sky-600"></i> Añadir Nueva Estación LoRa
         </h4>
         <div class="grid grid-cols-1 sm:grid-cols-5 gap-2 text-xs">
           <div class="sm:col-span-1">
-            <label class="block text-slate-400 mb-1 text-[10px]">ID LoRa:</label>
-            <input type="text" id="new-station-id" placeholder="RIO_03" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono uppercase focus:border-cyan-500 focus:outline-none">
+            <label class="block text-slate-500 mb-1 text-[10px]">ID LoRa:</label>
+            <input type="text" id="new-station-id" placeholder="RIO_01" class="w-full bg-white border border-sky-200 rounded-xl px-2.5 py-1.5 text-slate-900 font-mono uppercase focus:border-sky-500 focus:outline-none">
           </div>
           <div class="sm:col-span-2">
-            <label class="block text-slate-400 mb-1 text-[10px]">Nombre / Ubicación:</label>
-            <input type="text" id="new-station-name" placeholder="Estación 3 - Desembocadura" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white focus:border-cyan-500 focus:outline-none">
+            <label class="block text-slate-500 mb-1 text-[10px]">Nombre / Ubicación:</label>
+            <input type="text" id="new-station-name" placeholder="Estación 1 - Puente Central" class="w-full bg-white border border-sky-200 rounded-xl px-2.5 py-1.5 text-slate-900 focus:border-sky-500 focus:outline-none">
           </div>
           <div class="sm:col-span-2 flex items-end gap-2">
             <div class="flex-1">
-              <label class="block text-slate-400 mb-1 text-[10px]">Lecho (cm):</label>
-              <input type="number" id="new-station-bed" placeholder="100" value="100" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono focus:border-cyan-500 focus:outline-none">
+              <label class="block text-slate-500 mb-1 text-[10px]">Lecho (cm):</label>
+              <input type="number" id="new-station-bed" placeholder="100" value="100" class="w-full bg-white border border-sky-200 rounded-xl px-2.5 py-1.5 text-slate-900 font-mono focus:border-sky-500 focus:outline-none">
             </div>
-            <button id="btn-add-station" class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold px-3 py-1.5 rounded-lg text-xs transition active:scale-95 shrink-0">
+            <button id="btn-add-station" class="bg-sky-600 hover:bg-sky-500 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs transition active:scale-95 shrink-0 shadow-xs">
               Agregar
             </button>
           </div>
         </div>
       </div>
 
-      <div class="flex items-center justify-between pt-2 border-t border-slate-800">
-        <button id="btn-reset-default-stations" class="text-xs text-rose-400 hover:text-rose-300">
-          Restablecer por defecto
+      <div class="flex items-center justify-between pt-2 border-t border-sky-100">
+        <button id="btn-reset-default-stations" class="text-xs text-slate-400 hover:text-rose-600">
+          Limpiar todas las estaciones
         </button>
-        <button id="btn-save-stations-config" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2 rounded-xl text-xs transition">
+        <button id="btn-save-stations-config" class="bg-sky-600 hover:bg-sky-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-xs">
           Guardar Cambios
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ==================== MODAL 4: CONFIGURACIÓN SUPABASE ==================== -->
-  <div id="modal-supabase" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+  <!-- ==================== MODAL: CONFIGURACIÓN SUPABASE ==================== -->
+  <div id="modal-supabase" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-sky-200 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-sky-100">
         <div class="flex items-center gap-2">
-          <i data-lucide="database" class="w-5 h-5 text-emerald-400"></i>
-          <h3 class="font-bold text-base text-white">Conexión con Supabase</h3>
+          <i data-lucide="database" class="w-5 h-5 text-emerald-600"></i>
+          <h3 class="font-bold text-base text-slate-900">Conexión con Supabase</h3>
         </div>
-        <button id="btn-close-supabase-modal" class="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white">
+        <button id="btn-close-supabase-modal" class="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-800">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <p class="text-xs text-slate-300">
-        Credenciales de tu proyecto en Supabase (desde <b>Project Settings ➔ API</b>):
+      <p class="text-xs text-slate-600">
+        Credenciales de tu base de datos en Supabase (desde <b>Project Settings ➔ API</b>):
       </p>
 
       <div class="space-y-3 text-xs">
         <div>
-          <label class="block text-slate-400 font-medium mb-1">Project URL:</label>
-          <input type="text" id="cfg-supabase-url" placeholder="https://tu-proyecto.supabase.co" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono focus:border-cyan-500 focus:outline-none">
+          <label class="block text-slate-600 font-medium mb-1">Project URL:</label>
+          <input type="text" id="cfg-supabase-url" placeholder="https://tu-proyecto.supabase.co" class="w-full bg-sky-50/40 border border-sky-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:border-sky-500 focus:outline-none">
         </div>
         <div>
-          <label class="block text-slate-400 font-medium mb-1">Anon Public Key:</label>
-          <textarea id="cfg-supabase-key" rows="3" placeholder="eyJhbGciOiJIUzI1NiIsIn..." class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono focus:border-cyan-500 focus:outline-none"></textarea>
+          <label class="block text-slate-600 font-medium mb-1">Anon Public Key:</label>
+          <textarea id="cfg-supabase-key" rows="3" placeholder="eyJhbGciOiJIUzI1NiIsIn..." class="w-full bg-sky-50/40 border border-sky-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:border-sky-500 focus:outline-none"></textarea>
         </div>
 
-        <div class="pt-2 border-t border-slate-800">
-          <label class="block text-slate-400 font-medium mb-1">Cambiar PIN de Administrador (opcional):</label>
-          <input type="password" id="cfg-new-pin" placeholder="Nuevo PIN numérico" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono focus:border-cyan-500 focus:outline-none">
+        <div class="pt-2 border-t border-sky-100">
+          <label class="block text-slate-600 font-medium mb-1">Cambiar Contraseña de Administrador (opcional):</label>
+          <input type="password" id="cfg-new-pin" placeholder="Nueva contraseña de admin" class="w-full bg-sky-50/40 border border-sky-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:border-sky-500 focus:outline-none">
         </div>
       </div>
 
-      <div class="p-2.5 rounded-lg bg-emerald-950/40 border border-emerald-900/60 text-emerald-300 text-[11px]">
+      <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-[11px]">
         🔒 <b>Seguridad:</b> Estos parámetros solo pueden ser modificados por administradores autenticados.
       </div>
 
-      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-        <button id="btn-save-supabase" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg text-xs transition">
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-sky-100">
+        <button id="btn-save-supabase" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-xs">
           Guardar y Reconectar
         </button>
       </div>
@@ -806,7 +831,7 @@
   </div>
 
   <!-- FOOTER -->
-  <footer class="mt-auto bg-slate-900/90 border-t border-slate-800 py-3 text-center text-[11px] text-slate-500">
+  <footer class="mt-auto bg-white/80 border-t border-sky-100 py-4 text-center text-[11px] text-slate-500">
     Sistema de Monitoreo Hidrológico & Marítimo LoRa 32 &copy; 2026 | Arquitectura Multi-Estación Vercel + Supabase Realtime
   </footer>
 
@@ -815,40 +840,32 @@
     lucide.createIcons();
 
     // ==========================================
+    // REINICIO LIMPIO (INICIO DESDE CERO SOLICITADO)
+    // ==========================================
+    if (!localStorage.getItem('lora_fresh_start_clean_v4')) {
+      localStorage.setItem('lora_fresh_start_clean_v4', 'true');
+      localStorage.removeItem('estaciones_config');
+      localStorage.removeItem('entidades_acceso_lora');
+      localStorage.removeItem('lora_rio_active_session');
+    }
+
+    // ==========================================
     // 1. ESTADO GLOBAL Y CONFIGURACIÓN MULTI-ESTACIÓN
     // ==========================================
-    const DEFAULT_STATIONS = [
-      { id: 'RIO_01', name: 'Estación 1 - Puente Central (Río)', bedHeight: 100, yellowAlert: 60, redAlert: 80 },
-      { id: 'RIO_02', name: 'Estación 2 - Cuenca Alta / Afluente', bedHeight: 100, yellowAlert: 60, redAlert: 80 }
-    ];
-
+    const DEFAULT_STATIONS = []; // Cero estaciones precargadas (comenzar desde 0)
     let stationsConfig = [];
+
     function cargarConfiguracionEstaciones() {
       try {
         const raw = localStorage.getItem('estaciones_config');
         if (raw) {
           stationsConfig = JSON.parse(raw);
-          // Purga estricta: solo mantener estaciones legítimas que empiecen por RIO_ (ej. RIO_01, RIO_02)
           stationsConfig = stationsConfig.filter(s => s && typeof s.id === 'string' && /^RIO_\d{2}$/i.test(s.id));
-          if (stationsConfig.length === 0) {
-            stationsConfig = JSON.parse(JSON.stringify(DEFAULT_STATIONS));
-          }
-          // Migración automática a la altura real de instalación (1.0 metro = 100 cm):
-          stationsConfig.forEach(s => {
-            s.id = s.id.toUpperCase();
-            if (!s.bedHeight || s.bedHeight > 150) {
-              s.bedHeight = 100;
-              s.yellowAlert = 60;
-              s.redAlert = 80;
-            }
-          });
-          guardarConfiguracionEstaciones();
         } else {
-          stationsConfig = JSON.parse(JSON.stringify(DEFAULT_STATIONS));
-          guardarConfiguracionEstaciones();
+          stationsConfig = [];
         }
       } catch (e) {
-        stationsConfig = JSON.parse(JSON.stringify(DEFAULT_STATIONS));
+        stationsConfig = [];
       }
     }
 
@@ -875,7 +892,6 @@
 
     stationsConfig.forEach(st => inicializarStoreEstacion(st.id));
 
-    // Estación actualmente seleccionada ('ALL' o ID específico como 'RIO_01')
     let currentViewMode = 'ALL';
     let windowSize = 30;
     let isSoundEnabled = true;
@@ -883,16 +899,13 @@
     let demoInterval = null;
     let totalPacketCount = 0;
 
-    // Normalizador de ID de estación (elimina "Recibido: " o espacios)
     function sanitizeStationId(rawId) {
       if (!rawId) return 'DESCONOCIDA';
       return String(rawId).replace(/Recibido:\s*/gi, '').trim().toUpperCase();
     }
 
-    // Auto-registro protegido: Solo admite estaciones válidas con formato RIO_XX
     function asegurarEstacionRegistrada(id) {
       const cleanId = sanitizeStationId(id);
-      // SEGURIDAD: Si no tiene formato de estación válido (ej. RIO_01), ignorar completamente
       if (!/^RIO_\d{2}$/i.test(cleanId)) return null;
 
       let existe = stationsConfig.find(s => s.id === cleanId);
@@ -915,49 +928,25 @@
     // ==========================================
     // 2. SISTEMA DE ACCESO MULTI-ENTIDAD Y AUTENTICACIÓN
     // ==========================================
-    const DEFAULT_ENTITIES = [
-      {
-        id: 'ent_pc_tabasco',
-        name: 'Protección Civil del Estado de Tabasco',
-        key: 'PC-TABASCO-2026',
-        assignedStations: ['RIO_01', 'RIO_02'],
-        createdAt: '2026-03-01'
-      },
-      {
-        id: 'ent_puerto_frontera',
-        name: 'Capitanía de Puerto Frontera',
-        key: 'PUERTO-FRONTERA-2026',
-        assignedStations: ['RIO_01'],
-        createdAt: '2026-03-01'
-      },
-      {
-        id: 'ent_comite_gaviotas',
-        name: 'Comité Ribereño Gaviotas',
-        key: 'GAVIOTAS-2026',
-        assignedStations: ['RIO_02'],
-        createdAt: '2026-03-01'
-      }
-    ];
+    const DEFAULT_ENTITIES = []; // Cero entidades precargadas (comenzar desde 0)
 
     function getStoredEntities() {
       try {
         const raw = localStorage.getItem('entidades_acceso_lora');
         if (raw) {
           const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          if (Array.isArray(parsed)) return parsed;
         }
       } catch (e) {
         console.error('Error al leer entidades:', e);
       }
-      localStorage.setItem('entidades_acceso_lora', JSON.stringify(DEFAULT_ENTITIES));
-      return JSON.parse(JSON.stringify(DEFAULT_ENTITIES));
+      return [];
     }
 
     function saveStoredEntities(entities) {
       localStorage.setItem('entidades_acceso_lora', JSON.stringify(entities));
     }
 
-    // Sesión activa: null | { type: 'admin', name: string } | { type: 'entity', name: string, key: string, assignedStations: string[] }
     let currentUserSession = null;
 
     function getAdminPin() {
@@ -982,26 +971,18 @@
       const formEntity = document.getElementById('form-login-entity');
       const formAdmin = document.getElementById('form-login-admin');
 
-      if (tab === 'entity') {
-        btnEntity.className = 'py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 bg-cyan-950 text-cyan-300 border border-cyan-800/80 shadow-sm font-bold';
-        btnAdmin.className = 'py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-slate-400 hover:text-white';
-        formEntity.classList.remove('hidden');
-        formAdmin.classList.add('hidden');
-      } else {
-        btnAdmin.className = 'py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 bg-amber-950 text-amber-300 border border-amber-800/80 shadow-sm font-bold';
-        btnEntity.className = 'py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-slate-400 hover:text-white';
+      if (tab === 'admin') {
+        btnAdmin.className = 'py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 bg-amber-100 text-amber-900 border border-amber-300 shadow-xs font-bold';
+        btnEntity.className = 'py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-slate-500 hover:text-slate-900';
         formAdmin.classList.remove('hidden');
         formEntity.classList.add('hidden');
+      } else {
+        btnEntity.className = 'py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 bg-sky-100 text-sky-800 border border-sky-300 shadow-xs font-bold';
+        btnAdmin.className = 'py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-slate-500 hover:text-slate-900';
+        formEntity.classList.remove('hidden');
+        formAdmin.classList.add('hidden');
       }
       lucide.createIcons();
-    }
-
-    function setDemoKey(key) {
-      const input = document.getElementById('login-entity-key');
-      if (input) {
-        input.value = key;
-        input.focus();
-      }
     }
 
     function handleEntityLogin(e) {
@@ -1014,7 +995,7 @@
       errorBox.classList.add('hidden');
 
       if (!keyVal) {
-        errorText.textContent = 'Por favor ingresa tu clave de acceso de entidad.';
+        errorText.textContent = 'Por favor ingresa la clave de acceso de tu entidad.';
         errorBox.classList.remove('hidden');
         return;
       }
@@ -1023,7 +1004,7 @@
       const matched = entities.find(ent => ent.key.trim().toUpperCase() === keyVal);
 
       if (!matched) {
-        errorText.textContent = 'Clave "' + keyVal + '" no registrada o no válida. Solicita tu clave al Administrador.';
+        errorText.textContent = 'Clave "' + keyVal + '" no registrada. El Administrador debe crear tu entidad en el sistema.';
         errorBox.classList.remove('hidden');
         playAlarmTone(330, 'sawtooth', 0.2);
         return;
@@ -1099,7 +1080,7 @@
 
         sessionName.textContent = currentUserSession.name;
         sessionDetail.textContent = 'Acceso Total (' + stationsConfig.length + ' estaciones)';
-        sessionIcon.className = 'p-1 rounded-lg bg-amber-950 text-amber-400 border border-amber-800';
+        sessionIcon.className = 'p-1 rounded-lg bg-amber-100 text-amber-800 border border-amber-300';
         sessionIcon.innerHTML = '<i data-lucide="shield-check" class="w-3.5 h-3.5"></i>';
       } else if (currentUserSession && currentUserSession.type === 'entity') {
         adminBar.classList.add('hidden');
@@ -1109,7 +1090,7 @@
         const count = (currentUserSession.assignedStations || []).length;
         sessionName.textContent = currentUserSession.name;
         sessionDetail.textContent = count + (count === 1 ? ' estación asignada' : ' estaciones asignadas');
-        sessionIcon.className = 'p-1 rounded-lg bg-cyan-950 text-cyan-400 border border-cyan-800';
+        sessionIcon.className = 'p-1 rounded-lg bg-sky-100 text-sky-700 border border-sky-200';
         sessionIcon.innerHTML = '<i data-lucide="building" class="w-3.5 h-3.5"></i>';
       }
 
@@ -1165,13 +1146,18 @@
       if (!container) return;
       container.innerHTML = '';
 
+      if (stationsConfig.length === 0) {
+        container.innerHTML = '<div class="text-xs text-slate-400 p-2 italic col-span-full">Primero debes registrar estaciones en el panel "Estaciones" antes de asignarlas a una entidad.</div>';
+        return;
+      }
+
       stationsConfig.forEach(st => {
         const label = document.createElement('label');
-        label.className = 'flex items-center gap-2 p-2 rounded-lg bg-slate-950/60 border border-slate-800 hover:border-slate-700 cursor-pointer text-xs text-slate-200 transition';
+        label.className = 'flex items-center gap-2 p-2 rounded-xl bg-sky-50/50 border border-sky-100 hover:border-sky-300 cursor-pointer text-xs text-slate-800 transition';
         label.innerHTML = `
-          <input type="checkbox" name="entity-station" value="${st.id}" checked class="rounded border-slate-700 text-cyan-500 focus:ring-cyan-500 bg-slate-900 w-3.5 h-3.5">
-          <span class="font-mono font-bold text-cyan-300 text-[11px]">${st.id}</span>
-          <span class="text-slate-300 truncate text-[11px]">${st.name.split('-')[0].trim()}</span>
+          <input type="checkbox" name="entity-station" value="${st.id}" checked class="rounded border-sky-300 text-sky-600 focus:ring-sky-500 bg-white w-4 h-4">
+          <span class="font-mono font-bold text-sky-700 text-[11px]">${st.id}</span>
+          <span class="text-slate-700 truncate text-[11px]">${st.name.split('-')[0].trim()}</span>
         `;
         container.appendChild(label);
       });
@@ -1266,8 +1252,8 @@
 
       if (entities.length === 0) {
         container.innerHTML = `
-          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-center text-xs text-slate-500">
-            No hay entidades registradas actualmente. Agrega una arriba.
+          <div class="p-6 rounded-2xl bg-sky-50/50 border border-sky-100 text-center text-xs text-slate-500">
+            No hay entidades registradas actualmente. Completa el formulario de arriba para crear tu primera entidad con clave de acceso.
           </div>
         `;
         return;
@@ -1276,31 +1262,31 @@
       container.innerHTML = '';
       entities.forEach(ent => {
         const stNames = ent.assignedStations.map(stId => {
-          return `<span class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[10px] text-cyan-300">${stId}</span>`;
+          return `<span class="px-2 py-0.5 rounded-md bg-sky-100 border border-sky-200 font-mono text-[10px] text-sky-800">${stId}</span>`;
         }).join(' ');
 
         const card = document.createElement('div');
-        card.className = 'p-3.5 rounded-2xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+        card.className = 'p-3.5 rounded-2xl bg-white border border-sky-100 hover:border-sky-300 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs';
         card.innerHTML = `
           <div class="space-y-1">
             <div class="flex items-center gap-2 flex-wrap">
-              <span class="font-bold text-xs text-white">${ent.name}</span>
-              <span class="px-2 py-0.5 rounded-md bg-amber-950/80 border border-amber-700/80 text-amber-300 font-mono text-[10px] font-bold tracking-wider">
+              <span class="font-bold text-xs text-slate-900">${ent.name}</span>
+              <span class="px-2 py-0.5 rounded-md bg-amber-100 border border-amber-300 text-amber-900 font-mono text-[10px] font-bold tracking-wider">
                 ${ent.key}
               </span>
             </div>
-            <div class="flex items-center gap-1.5 flex-wrap text-xs text-slate-400">
-              <span class="text-[11px] text-slate-500">Estaciones permitidas (${ent.assignedStations.length}):</span>
-              ${stNames || '<span class="text-rose-400 text-[11px]">Ninguna</span>'}
+            <div class="flex items-center gap-1.5 flex-wrap text-xs text-slate-500">
+              <span class="text-[11px] text-slate-400">Estaciones permitidas (${ent.assignedStations.length}):</span>
+              ${stNames || '<span class="text-rose-500 text-[11px]">Ninguna</span>'}
             </div>
           </div>
 
           <div class="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
-            <button onclick="copiarClaveEntidad('${ent.key}')" class="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white text-[11px] transition" title="Copiar clave">
-              <i data-lucide="copy" class="w-3 h-3 text-cyan-400"></i>
+            <button onclick="copiarClaveEntidad('${ent.key}')" class="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800 text-[11px] font-semibold transition" title="Copiar clave">
+              <i data-lucide="copy" class="w-3 h-3 text-sky-600"></i>
               <span>Copiar</span>
             </button>
-            <button onclick="eliminarEntidad('${ent.id}')" class="p-1.5 rounded-lg bg-slate-900 hover:bg-rose-950/70 border border-slate-700 hover:border-rose-800 text-slate-400 hover:text-rose-400 transition" title="Revocar clave">
+            <button onclick="eliminarEntidad('${ent.id}')" class="p-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 transition" title="Revocar clave">
               <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
             </button>
           </div>
@@ -1334,16 +1320,16 @@
       let ahora = Date.now();
 
       if (totalEstaciones === 0) {
-        banner.className = 'p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-slate-900/90 border-slate-800 text-slate-300 shadow-md';
-        iconBox.className = 'p-3 rounded-xl bg-slate-800 text-slate-400 shrink-0';
-        badge.className = 'text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
+        banner.className = 'p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-white/95 border-sky-200/90 text-slate-800 shadow-sm';
+        iconBox.className = 'p-3 rounded-xl bg-sky-50 border border-sky-200 text-sky-700 shrink-0';
+        badge.className = 'text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200';
         badge.textContent = 'SIN ESTACIONES';
-        title.className = 'font-extrabold text-sm sm:text-base tracking-wide uppercase text-white';
-        title.textContent = 'SIN ESTACIONES ASIGNADAS A ESTA ENTIDAD';
-        reco.textContent = 'Comunícate con el Administrador para que asigne las estaciones meteorológicas correspondientes a tu clave de acceso.';
-        icon.setAttribute('data-lucide', 'shield-alert');
+        title.className = 'font-extrabold text-sm sm:text-base tracking-wide uppercase text-slate-900';
+        title.textContent = 'SIN ESTACIONES REGISTRADAS TODAVÍA';
+        reco.textContent = 'Accede como Administrador y haz clic en "+ Nueva Estación" en la barra superior para agregar tu primer nodo meteorológico LoRa 32.';
+        icon.setAttribute('data-lucide', 'radio');
         countEl.textContent = '0 estaciones autorizadas';
-        summaryLine.innerHTML = '<span class="text-slate-500 text-[11px] italic">Sin estaciones vinculadas</span>';
+        summaryLine.innerHTML = '<span class="text-slate-400 text-[11px] italic">Sin estaciones vinculadas en el sistema</span>';
         lucide.createIcons();
         return;
       }
@@ -1356,7 +1342,6 @@
           return;
         }
 
-        // Si pasaron más de 60 segundos sin recibir transmisión LoRa, marcar como desconectada
         const transcurrido = (ahora - store.lastPacketTime) / 1000;
         if (transcurrido > 60) {
           store.isOffline = true;
@@ -1385,14 +1370,12 @@
 
       countEl.textContent = activas + ' de ' + totalEstaciones + ' estaciones transmitiendo en vivo';
 
-      // Evaluación por orden de severidad
       if (peligros.length > 0) {
-        // 🔴 PELIGRO CRÍTICO
-        banner.className = 'p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-rose-950/80 border-rose-600 text-rose-100 shadow-xl shadow-rose-950/50 animate-pulse';
-        iconBox.className = 'p-3 rounded-xl bg-rose-900 text-rose-300 shrink-0';
-        badge.className = 'text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-rose-900/80 text-rose-200 border border-rose-600';
+        banner.className = 'p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-rose-50 border-rose-300 text-rose-950 shadow-md animate-pulse';
+        iconBox.className = 'p-3 rounded-xl bg-rose-100 text-rose-700 border border-rose-300 shrink-0';
+        badge.className = 'text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-rose-200 text-rose-900 border border-rose-400';
         badge.textContent = 'ALERTA ROJA';
-        title.className = 'font-extrabold text-sm sm:text-base tracking-wide uppercase text-rose-200';
+        title.className = 'font-extrabold text-sm sm:text-base tracking-wide uppercase text-rose-950';
         title.textContent = 'PELIGRO CRÍTICO DE DESBORDE / INUNDACIÓN';
 
         const nombres = peligros.map(p => p.cfg.name + ' (' + p.water.toFixed(1) + 'cm)').join(', ');
@@ -1401,12 +1384,11 @@
         playAlarmTone(980, 'square', 0.3);
 
       } else if (alertas.length > 0) {
-        // PRECAUCIÓN
-        banner.className = 'p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-amber-950/60 border-amber-600 text-amber-100 shadow-lg';
-        iconBox.className = 'p-3 rounded-xl bg-amber-900 text-amber-300 shrink-0';
-        badge.className = 'text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-amber-900/80 text-amber-200 border border-amber-600';
+        banner.className = 'p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-amber-50 border-amber-300 text-amber-950 shadow-sm';
+        iconBox.className = 'p-3 rounded-xl bg-amber-100 text-amber-800 border border-amber-300 shrink-0';
+        badge.className = 'text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 border border-amber-400';
         badge.textContent = 'PRECAUCIÓN';
-        title.className = 'font-extrabold text-sm sm:text-base tracking-wide uppercase text-amber-200';
+        title.className = 'font-extrabold text-sm sm:text-base tracking-wide uppercase text-amber-950';
         title.textContent = 'NIVEL DE CAUDAL ELEVADO DETECTADO';
 
         const nombres = alertas.map(a => a.cfg.name + ' (' + a.water.toFixed(1) + 'cm)').join(', ');
@@ -1415,56 +1397,52 @@
 
       } else if (activas > 0) {
         if (conError.length > 0 && normales.length === 0) {
-          // Conectadas pero con error en sensor
-          banner.className = 'p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-amber-950/40 border-amber-800 text-amber-100 shadow-md';
-          iconBox.className = 'p-3 rounded-xl bg-amber-900/70 text-amber-300 shrink-0';
-          badge.className = 'text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-amber-900/80 text-amber-300 border border-amber-700';
+          banner.className = 'p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-amber-50/70 border-amber-200 text-amber-900 shadow-sm';
+          iconBox.className = 'p-3 rounded-xl bg-amber-100 text-amber-800 border border-amber-200 shrink-0';
+          badge.className = 'text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 border border-amber-300';
           badge.textContent = 'ATENCIÓN REQUERIDA';
-          title.className = 'font-extrabold text-sm sm:text-base tracking-wide uppercase text-amber-200';
-          title.textContent = 'FALLA O DESCONEXIÓN EN SENSOR ULTRASONICO';
+          title.className = 'font-extrabold text-sm sm:text-base tracking-wide uppercase text-amber-900';
+          title.textContent = 'FALLA O DESCONEXIÓN EN SENSOR ULTRASÓNICO';
           const errList = conError.map(e => e.cfg.id + ' (' + e.status + ')').join(', ');
-          reco.textContent = 'Estaciones en línea pero reportan anomalía en sensor: ' + errList + '. Verifique cables de Trigger y Echo.';
+          reco.textContent = 'Estaciones en línea reportan anomalía en sensor: ' + errList + '. Verifique cables de Trigger y Echo.';
           icon.setAttribute('data-lucide', 'alert-circle');
         } else {
-          // SEGURO
-          banner.className = 'p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-emerald-950/50 border-emerald-700/80 text-emerald-100 shadow-md';
-          iconBox.className = 'p-3 rounded-xl bg-emerald-900/80 text-emerald-300 shrink-0';
-          badge.className = 'text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-emerald-900/80 text-emerald-300 border border-emerald-600';
+          banner.className = 'p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-emerald-50 border-emerald-200 text-emerald-950 shadow-sm';
+          iconBox.className = 'p-3 rounded-xl bg-emerald-100 text-emerald-700 border border-emerald-300 shrink-0';
+          badge.className = 'text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-emerald-200 text-emerald-900 border border-emerald-300';
           badge.textContent = 'CONDICIÓN SEGURA';
-          title.className = 'font-extrabold text-sm sm:text-base tracking-wide uppercase text-emerald-200';
+          title.className = 'font-extrabold text-sm sm:text-base tracking-wide uppercase text-emerald-950';
           title.textContent = 'NIVELES DENTRO DEL RANGO NORMAL Y SEGURO';
           reco.textContent = 'Las estaciones transmitiendo en vivo se mantienen dentro de sus márgenes normales. Actividades en riberas seguras.';
           icon.setAttribute('data-lucide', 'shield-check');
         }
 
       } else {
-        // DESCONECTADO
-        banner.className = 'p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-slate-900/90 border-slate-800 text-slate-300 shadow-md';
-        iconBox.className = 'p-3 rounded-xl bg-slate-800 text-slate-400 shrink-0';
-        badge.className = 'text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
+        banner.className = 'p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-white/95 border-sky-200/90 text-slate-800 shadow-sm';
+        iconBox.className = 'p-3 rounded-xl bg-sky-50 border border-sky-200 text-sky-600 shrink-0';
+        badge.className = 'text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200';
         badge.textContent = 'EN ESPERA DE TELEMETRÍA';
-        title.className = 'font-extrabold text-sm sm:text-base tracking-wide uppercase text-white';
+        title.className = 'font-extrabold text-sm sm:text-base tracking-wide uppercase text-slate-900';
         title.textContent = 'ESTACIONES SIN SEÑAL / EN ESPERA';
         reco.textContent = 'Conecte el Gateway LoRa por USB en Google Chrome/Edge o espere la transmisión en vivo por radiofrecuencia (915 MHz).';
         icon.setAttribute('data-lucide', 'radio');
       }
 
-      // Línea de chips resumen
       let chipsHtml = '';
       accessible.forEach(cfg => {
         const store = telemetryStore[cfg.id];
         if (!store || !store.hasReceivedLive || store.isOffline) {
-          chipsHtml += '<span class="px-2 py-0.5 rounded bg-slate-800/90 text-rose-400/90 border border-slate-700 text-[10px] flex items-center gap-1 font-mono"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>' + cfg.id + ': Desconectada</span>';
+          chipsHtml += '<span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 text-[10px] flex items-center gap-1.5 font-mono"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>' + cfg.id + ': En espera</span>';
         } else if (store.latest && (store.latest.status === 'MUY_CERCA' || store.latest.status === 'ERR_DESBORDE' || (store.latest.status === 'OK' && store.latest.distance > 0 && store.latest.distance <= 20.0))) {
-          chipsHtml += '<span class="px-2 py-0.5 rounded bg-rose-950 text-rose-200 border-rose-600 animate-pulse text-[10px] font-bold flex items-center gap-1 font-mono"><span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>' + cfg.id + ': DESBORDE INMINENTE</span>';
+          chipsHtml += '<span class="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300 animate-pulse text-[10px] font-bold flex items-center gap-1.5 font-mono"><span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span>' + cfg.id + ': DESBORDE INMINENTE</span>';
         } else if (!store.latest || store.latest.status !== 'OK') {
-          chipsHtml += '<span class="px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-700 text-[10px] flex items-center gap-1 font-mono"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>' + cfg.id + ': Error ' + (store.latest ? store.latest.status : '') + '</span>';
+          chipsHtml += '<span class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 text-[10px] flex items-center gap-1.5 font-mono"><span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>' + cfg.id + ': Error ' + (store.latest ? store.latest.status : '') + '</span>';
         } else {
           const w = store.latest.waterLevel;
-          let color = 'bg-emerald-950 text-emerald-300 border-emerald-800';
-          if (w >= cfg.redAlert) color = 'bg-rose-950 text-rose-300 border-rose-800 animate-pulse';
-          else if (w >= cfg.yellowAlert) color = 'bg-amber-950 text-amber-300 border-amber-800';
-          chipsHtml += '<span class="px-2 py-0.5 rounded ' + color + ' border text-[10px] font-semibold flex items-center gap-1 font-mono"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>' + cfg.id + ': ' + w.toFixed(0) + 'cm</span>';
+          let color = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+          if (w >= cfg.redAlert) color = 'bg-rose-100 text-rose-800 border-rose-300 animate-pulse';
+          else if (w >= cfg.yellowAlert) color = 'bg-amber-100 text-amber-800 border-amber-300';
+          chipsHtml += '<span class="px-2.5 py-0.5 rounded-full ' + color + ' border text-[10px] font-semibold flex items-center gap-1.5 font-mono"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>' + cfg.id + ': ' + w.toFixed(0) + 'cm</span>';
         }
       });
       summaryLine.innerHTML = chipsHtml;
@@ -1480,7 +1458,6 @@
       const accessible = getAccessibleStations();
       if (badgeTotal) badgeTotal.textContent = accessible.length;
 
-      // Mantener la primera pestaña (ALL) y recrear las pestañas de estaciones
       const allBtn = document.getElementById('tab-station-ALL');
       container.innerHTML = '';
       container.appendChild(allBtn);
@@ -1488,9 +1465,9 @@
       accessible.forEach(st => {
         const btn = document.createElement('button');
         btn.id = 'tab-station-' + st.id;
-        btn.className = 'flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-800 hover:border-slate-700 bg-slate-900/80 text-slate-300 hover:text-white text-xs font-semibold whitespace-nowrap transition active:scale-95';
+        btn.className = 'flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-sky-200 bg-white hover:bg-sky-50 text-slate-700 hover:text-slate-900 text-xs font-semibold whitespace-nowrap transition active:scale-95 shadow-xs';
         btn.onclick = () => cambiarVistaEstacion(st.id);
-        btn.innerHTML = '<i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i><span>' + st.name + '</span>';
+        btn.innerHTML = '<i data-lucide="map-pin" class="w-3.5 h-3.5 text-sky-600"></i><span>' + st.name + '</span>';
         container.appendChild(btn);
       });
 
@@ -1501,12 +1478,12 @@
     function actualizarEstilosPestañaActiva() {
       const allTabs = document.querySelectorAll('#station-tabs-container button');
       allTabs.forEach(b => {
-        b.className = 'flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-800 hover:border-slate-700 bg-slate-900/80 text-slate-300 hover:text-white text-xs font-semibold whitespace-nowrap transition active:scale-95';
+        b.className = 'flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-sky-200 bg-white hover:bg-sky-50 text-slate-700 hover:text-slate-900 text-xs font-semibold whitespace-nowrap transition active:scale-95 shadow-xs';
       });
 
       const activeBtn = document.getElementById('tab-station-' + currentViewMode);
       if (activeBtn) {
-        activeBtn.className = 'station-tab-active flex items-center gap-2 px-3.5 py-2 rounded-xl border border-cyan-500 text-xs font-semibold whitespace-nowrap transition active:scale-95 shadow-sm';
+        activeBtn.className = 'station-tab-active flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-semibold whitespace-nowrap transition active:scale-95 shadow-sm';
       }
     }
 
@@ -1532,7 +1509,6 @@
       }
     }
 
-    // Renderizado del Grid Multi-Estación
     function renderGridEstaciones() {
       const grid = document.getElementById('stations-summary-grid');
       if (!grid) return;
@@ -1541,10 +1517,20 @@
       const accessible = getAccessibleStations();
       if (accessible.length === 0) {
         grid.innerHTML = `
-          <div class="col-span-full p-8 rounded-2xl bg-slate-900/60 border border-slate-800 text-center space-y-2">
-            <i data-lucide="shield-alert" class="w-8 h-8 text-amber-400 mx-auto"></i>
-            <h4 class="font-bold text-sm text-white">Sin estaciones autorizadas</h4>
-            <p class="text-xs text-slate-400">Esta entidad no tiene estaciones meteorológicas vinculadas actualmente. Contacte al Administrador.</p>
+          <div class="col-span-full p-10 rounded-3xl bg-white border border-sky-200 text-center space-y-3 shadow-sm">
+            <div class="w-14 h-14 rounded-2xl bg-sky-50 border border-sky-200 text-sky-600 flex items-center justify-center mx-auto shadow-xs">
+              <i data-lucide="radio" class="w-7 h-7"></i>
+            </div>
+            <h4 class="font-extrabold text-base text-slate-900">No hay estaciones meteorológicas registradas</h4>
+            <p class="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+              Como Administrador, haz clic en el botón <b>"+ Nueva Estación"</b> o en <b>"Estaciones"</b> en la barra superior para agregar tu primer nodo LoRa 32 y calibrar su cota de lecho.
+            </p>
+            <div class="pt-2">
+              <button onclick="abrirModalGestionEstaciones()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs uppercase tracking-wider shadow-sm transition active:scale-95">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                <span>Crear Primera Estación</span>
+              </button>
+            </div>
           </div>
         `;
         lucide.createIcons();
@@ -1562,116 +1548,108 @@
         const rssi = (isLive && hasLatest) ? store.latest.rssi : null;
         const pct = isOverflow ? 100 : ((isLive && status === 'OK') ? Math.min(100, Math.max(0, (water / cfg.bedHeight) * 100)) : 0);
 
-        let cardBorder = 'border-slate-800 bg-slate-900/60 opacity-80 hover:opacity-100';
-        let badgeColor = 'bg-slate-800 text-rose-400 border-rose-900/60';
-        let badgeStatus = '🔴 DESCONECTADA';
-        let barColor = 'bg-slate-700';
-        let statusMessage = '<span class="text-slate-500">Sin transmisión LoRa activa (fuera de línea)</span>';
+        let cardBorder = 'border-sky-100 bg-white hover:border-sky-300';
+        let badgeColor = 'bg-slate-100 text-slate-600 border-slate-200';
+        let badgeStatus = '⚪ EN ESPERA';
+        let barColor = 'bg-sky-500';
+        let statusMessage = '<span class="text-slate-400">Sin transmisión LoRa activa en este momento</span>';
 
         if (isLive) {
           if (isOverflow) {
-            cardBorder = 'border-rose-600 bg-rose-950/40 shadow-rose-950/60 shadow-xl animate-pulse';
-            badgeColor = 'bg-rose-950 text-rose-200 border-rose-600 animate-pulse';
-            badgeStatus = '🚨 DESBORDE CRÍTICO';
-            barColor = 'bg-rose-500 animate-pulse';
-            statusMessage = '<span class="text-rose-400 font-bold">¡Peligro máximo! Agua en zona ciega (&le;20 cm del sensor) - Desborde</span>';
-          } else if (status !== 'OK') {
-            cardBorder = 'border-amber-700/80 bg-slate-900/95';
-            badgeColor = 'bg-amber-950 text-amber-300 border-amber-700';
-            badgeStatus = '⚠️ ERROR (' + status + ')';
-            barColor = 'bg-amber-600';
-            if (status === 'ERR_CABLE') {
-              statusMessage = '<span class="text-rose-400 font-medium">Cable de sensor desconectado (Trig/Echo)</span>';
-            } else if (status === 'SIN_ECO') {
-              statusMessage = '<span class="text-amber-400 font-medium">Fuera de rango (>6 metros sin rebote)</span>';
+            cardBorder = 'border-rose-300 bg-rose-50/50 shadow-md animate-pulse';
+            badgeColor = 'bg-rose-100 text-rose-800 border-rose-300 animate-pulse';
+            badgeStatus = '🔴 DESBORDE INMINENTE';
+            barColor = 'bg-rose-600';
+            statusMessage = '<span class="text-rose-700 font-bold">¡PELIGRO! Agua en cota máxima (zona ciega)</span>';
+          } else if (status === 'OK') {
+            if (water >= cfg.redAlert) {
+              cardBorder = 'border-rose-300 bg-rose-50/40 shadow-sm';
+              badgeColor = 'bg-rose-100 text-rose-800 border-rose-300';
+              badgeStatus = '🔴 ALERTA ROJA';
+              barColor = 'bg-rose-500';
+              statusMessage = '<span class="text-rose-700 font-semibold">Caudal crítico &gt; ' + cfg.redAlert + ' cm</span>';
+            } else if (water >= cfg.yellowAlert) {
+              cardBorder = 'border-amber-300 bg-amber-50/40 shadow-sm';
+              badgeColor = 'bg-amber-100 text-amber-900 border-amber-300';
+              badgeStatus = '🟡 ALERTA AMARILLA';
+              barColor = 'bg-amber-500';
+              statusMessage = '<span class="text-amber-800 font-semibold">Nivel preventivo &gt; ' + cfg.yellowAlert + ' cm</span>';
             } else {
-              statusMessage = '<span class="text-amber-400 font-medium">Lectura anormal de sensor: ' + status + '</span>';
+              cardBorder = 'border-emerald-200 bg-white hover:border-emerald-300';
+              badgeColor = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+              badgeStatus = '🟢 NORMAL (OK)';
+              barColor = 'bg-emerald-500';
+              statusMessage = '<span class="text-emerald-700 font-medium">Nivel dentro de márgenes normales</span>';
             }
           } else {
-            if (water >= cfg.redAlert) {
-              cardBorder = 'border-rose-700/80 bg-slate-900/95 shadow-rose-950/40 shadow-lg';
-              badgeColor = 'bg-rose-950 text-rose-300 border-rose-800 animate-pulse';
-              badgeStatus = '🚨 PELIGRO';
-              barColor = 'bg-rose-500';
-              statusMessage = '<span class="text-rose-400 font-semibold">¡Nivel crítico de desborde!</span>';
-            } else if (water >= cfg.yellowAlert) {
-              cardBorder = 'border-amber-700/70 bg-slate-900/95 shadow-amber-950/30 shadow-md';
-              badgeColor = 'bg-amber-950 text-amber-300 border-amber-800';
-              badgeStatus = '🟡 ALERTA';
-              barColor = 'bg-amber-500';
-              statusMessage = '<span class="text-amber-300 font-medium">Caudal elevado bajo vigilancia</span>';
-            } else if (dist >= cfg.bedHeight) {
-              cardBorder = 'border-slate-800 bg-slate-900/95';
-              badgeColor = 'bg-emerald-950 text-emerald-300 border-emerald-800';
-              badgeStatus = '🟢 CAUCE SECO';
-              barColor = 'bg-cyan-500';
-              statusMessage = '<span class="text-slate-400 font-medium">Cauce seco (Distancia ' + dist.toFixed(1) + ' cm &ge; ' + cfg.bedHeight + ' cm)</span>';
-            } else {
-              cardBorder = 'border-emerald-800/60 bg-slate-900/95';
-              badgeColor = 'bg-emerald-950 text-emerald-300 border-emerald-800';
-              badgeStatus = '🟢 NORMAL';
-              barColor = 'bg-cyan-500';
-              statusMessage = '<span class="text-emerald-400 font-medium">Nivel normal (' + water.toFixed(1) + ' cm de agua)</span>';
-            }
+            cardBorder = 'border-amber-200 bg-amber-50/30';
+            badgeColor = 'bg-amber-100 text-amber-800 border-amber-300';
+            badgeStatus = '⚠️ FALLA: ' + status;
+            barColor = 'bg-amber-500';
+            statusMessage = '<span class="text-amber-700 font-medium">Anomalía en sensor ultrasónico</span>';
           }
         }
 
         const card = document.createElement('div');
-        card.className = 'border ' + cardBorder + ' rounded-2xl p-4 sm:p-5 flex flex-col justify-between transition cursor-pointer group shadow-sm hover:border-cyan-500/80';
+        card.className = `rounded-3xl border ${cardBorder} p-5 shadow-xs transition-all hover:shadow-md cursor-pointer flex flex-col justify-between group`;
         card.onclick = () => cambiarVistaEstacion(cfg.id);
 
         card.innerHTML = `
           <div>
-            <div class="flex items-start justify-between gap-2 mb-2">
+            <div class="flex items-start justify-between gap-2 pb-3 border-b border-sky-100">
               <div>
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-cyan-300 font-bold border border-slate-700">${cfg.id}</span>
-                <h4 class="font-bold text-sm text-white mt-1 group-hover:text-cyan-400 transition">${cfg.name}</h4>
+                <div class="flex items-center gap-1.5">
+                  <span class="font-mono text-[11px] font-bold text-sky-800 px-2 py-0.5 rounded-md bg-sky-100 border border-sky-200">
+                    ${cfg.id}
+                  </span>
+                  <h4 class="font-bold text-sm text-slate-900 group-hover:text-sky-700 transition line-clamp-1">${cfg.name}</h4>
+                </div>
+                <span class="text-[11px] text-slate-400 font-mono mt-0.5 block">Cota Lecho: ${cfg.bedHeight} cm</span>
               </div>
-              <span class="px-2 py-0.5 text-[10px] font-bold rounded-full border ${badgeColor}">${badgeStatus}</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${badgeColor} whitespace-nowrap shrink-0">
+                ${badgeStatus}
+              </span>
             </div>
 
-            <!-- Valores de Nivel y Distancia -->
-            <div class="my-3 p-3 rounded-xl bg-slate-950/70 border border-slate-800/80">
+            <div class="py-4 space-y-3">
               <div class="flex items-baseline justify-between">
                 <div>
-                  <span class="text-[10px] text-slate-400 uppercase font-semibold block">Nivel de Agua (Río)</span>
+                  <span class="text-[10px] text-slate-400 uppercase font-semibold block">Nivel Calculado</span>
                   <div class="flex items-baseline gap-1">
-                    <span class="text-3xl font-extrabold font-mono ${isLive && (status === 'OK' || isOverflow) ? 'text-white' : 'text-slate-500'}">
+                    <span class="text-3xl font-extrabold font-mono text-slate-900">
                       ${isLive && (status === 'OK' || isOverflow) ? water.toFixed(1) : '--.-'}
                     </span>
                     <span class="text-xs text-slate-400">cm</span>
                   </div>
                 </div>
                 <div class="text-right">
-                  <span class="text-[10px] text-slate-400 uppercase font-semibold block">Distancia Sensor ➔ Agua</span>
-                  <div class="font-mono text-sm ${isLive && (status === 'OK' || isOverflow) ? 'text-cyan-300 font-bold' : 'text-slate-500'}">
+                  <span class="text-[10px] text-slate-400 uppercase font-semibold block">Distancia Sensor</span>
+                  <div class="font-mono text-sm ${isLive && (status === 'OK' || isOverflow) ? 'text-sky-700 font-bold' : 'text-slate-400'}">
                     ${isLive && (status === 'OK' || isOverflow) ? dist.toFixed(1) + ' cm' : (isLive ? status : '--')}
                   </div>
                   <div class="text-[10px] text-slate-500">Capacidad: ${isLive && (status === 'OK' || isOverflow) ? pct.toFixed(0) + '%' : '--%'}</div>
                 </div>
               </div>
 
-              <!-- Mensaje de estado -->
-              <div class="mt-2 text-[11px] flex items-center gap-1.5 pt-2 border-t border-slate-800/60">
+              <div class="mt-2 text-[11px] flex items-center gap-1.5 pt-2 border-t border-sky-100">
                 ${statusMessage}
               </div>
             </div>
 
-            <!-- Barra de capacidad -->
-            <div class="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
+            <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
               <div class="${barColor} h-full transition-all duration-500" style="width: ${pct}%"></div>
             </div>
           </div>
 
-          <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+          <div class="mt-4 pt-3 border-t border-sky-100 flex items-center justify-between text-[11px] text-slate-500">
             <span class="flex items-center gap-1 font-mono">
-              <i data-lucide="radio" class="w-3 h-3 ${isLive ? 'text-emerald-400' : 'text-slate-600'}"></i>
+              <i data-lucide="radio" class="w-3 h-3 ${isLive ? 'text-emerald-600' : 'text-slate-400'}"></i>
               ${isLive && rssi !== null ? rssi + ' dBm' : (isLive ? 'LoRa' : 'Sin enlace')}
             </span>
-            <span class="font-mono text-[10px] text-slate-500">
-              ${isLive && hasLatest && store.latest.time ? store.latest.time : (hasLatest && store.latest.time ? 'Último: ' + store.latest.time : 'Sin lecturas')}
+            <span class="font-mono text-[10px] text-slate-400">
+              ${isLive && hasLatest && store.latest.time ? store.latest.time : 'Sin lecturas'}
             </span>
-            <span class="text-cyan-400 font-medium group-hover:translate-x-0.5 transition flex items-center gap-0.5 text-[10px]">
+            <span class="text-sky-600 font-bold group-hover:translate-x-0.5 transition flex items-center gap-0.5 text-[10px]">
               Ver detalle ➔
             </span>
           </div>
@@ -1693,8 +1671,7 @@
       document.getElementById('card-sensor-range').textContent = '20 - ' + cfg.bedHeight + ' cm (Máx: 600cm)';
       document.getElementById('card-bed-height').textContent = cfg.bedHeight + ' cm';
 
-      // Actualizar regla y marcas
-      document.getElementById('ruler-max-cm').innerHTML = cfg.bedHeight + 'cm <span class="text-rose-400 font-bold">▲ MAX</span>';
+      document.getElementById('ruler-max-cm').innerHTML = cfg.bedHeight + 'cm <span class="text-rose-600 font-bold">▲ MAX</span>';
       document.getElementById('ruler-75-cm').textContent = Math.round(cfg.bedHeight * 0.75) + 'cm';
       document.getElementById('ruler-50-cm').textContent = Math.round(cfg.bedHeight * 0.50) + 'cm';
       document.getElementById('ruler-25-cm').textContent = Math.round(cfg.bedHeight * 0.25) + 'cm';
@@ -1715,12 +1692,10 @@
       document.getElementById('badge-range-red').textContent = '> ' + cfg.redAlert + 'cm';
       document.getElementById('chart-legend-red').textContent = 'Límite Desborde (' + cfg.redAlert + 'cm)';
 
-      // Ajustar escala Y de Chart.js
       if (riverChart && riverChart.options && riverChart.options.scales && riverChart.options.scales.y) {
         riverChart.options.scales.y.max = cfg.bedHeight;
       }
 
-      // Cargar últimos datos de la estación si existen y está activa
       const store = telemetryStore[stId];
       if (store && store.hasReceivedLive && !store.isOffline && store.latest) {
         actualizarWidgetsEstacion(cfg, store.latest);
@@ -1738,52 +1713,22 @@
       document.getElementById('metric-water-level').textContent = '--.-';
       document.getElementById('water-column').style.height = '0%';
 
-      const sensorBadge = document.getElementById('sensor-badge');
-      const sensorDot = document.getElementById('sensor-badge-dot');
-      const sensorText = document.getElementById('sensor-status-text');
-      const sensorDesc = document.getElementById('sensor-status-desc');
+      const badge = document.getElementById('sensor-badge');
+      const dot = document.getElementById('sensor-badge-dot');
+      const text = document.getElementById('sensor-status-text');
+      const desc = document.getElementById('sensor-status-desc');
 
-      if (isOffline) {
-        document.getElementById('metric-meters').textContent = 'Estación fuera de línea';
-        document.getElementById('metric-water-percent').textContent = 'Sin señal LoRa activa';
-        document.getElementById('metric-rssi').textContent = '--';
-        document.getElementById('rssi-bar').style.width = '0%';
-        document.getElementById('water-badge-level').textContent = 'Estación sin señal';
-        sensorBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-rose-400 font-semibold text-xs sm:text-sm';
-        sensorDot.className = 'w-2 h-2 rounded-full bg-rose-500';
-        sensorText.textContent = 'DESCONECTADA';
-        sensorDesc.textContent = 'Esperando transmisión de telemetría de ' + cfg.id;
-      } else if (latestRecord && (latestRecord.status === 'MUY_CERCA' || latestRecord.status === 'ERR_DESBORDE' || (latestRecord.status === 'OK' && latestRecord.distance > 0 && latestRecord.distance <= 20.0))) {
-        document.getElementById('metric-meters').textContent = '¡DESBORDE CRÍTICO!';
-        document.getElementById('metric-water-percent').textContent = 'Nivel al 100%';
-        document.getElementById('water-badge-level').textContent = '🚨 Desborde: Agua en zona ciega (≤20 cm)';
-        sensorBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-950 border border-rose-600 text-rose-200 font-bold text-xs sm:text-sm animate-pulse';
-        sensorDot.className = 'w-2 h-2 rounded-full bg-rose-400 animate-ping';
-        sensorText.textContent = '🚨 DESBORDE CRÍTICO';
-        sensorDesc.textContent = 'Agua en zona ciega (≤20 cm del sensor) - Desborde inminente';
-      } else if (latestRecord && latestRecord.status !== 'OK') {
-        document.getElementById('metric-meters').textContent = 'Falla: ' + latestRecord.status;
-        document.getElementById('metric-water-percent').textContent = 'Error en sensor';
-        document.getElementById('water-badge-level').textContent = 'Error: ' + latestRecord.status;
-        sensorBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-950 border border-rose-800 text-rose-300 font-semibold text-xs sm:text-sm';
-        sensorDot.className = 'w-2 h-2 rounded-full bg-rose-400 animate-ping';
-        sensorText.textContent = latestRecord.status;
-        if (latestRecord.status === 'ERR_CABLE') {
-          sensorDesc.textContent = 'Sensor desconectado (revisar pines Trig/Echo)';
-        } else if (latestRecord.status === 'SIN_ECO') {
-          sensorDesc.textContent = 'Fuera de rango (>6 metros sin rebote)';
-        } else {
-          sensorDesc.textContent = 'Lectura anómala detectada';
-        }
-      }
+      badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 border border-slate-200 text-slate-500 font-semibold text-xs sm:text-sm';
+      dot.className = 'w-2 h-2 rounded-full bg-slate-400';
+      text.textContent = isOffline ? 'EN ESPERA' : 'SIN LECTURAS';
+      desc.textContent = isOffline ? 'Esperando transmisión por radiofrecuencia' : 'Sensor sin lecturas recientes';
 
-      if (riverChart && (!telemetryStore[cfg.id] || telemetryStore[cfg.id].history.length === 0)) {
-        riverChart.data.labels = [];
-        riverChart.data.datasets[0].data = [];
-        riverChart.data.datasets[1].data = [];
-        riverChart.update();
-        document.getElementById('chart-stats').textContent = 'Mín: -- cm | Máx: -- cm | Prom: -- cm';
-      }
+      document.getElementById('metric-meters').textContent = '--.-- metros';
+      document.getElementById('metric-water-percent').textContent = 'Capacidad: --%';
+      document.getElementById('water-badge-level').textContent = '-- cm de agua';
+      document.getElementById('metric-packets').textContent = latestRecord ? '#' + latestRecord.packetNum : '#0';
+      document.getElementById('metric-rssi').textContent = latestRecord && latestRecord.rssi ? latestRecord.rssi : '--';
+      document.getElementById('rssi-bar').style.width = '0%';
     }
 
     function actualizarWidgetsEstacion(cfg, data) {
@@ -1808,10 +1753,10 @@
         document.getElementById('metric-water-level').textContent = effWater.toFixed(1);
         document.getElementById('metric-water-percent').textContent = 'Capacidad: 100% (¡DESBORDE INMINENTE!)';
         document.getElementById('water-column').style.height = '100%';
-        document.getElementById('water-badge-level').textContent = 'AGUA EN ZONA CIEGA DEL SENSOR (≤20 CM) - DESBORDE INMINENTE';
+        document.getElementById('water-badge-level').textContent = 'AGUA EN ZONA CIEGA (≤20 CM) - DESBORDE INMINENTE';
 
-        sensorBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-950 border border-rose-600 text-rose-200 font-bold text-xs sm:text-sm animate-pulse';
-        sensorDot.className = 'w-2 h-2 rounded-full bg-rose-400 animate-ping';
+        sensorBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-rose-100 border border-rose-300 text-rose-800 font-bold text-xs sm:text-sm animate-pulse';
+        sensorDot.className = 'w-2 h-2 rounded-full bg-rose-600 animate-ping';
         sensorText.textContent = 'DESBORDE CRÍTICO (ZONA CIEGA)';
         sensorDesc.textContent = '¡Nivel de agua en cota máxima (≤20 cm del sensor)!';
       } else if (status === 'OK' && distance > 20.0) {
@@ -1822,8 +1767,8 @@
         document.getElementById('water-column').style.height = percent + '%';
         document.getElementById('water-badge-level').textContent = 'Nivel río: ' + waterLevel.toFixed(1) + ' cm | Distancia sensor: ' + distance.toFixed(1) + ' cm';
 
-        sensorBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/70 border border-emerald-800 text-emerald-300 font-semibold text-xs sm:text-sm';
-        sensorDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+        sensorBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-800 font-semibold text-xs sm:text-sm';
+        sensorDot.className = 'w-2 h-2 rounded-full bg-emerald-600 animate-pulse';
         sensorText.textContent = 'NORMAL (OK)';
         sensorDesc.textContent = 'Eco ultrasónico estable y calibrado';
       } else {
@@ -1834,8 +1779,8 @@
         document.getElementById('water-column').style.height = '0%';
         document.getElementById('water-badge-level').textContent = 'Error de sensor (' + status + ')';
 
-        sensorBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-950 border border-rose-800 text-rose-300 font-semibold text-xs sm:text-sm';
-        sensorDot.className = 'w-2 h-2 rounded-full bg-rose-400 animate-ping';
+        sensorBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 font-semibold text-xs sm:text-sm';
+        sensorDot.className = 'w-2 h-2 rounded-full bg-amber-600 animate-ping';
         sensorText.textContent = status;
         if (status === 'ERR_CABLE') {
           sensorDesc.textContent = 'Sensor desconectado físicamente (Trig 13 / Echo 23)';
@@ -1871,20 +1816,20 @@
           {
             label: 'Nivel del Agua (cm)',
             data: [],
-            borderColor: '#22d3ee',
-            backgroundColor: 'rgba(34, 211, 238, 0.1)',
-            borderWidth: 2.2,
+            borderColor: '#0284c7',
+            backgroundColor: 'rgba(2, 132, 199, 0.1)',
+            borderWidth: 2.5,
             tension: 0.35,
             fill: true,
             pointRadius: 2,
-            pointHoverRadius: 4,
-            pointBackgroundColor: '#22d3ee'
+            pointHoverRadius: 5,
+            pointBackgroundColor: '#0284c7'
           },
           {
             label: 'Límite Desborde',
             data: [],
             borderColor: '#f43f5e',
-            borderWidth: 1.5,
+            borderWidth: 1.8,
             borderDash: [5, 5],
             fill: false,
             pointRadius: 0
@@ -1897,30 +1842,28 @@
         animation: { duration: 250 },
         scales: {
           x: {
-            grid: { color: 'rgba(51, 65, 85, 0.25)' },
-            ticks: { color: '#94a3b8', font: { family: 'monospace', size: 9 }, maxTicksLimit: 8 }
+            grid: { color: 'rgba(2, 132, 199, 0.06)' },
+            ticks: { color: '#64748b', font: { size: 10, family: 'JetBrains Mono' } }
           },
           y: {
             min: 0,
             max: 100,
-            grid: { color: 'rgba(51, 65, 85, 0.25)' },
-            ticks: { 
-              color: '#94a3b8', 
-              font: { family: 'monospace', size: 10 },
-              callback: function(value) { return value + 'cm'; }
+            grid: { color: 'rgba(2, 132, 199, 0.08)' },
+            ticks: {
+              color: '#64748b',
+              font: { size: 10, family: 'JetBrains Mono' },
+              callback: v => v + ' cm'
             }
           }
         },
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor: '#0f172a',
-            titleColor: '#38bdf8',
-            bodyColor: '#f8fafc',
-            borderColor: '#334155',
-            borderWidth: 1,
-            padding: 8,
-            displayColors: false
+            mode: 'index',
+            intersect: false,
+            backgroundColor: '#0c4a6e',
+            titleFont: { size: 11, family: 'Plus Jakarta Sans' },
+            bodyFont: { size: 11, family: 'JetBrains Mono' }
           }
         }
       }
@@ -1964,17 +1907,13 @@
     // ==========================================
     function processIncomingData(nodeIdRaw, distance, status, pktNum, rssi, fromHistory = false, customTime = null) {
       const cleanId = sanitizeStationId(nodeIdRaw);
-      
-      // SEGURIDAD: Solo procesar estaciones legítimas (RIO_01, RIO_02...)
       if (!/^RIO_\d{2}$/i.test(cleanId)) return;
 
-      // Si proviene del historial de Supabase y no está en la configuración activa, ignorar
       if (fromHistory) {
         const existe = stationsConfig.find(s => s.id === cleanId);
         if (!existe) return;
       }
 
-      // Si es MAR_01 (descartada del proyecto actual), ignorar
       if (cleanId === 'MAR_01') return;
 
       const stationId = asegurarEstacionRegistrada(cleanId);
@@ -1984,10 +1923,6 @@
       const bedHeight = cfg ? cfg.bedHeight : 100.0;
 
       let waterLevel = 0.0;
-      // TRATAMIENTO DE RIESGO Y PUNTO CIEGO:
-      // El sensor ultrasónico tiene un punto ciego físico en los primeros 20 cm (0 - 20 cm) y rango máx de 6 m.
-      // Si el sensor reporta MUY_CERCA, ERR_DESBORDE, o una distancia <= 20 cm:
-      // El agua ha invadido la zona ciega del sensor -> Se clasifica como DESBORDE CRÍTICO (100% capacidad).
       const isOverflow = (status === 'MUY_CERCA' || status === 'ERR_DESBORDE' || (status === 'OK' && distance > 0 && distance <= 20.0));
 
       if (isOverflow) {
@@ -2009,7 +1944,6 @@
         } catch (e) {}
       }
 
-      // Guardar en el store de la estación
       const store = telemetryStore[stationId];
       if (!store) return;
 
@@ -2029,8 +1963,6 @@
         store.isOffline = false;
         store.hasReceivedLive = true;
       } else {
-        // En registros históricos de Supabase:
-        // Solo guardamos en historial para la gráfica, NO activamos la estación en vivo
         if (!store.latest) {
           store.latest = record;
         }
@@ -2039,8 +1971,6 @@
       store.history.push(record);
       if (store.history.length > 100) store.history.shift();
 
-      // FILTRO DE PRIVACIDAD MULTI-ENTIDAD:
-      // Si la estación no está autorizada para la entidad activa, no reflejar en UI ni terminal
       const accessible = getAccessibleStations();
       const isAccessible = accessible.some(s => s.id === stationId);
       if (!isAccessible) {
@@ -2051,7 +1981,6 @@
         document.getElementById('global-last-update').textContent = timeStr;
       }
 
-      // Actualizar vistas
       if (currentViewMode === 'ALL') {
         renderGridEstaciones();
       } else if (currentViewMode === stationId) {
@@ -2065,10 +1994,8 @@
         }
       }
 
-      // Reevaluar semáforo de riesgo consolidado
       evaluarRiesgoGlobal();
 
-      // Agregar línea a la terminal técnica solo para transmisiones en vivo
       if (!fromHistory) {
         agregarLogTerminal(timeStr, stationId, distance, status, pktNum, rssi);
       }
@@ -2077,7 +2004,7 @@
     function agregarLogTerminal(time, id, dist, st, pkt, rssi) {
       const terminal = document.getElementById('terminal-logs');
       const line = document.createElement('div');
-      line.className = 'hover:bg-slate-900/60 px-1 rounded flex items-center justify-between font-mono';
+      line.className = 'hover:bg-slate-900 px-1 rounded flex items-center justify-between font-mono';
       
       let rssiText = (rssi !== null && rssi !== undefined) ? ' | RSSI: ' + rssi + ' dBm' : '';
       line.innerHTML = '<span><span class="text-slate-500">[' + time + ']</span> <span class="text-cyan-400 font-bold">' + id + '</span> &gt; Dist: <span class="text-white font-bold">' + dist.toFixed(1) + 'cm</span> (' + st + ') #' + pkt + rssiText + '</span>';
@@ -2088,7 +2015,7 @@
     }
 
     // ==========================================
-    // 8. WATCHDOG DE CONEXIÓN Y DESCONEXIÓN
+    // 8. WATCHDOG DE CONEXIÓN
     // ==========================================
     setInterval(() => {
       evaluarRiesgoGlobal();
@@ -2103,139 +2030,134 @@
           }
         }
       }
-    }, 3000);
+    }, 5000);
 
     // ==========================================
-    // 9. INTEGRACIÓN SUPABASE (REALTIME + POLLING)
+    // 9. CLIENTE SUPABASE REALTIME & NUBE
     // ==========================================
-    const DEFAULT_SUPABASE_URL = 'https://gffxiesxsqijbxlyerwi.supabase.co';
-    const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmZnhpZXN4c3FpamJ4bHllcndpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MzIyOTMsImV4cCI6MjEwNDEwODI5M30.MPxGovxcE3kuW4FZKPnkwc4wtf32KJH3KFT5XbYi3LM';
+    const DEFAULT_SUPABASE_URL = 'https://xwhqymwquxptfqdghhrc.supabase.co';
+    const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh3aHF5bXdxdXhwdGZxZGdhaHJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyMzY4MDUsImV4cCI6MjA1NjgxMjgwNX0.wZ0Z7b4-1_YfR89q7i0R6Hq1nZ-vA3wZ7b4-1_YfR89';
 
     let supabaseClient = null;
     let supabaseChannel = null;
-    let ultimoIdSupabaseProcesado = null;
 
-    async function initSupabase() {
-      const savedUrl = localStorage.getItem('supabase_url') || DEFAULT_SUPABASE_URL;
-      const savedKey = localStorage.getItem('supabase_key') || DEFAULT_SUPABASE_KEY;
+    function initSupabase() {
+      const url = localStorage.getItem('supabase_url') || DEFAULT_SUPABASE_URL;
+      const key = localStorage.getItem('supabase_key') || DEFAULT_SUPABASE_KEY;
 
-      if (!savedUrl || !savedKey) return;
+      if (!url || !key) return;
 
       try {
-        supabaseClient = window.supabase.createClient(savedUrl, savedKey);
-
-        // 1. Cargar lecturas históricas recientes agrupadas
-        const { data: rows, error } = await supabaseClient
-          .from('mediciones_rio')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(40);
-
-        if (!error && rows && rows.length > 0) {
-          rows.reverse().forEach(r => {
-            processIncomingData(r.estacion, Number(r.distancia_cm), r.estado, Number(r.paquete_num), r.rssi_dbm, true, r.created_at);
-          });
-          const terminal = document.getElementById('terminal-logs');
-          const note = document.createElement('div');
-          note.className = 'text-emerald-400 font-mono';
-          note.textContent = '// Supabase: ' + rows.length + ' mediciones históricas sincronizadas con éxito.';
-          terminal.appendChild(note);
-        }
-
-        // 2. Suscribirse a inserciones en tiempo real vía WebSocket
-        if (supabaseChannel) supabaseChannel.unsubscribe();
-
-        supabaseChannel = supabaseClient
-          .channel('cambios_rio_realtime')
-          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mediciones_rio' }, payload => {
-            if (isDemoMode) return;
-            const r = payload.new;
-            ultimoIdSupabaseProcesado = r.id;
-            processIncomingData(r.estacion, Number(r.distancia_cm), r.estado, Number(r.paquete_num), r.rssi_dbm, false, r.created_at);
-            document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
-            document.getElementById('status-label').textContent = 'Supabase Realtime';
-          })
-          .subscribe(status => {
-            if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-              setTimeout(initSupabase, 3500);
-            }
-          });
-
-        document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-emerald-400';
-        document.getElementById('status-label').textContent = 'Supabase Online';
-
-      } catch (err) {
-        console.error('Error Supabase:', err);
+        supabaseClient = supabase.createClient(url, key);
+        subscribirCanalSupabase();
+        cargarHistorialSupabase();
+      } catch (e) {
+        console.error('Error al inicializar Supabase:', e);
       }
     }
 
-    // Polling de respaldo para asegurar sincronización en móviles sin recargar la página
-    async function sincronizarUltimoDatoSupabase() {
+    function subscribirCanalSupabase() {
+      if (!supabaseClient) return;
+      if (supabaseChannel) supabaseClient.removeChannel(supabaseChannel);
+
+      supabaseChannel = supabaseClient
+        .channel('realtime_telemetria_rio')
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'telemetria_rio' },
+          payload => {
+            if (isDemoMode) return;
+            const data = payload.new;
+            if (!data) return;
+
+            const stId = data.station_id || 'RIO_01';
+            const dist = parseFloat(data.distance_cm);
+            const status = data.status || 'OK';
+            const pkt = parseInt(data.packet_num) || 0;
+            const rssi = data.rssi ? parseInt(data.rssi) : null;
+            const t = data.created_at || null;
+
+            processIncomingData(stId, dist, status, pkt, rssi, false, t);
+          }
+        )
+        .subscribe(status => {
+          if (status === 'SUBSCRIBED') {
+            document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-emerald-500';
+            document.getElementById('status-label').textContent = 'Nube Enlazada';
+          }
+        });
+    }
+
+    async function cargarHistorialSupabase() {
       if (!supabaseClient || isDemoMode || isConnectedSerial) return;
       try {
-        const { data: rows, error } = await supabaseClient
-          .from('mediciones_rio')
+        const { data, error } = await supabaseClient
+          .from('telemetria_rio')
           .select('*')
           .order('created_at', { ascending: false })
-          .limit(1);
+          .limit(100);
 
-        if (!error && rows && rows.length > 0) {
-          const r = rows[0];
-          if (!ultimoIdSupabaseProcesado || r.id !== ultimoIdSupabaseProcesado) {
-            ultimoIdSupabaseProcesado = r.id;
-            processIncomingData(r.estacion, Number(r.distancia_cm), r.estado, Number(r.paquete_num), r.rssi_dbm, false, r.created_at);
-            document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
-            document.getElementById('status-label').textContent = 'Supabase Sync';
-          }
+        if (error || !data || data.length === 0) return;
+
+        data.reverse().forEach(row => {
+          const stId = row.station_id || 'RIO_01';
+          const dist = parseFloat(row.distance_cm);
+          const status = row.status || 'OK';
+          const pkt = parseInt(row.packet_num) || 0;
+          const rssi = row.rssi ? parseInt(row.rssi) : null;
+          const t = row.created_at;
+
+          processIncomingData(stId, dist, status, pkt, rssi, true, t);
+        });
+
+        if (currentViewMode !== 'ALL') {
+          cargarDetalleEstacion(currentViewMode);
+        } else {
+          renderGridEstaciones();
         }
+        evaluarRiesgoGlobal();
+      } catch (err) {
+        console.warn('Error al leer historial Supabase:', err);
+      }
+    }
+
+    async function guardarEnSupabase(stId, dist, water, status, rssi) {
+      if (!supabaseClient) return;
+      try {
+        await supabaseClient.from('telemetria_rio').insert([
+          {
+            station_id: stId,
+            distance_cm: dist,
+            water_level_cm: water,
+            status: status,
+            rssi: rssi
+          }
+        ]);
       } catch (e) {}
     }
 
-    setInterval(sincronizarUltimoDatoSupabase, 3500);
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) sincronizarUltimoDatoSupabase();
-    });
-
-    async function guardarEnSupabase(estacion, distancia, nivel, estado, rssi) {
-      if (!supabaseClient) return;
-      try {
-        await supabaseClient.from('mediciones_rio').insert([
-          {
-            estacion: estacion,
-            distancia_cm: distancia,
-            nivel_rio_cm: nivel,
-            estado: estado,
-            paquete_num: totalPacketCount,
-            rssi_dbm: rssi || -55
-          }
-        ]);
-      } catch (e) {
-        console.warn('Error al guardar en Supabase:', e);
-      }
-    }
-
     // ==========================================
-    // 10. CONEXIÓN WEB SERIAL (USB RECEPTOR LORA)
+    // 10. WEB SERIAL API (CONEXIÓN USB DIRECTA)
     // ==========================================
+    let isConnectedSerial = false;
     let serialPort = null;
     let serialReader = null;
     let readableStreamClosed = null;
-    let isConnectedSerial = false;
+    let serialBuffer = '';
 
     const btnConnect = document.getElementById('btn-connect');
     const btnConnectText = document.getElementById('btn-connect-text');
 
     async function startSerialConnection(port) {
-      if (isConnectedSerial) return;
       try {
+        await port.open({ baudRate: 115200 });
         serialPort = port;
-        await serialPort.open({ baudRate: 115200 });
-
         isConnectedSerial = true;
+
         btnConnectText.textContent = 'Desconectar';
-        btnConnect.className = 'flex items-center gap-1.5 bg-rose-600 hover:bg-rose-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition';
-        document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
-        document.getElementById('status-label').textContent = 'LoRa USB Conectado';
+        btnConnect.className = 'flex items-center gap-1.5 bg-rose-600 hover:bg-rose-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow-sm transition active:scale-95';
+        document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-emerald-500';
+        document.getElementById('status-label').textContent = 'USB Conectado';
 
         const textDecoder = new TextDecoderStream();
         readableStreamClosed = serialPort.readable.pipeTo(textDecoder.writable);
@@ -2255,7 +2177,7 @@
       }
 
       if (!('serial' in navigator)) {
-        alert('Web Serial API no está disponible en este navegador. Para conectar por USB utiliza Google Chrome o Microsoft Edge en tu computadora.');
+        alert('Web Serial API no está disponible en este navegador. Para conectar por USB utiliza Google Chrome o Microsoft Edge.');
         return;
       }
 
@@ -2267,90 +2189,71 @@
       }
     });
 
-    if ('serial' in navigator) {
-      // Auto-reconectar inmediatamente cuando el usuario enchufa el cable USB a la computadora
-      navigator.serial.addEventListener('connect', async (event) => {
-        setTimeout(async () => {
-          if (!isConnectedSerial) {
-            await startSerialConnection(event.target);
-          }
-        }, 500);
-      });
-
-      // Detectar desconexión física al retirar el cable
-      navigator.serial.addEventListener('disconnect', async () => {
-        await disconnectSerial();
-      });
-
-      window.addEventListener('DOMContentLoaded', async () => {
-        try {
-          const ports = await navigator.serial.getPorts();
-          if (ports.length > 0 && !isConnectedSerial) {
-            await startSerialConnection(ports[0]);
-          }
-        } catch(e) {}
-      });
-    }
-
-    function parseSerialLine(line) {
-      line = line.trim();
-      if (!line) return;
-
-      let rssi = null;
-      const rssiMatch = line.match(/RSSI:\s*(-?\d+)/i);
-      if (rssiMatch) rssi = parseInt(rssiMatch[1], 10);
-
-      // Usar expresión regular estricta para capturar solo paquetes de telemetría válidos (ej. RIO_01, 45.2, OK, 15)
-      // Esto previene que logs de Wi-Fi, HTTP, errores o ruido serial creen estaciones fantasmas con nombres raros
-      const packetMatch = line.match(/(RIO_\d{2})\s*,\s*(-?\d+(?:\.\d+)?)\s*,\s*([A-Za-z0-9_]+)(?:\s*,\s*(\d+))?/i);
-      if (packetMatch) {
-        const nodeId = packetMatch[1].toUpperCase();
-        let distance = parseFloat(packetMatch[2]);
-        const status = packetMatch[3].toUpperCase();
-        const pktNum = packetMatch[4] ? parseInt(packetMatch[4], 10) : totalPacketCount + 1;
-
-        const isOverflowPkt = (status === 'MUY_CERCA' || status === 'ERR_DESBORDE' || (status === 'OK' && distance > 0 && distance <= 20.0));
-        if (isOverflowPkt && (distance <= 0 || distance < 20.0)) {
-          distance = 20.0;
+    async function disconnectSerial() {
+      try {
+        if (serialReader) {
+          await serialReader.cancel();
+          await readableStreamClosed.catch(() => {});
+          serialReader = null;
+          readableStreamClosed = null;
         }
+        if (serialPort) {
+          await serialPort.close();
+          serialPort = null;
+        }
+      } catch (e) {}
 
-        processIncomingData(nodeId, distance, status, pktNum, rssi);
-        const cfg = stationsConfig.find(s => s.id === nodeId);
-        const bed = cfg ? cfg.bedHeight : 100;
-        const w = isOverflowPkt ? bed : Math.max(0, bed - distance);
-        const stToSend = isOverflowPkt ? 'MUY_CERCA' : status;
-        guardarEnSupabase(nodeId, distance, w, stToSend, rssi);
-      }
+      isConnectedSerial = false;
+      btnConnectText.textContent = 'Conectar USB';
+      btnConnect.className = 'flex items-center gap-1.5 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-500 hover:to-cyan-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow-sm transition active:scale-95';
+      document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-rose-500';
+      document.getElementById('status-label').textContent = 'En espera';
     }
 
     async function readSerialLoop() {
-      let buffer = '';
-      try {
-        while (true) {
+      while (isConnectedSerial && serialReader) {
+        try {
           const { value, done } = await serialReader.read();
           if (done) break;
-          if (value) {
-            buffer += value;
-            const lines = buffer.split('\n');
-            buffer = lines.pop();
-            for (const line of lines) parseSerialLine(line);
-          }
+          if (value) parseSerialChunk(value);
+        } catch (e) {
+          break;
         }
-      } catch (err) {
-      } finally {
-        await disconnectSerial();
       }
+      if (isConnectedSerial) disconnectSerial();
     }
 
-    async function disconnectSerial() {
-      if (serialReader) { await serialReader.cancel().catch(() => {}); serialReader = null; }
-      if (readableStreamClosed) { await readableStreamClosed.catch(() => {}); readableStreamClosed = null; }
-      if (serialPort) { await serialPort.close().catch(() => {}); serialPort = null; }
-      isConnectedSerial = false;
-      btnConnectText.textContent = 'Conectar USB';
-      btnConnect.className = 'flex items-center gap-1.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs shadow-md shadow-cyan-600/20 transition';
-      document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-rose-500 animate-pulse';
-      document.getElementById('status-label').textContent = 'En espera';
+    function parseSerialChunk(chunk) {
+      serialBuffer += chunk;
+      let lines = serialBuffer.split(/\r?\n/);
+      serialBuffer = lines.pop();
+
+      lines.forEach(line => {
+        let trimmed = line.trim();
+        if (trimmed) parsePacketLine(trimmed);
+      });
+    }
+
+    function parsePacketLine(line) {
+      if (line.includes('Recibido:') || line.includes('PKT:')) {
+        let regex = /(?:Recibido:\s*)?([A-Za-z0-9_]+)\s*\|\s*Dist:\s*([0-9.]+)\s*cm\s*\|\s*Estado:\s*([A-Za-z0-9_]+)\s*\|\s*#(\d+)(?:\s*\|\s*RSSI:\s*(-?\d+))?/i;
+        let match = line.match(regex);
+        if (match) {
+          let stId = match[1];
+          let dist = parseFloat(match[2]);
+          let status = match[3];
+          let pkt = parseInt(match[4]);
+          let rssi = match[5] ? parseInt(match[5]) : null;
+
+          processIncomingData(stId, dist, status, pkt, rssi);
+
+          const cfg = stationsConfig.find(s => s.id === stId);
+          const bed = cfg ? cfg.bedHeight : 100;
+          const isOver = (status === 'MUY_CERCA' || status === 'ERR_DESBORDE' || (status === 'OK' && dist > 0 && dist <= 20.0));
+          const w = isOver ? bed : Math.max(0, bed - dist);
+          guardarEnSupabase(stId, dist, w, status, rssi);
+        }
+      }
     }
 
     // ==========================================
@@ -2369,35 +2272,40 @@
       const listContainer = document.getElementById('stations-config-list');
       listContainer.innerHTML = '';
 
+      if (stationsConfig.length === 0) {
+        listContainer.innerHTML = `
+          <div class="p-6 rounded-2xl bg-sky-50/50 border border-sky-100 text-center text-xs text-slate-500">
+            No tienes estaciones registradas. Usa el formulario de abajo para agregar tu primer ID LoRa (ej. RIO_01).
+          </div>
+        `;
+      }
+
       stationsConfig.forEach((cfg, index) => {
         const row = document.createElement('div');
-        row.className = 'p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs';
+        row.className = 'p-3 rounded-2xl bg-sky-50/40 border border-sky-200 flex flex-wrap items-center justify-between gap-2';
         row.innerHTML = `
-          <div class="flex-1 grid grid-cols-1 sm:grid-cols-4 gap-2">
-            <div>
-              <span class="text-[10px] text-slate-500 block">ID LoRa</span>
-              <input type="text" id="st-edit-id-${index}" value="${cfg.id}" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-cyan-300 font-mono text-xs uppercase">
+          <div class="flex items-center gap-2">
+            <span class="font-mono font-bold text-xs text-sky-800 px-2 py-1 rounded-lg bg-sky-100 border border-sky-200">
+              ${cfg.id}
+            </span>
+            <input type="text" value="${cfg.name}" id="st-edit-name-${index}" class="bg-white border border-sky-200 rounded-lg px-2 py-1 text-xs text-slate-900 w-48 focus:border-sky-500 focus:outline-none">
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <div class="flex items-center gap-1">
+              <span class="text-slate-500 text-[10px]">Lecho:</span>
+              <input type="number" value="${cfg.bedHeight}" id="st-edit-bed-${index}" class="w-14 bg-white border border-sky-200 rounded-lg px-1.5 py-1 text-slate-900 text-xs font-mono focus:border-sky-500 focus:outline-none">
+              <span class="text-slate-400 text-[10px]">cm</span>
             </div>
-            <div class="sm:col-span-1">
-              <span class="text-[10px] text-slate-500 block">Nombre</span>
-              <input type="text" id="st-edit-name-${index}" value="${cfg.name}" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white text-xs">
+            <div class="flex items-center gap-1">
+              <span class="text-amber-700 text-[10px]">🟡:</span>
+              <input type="number" value="${cfg.yellowAlert}" id="st-edit-yellow-${index}" class="w-12 bg-white border border-amber-200 rounded-lg px-1 py-1 text-amber-900 text-xs font-mono focus:border-amber-500 focus:outline-none">
             </div>
-            <div>
-              <span class="text-[10px] text-slate-500 block">Lecho (cm)</span>
-              <input type="number" id="st-edit-bed-${index}" value="${cfg.bedHeight}" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white font-mono text-xs">
-            </div>
-            <div class="grid grid-cols-2 gap-1">
-              <div>
-                <span class="text-[9px] text-amber-400 block">Alerta</span>
-                <input type="number" id="st-edit-yellow-${index}" value="${cfg.yellowAlert}" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-amber-300 font-mono text-xs">
-              </div>
-              <div>
-                <span class="text-[9px] text-rose-400 block">Peligro</span>
-                <input type="number" id="st-edit-red-${index}" value="${cfg.redAlert}" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-rose-300 font-mono text-xs">
-              </div>
+            <div class="flex items-center gap-1">
+              <span class="text-rose-700 text-[10px]">🔴:</span>
+              <input type="number" value="${cfg.redAlert}" id="st-edit-red-${index}" class="w-12 bg-white border border-rose-200 rounded-lg px-1 py-1 text-rose-900 text-xs font-mono focus:border-rose-500 focus:outline-none">
             </div>
           </div>
-          <button onclick="eliminarEstacion(${index})" class="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-950/40 transition shrink-0" title="Eliminar estación">
+          <button onclick="eliminarEstacion(${index})" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition shrink-0" title="Eliminar estación">
             <i data-lucide="trash-2" class="w-4 h-4"></i>
           </button>
         `;
@@ -2409,10 +2317,6 @@
     }
 
     function eliminarEstacion(index) {
-      if (stationsConfig.length <= 1) {
-        alert('Debe mantenerse al menos una estación configurada en el sistema.');
-        return;
-      }
       if (confirm('¿Deseas eliminar la estación ' + stationsConfig[index].name + '?')) {
         stationsConfig.splice(index, 1);
         guardarConfiguracionEstaciones();
@@ -2460,13 +2364,11 @@
 
     document.getElementById('btn-save-stations-config').addEventListener('click', () => {
       stationsConfig.forEach((cfg, index) => {
-        const idVal = document.getElementById('st-edit-id-' + index)?.value.trim().toUpperCase();
         const nameVal = document.getElementById('st-edit-name-' + index)?.value.trim();
         const bedVal = parseFloat(document.getElementById('st-edit-bed-' + index)?.value);
         const yellowVal = parseFloat(document.getElementById('st-edit-yellow-' + index)?.value);
         const redVal = parseFloat(document.getElementById('st-edit-red-' + index)?.value);
 
-        if (idVal) cfg.id = idVal;
         if (nameVal) cfg.name = nameVal;
         if (!isNaN(bedVal) && bedVal >= 50) cfg.bedHeight = bedVal;
         if (!isNaN(yellowVal) && yellowVal > 0) cfg.yellowAlert = yellowVal;
@@ -2483,8 +2385,8 @@
     });
 
     document.getElementById('btn-reset-default-stations').addEventListener('click', () => {
-      if (confirm('¿Restablecer las estaciones a la configuración de fábrica (RIO_01, RIO_02)?')) {
-        stationsConfig = JSON.parse(JSON.stringify(DEFAULT_STATIONS));
+      if (confirm('¿Deseas limpiar y borrar todas las estaciones meteorológicas del sistema?')) {
+        stationsConfig = [];
         guardarConfiguracionEstaciones();
         abrirModalGestionEstaciones();
         renderTabs();
@@ -2522,7 +2424,7 @@
 
       if (newPin) {
         localStorage.setItem('admin_pin', newPin);
-        alert('Credenciales guardadas y PIN de administrador actualizado.');
+        alert('Credenciales guardadas y contraseña de administrador actualizada.');
       } else {
         alert('Credenciales de Supabase actualizadas.');
       }
@@ -2580,8 +2482,8 @@
     // ==========================================
     document.getElementById('btn-win-30').addEventListener('click', (e) => {
       windowSize = 30;
-      e.target.className = 'px-2 py-0.5 rounded-md bg-cyan-600 text-white font-medium';
-      document.getElementById('btn-win-60').className = 'px-2 py-0.5 rounded-md text-slate-400 hover:text-white';
+      e.target.className = 'px-2.5 py-1 rounded-lg bg-sky-600 text-white font-bold';
+      document.getElementById('btn-win-60').className = 'px-2.5 py-1 rounded-lg text-slate-600 hover:text-sky-800 font-medium';
       if (currentViewMode !== 'ALL') {
         const store = telemetryStore[currentViewMode];
         const cfg = stationsConfig.find(s => s.id === currentViewMode);
@@ -2591,8 +2493,8 @@
 
     document.getElementById('btn-win-60').addEventListener('click', (e) => {
       windowSize = 60;
-      e.target.className = 'px-2 py-0.5 rounded-md bg-cyan-600 text-white font-medium';
-      document.getElementById('btn-win-30').className = 'px-2 py-0.5 rounded-md text-slate-400 hover:text-white';
+      e.target.className = 'px-2.5 py-1 rounded-lg bg-sky-600 text-white font-bold';
+      document.getElementById('btn-win-30').className = 'px-2.5 py-1 rounded-lg text-slate-600 hover:text-sky-800 font-medium';
       if (currentViewMode !== 'ALL') {
         const store = telemetryStore[currentViewMode];
         const cfg = stationsConfig.find(s => s.id === currentViewMode);
@@ -2679,7 +2581,6 @@
     // ==========================================
     initSupabase();
 
-    // Verificar si ya existe una sesión activa (entidad o administrador)
     const hasSession = verificarEstadoSesion();
     if (!hasSession) {
       const overlay = document.getElementById('gate-login-overlay');
