@@ -15,6 +15,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Supabase JS Client CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -154,11 +156,11 @@
   <!-- ========================================================================= -->
   <!-- SECCIÓN 1: HERO CINEMÁTICO (ATENCIÓN & MISIÓN)                            -->
   <!-- ========================================================================= -->
-  <header id="hero" class="relative z-10 pt-16 pb-20 md:pt-24 md:pb-32 overflow-hidden">
+  <header id="hero" class="relative z-10 pt-12 pb-16 md:pt-16 md:pb-24 overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       
       <!-- Insignia Oficial del Reto DesafIA -->
-      <div class="flex flex-wrap items-center gap-3 mb-8">
+      <div class="flex flex-wrap items-center gap-3 mb-6">
         <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-950/40 backdrop-blur-md text-cyan-300 text-xs font-mono font-medium">
           <span class="relative flex h-2 w-2">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
@@ -173,34 +175,34 @@
         </div>
       </div>
 
-      <!-- TÍTULO PRINCIPAL DE MÁXIMA AMPLITUD (2 A 3 LÍNEAS DE FLUJO HORIZONTAL) -->
+      <!-- TÍTULO PRINCIPAL DE MÁXIMA AMPLITUD -->
       <div class="max-w-6xl">
         <h1 class="font-extrabold text-4xl sm:text-6xl md:text-7xl lg:text-[76px] tracking-tight text-white leading-[1.05] uppercase">
           Hackeando las Inundaciones con <span class="bg-gradient-to-r from-cyan-400 via-teal-300 to-blue-500 bg-clip-text text-transparent">Telemetría Abierta LoRa 32</span>
         </h1>
       </div>
 
-      <!-- Subtítulo / Síntesis Ejecutiva -->
-      <p class="mt-8 max-w-3xl text-lg sm:text-xl text-slate-300 leading-relaxed font-normal">
-        Las inundaciones representan uno de los desafíos más críticos del sureste de México. Desarrollamos una <strong class="text-white font-semibold">red de estaciones meteorológicas e hidrológicas autónomas</strong> de largo alcance capaz de vigilar cauces, evaluar riesgos y alertar a comunidades vulnerables en tiempo real sin depender de internet comercial ni señal celular.
+      <!-- Subtítulo conciso (Regla de oro taste-skill: <= 25 palabras) -->
+      <p class="mt-6 max-w-2xl text-base sm:text-lg text-slate-300 leading-relaxed font-normal">
+        Red de estaciones hidrológicas autónomas con radioenlace LoRa 915 MHz para vigilar cauces y alertar en tiempo real sin red celular.
       </p>
 
-      <!-- Botones de Acción Primarios -->
-      <div class="mt-10 flex flex-wrap items-center gap-4">
-        <a href="dashboard_rio.html" class="flex items-center gap-3 px-7 py-4 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-sm sm:text-base uppercase tracking-wider shadow-xl shadow-cyan-500/25 transition-all transform hover:-translate-y-0.5 active:scale-95">
-          <i data-lucide="activity" class="w-5 h-5 text-slate-950"></i>
+      <!-- Botones de Acción Primarios con Tactile Feedback (active:scale-[0.98]) -->
+      <div class="mt-8 flex flex-wrap items-center gap-3.5">
+        <a href="dashboard_rio.html" class="flex items-center gap-3 px-7 py-3.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-sm uppercase tracking-wider shadow-xl shadow-cyan-500/25 transition-all transform hover:-translate-y-0.5 active:scale-[0.98]">
+          <i data-lucide="activity" class="w-4 h-4 text-slate-950"></i>
           <span>Monitorear Ríos en Vivo</span>
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </a>
 
-        <a href="#ejes" class="flex items-center gap-2 px-6 py-4 rounded-xl border border-slate-700 hover:border-cyan-500 bg-slate-900/60 hover:bg-slate-800/80 text-slate-200 text-sm sm:text-base font-semibold transition backdrop-blur-sm">
-          <i data-lucide="compass" class="w-4 h-4 text-cyan-400"></i>
-          <span>Explorar los 6 Ejes DesafIA</span>
-        </a>
-
-        <a href="#simulador" class="flex items-center gap-2 px-5 py-4 rounded-xl border border-teal-500/30 bg-teal-950/30 hover:bg-teal-900/40 text-teal-300 text-sm font-semibold transition">
+        <a href="#simulador" class="flex items-center gap-2 px-5 py-3.5 rounded-xl border border-teal-500/40 bg-teal-950/30 hover:bg-teal-900/40 text-teal-300 text-sm font-semibold transition-all hover:-translate-y-0.5 active:scale-[0.98]">
           <i data-lucide="sliders" class="w-4 h-4 text-teal-400"></i>
           <span>Simulador de Desborde</span>
+        </a>
+
+        <a href="#ejes" class="flex items-center gap-2 px-5 py-3.5 rounded-xl border border-slate-700 hover:border-cyan-500 bg-slate-900/60 hover:bg-slate-800/80 text-slate-300 hover:text-white text-sm font-medium transition-all active:scale-[0.98]">
+          <i data-lucide="compass" class="w-4 h-4 text-cyan-400"></i>
+          <span>Los 6 Ejes</span>
         </a>
       </div>
 
@@ -289,11 +291,6 @@
         <!-- Columna Izquierda: Información Oficial de desafia.mx -->
         <div class="lg:col-span-7">
           
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-cyan-950/60 border border-cyan-800 text-cyan-300 text-xs font-mono uppercase tracking-widest mb-4">
-            <i data-lucide="target" class="w-3.5 h-3.5"></i>
-            <span>Reto Activo · Edición 01 · 2026</span>
-          </div>
-
           <h2 class="font-extrabold text-3xl sm:text-5xl text-white tracking-tight leading-tight uppercase">
             Hackeando las Inundaciones
           </h2>
@@ -377,10 +374,6 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       
       <div class="max-w-3xl mb-16">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-cyan-950/60 border border-cyan-800 text-cyan-300 text-xs font-mono uppercase tracking-widest mb-3">
-          <i data-lucide="layers" class="w-3.5 h-3.5"></i>
-          <span>Estructura de la Convocatoria</span>
-        </div>
         <h2 class="font-extrabold text-3xl sm:text-5xl text-white tracking-tight uppercase">
           Los 6 Ejes Oficiales del Reto
         </h2>
@@ -733,11 +726,6 @@
         
         <!-- Texto Técnico -->
         <div class="lg:col-span-6">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-blue-950/60 border border-blue-800 text-blue-300 text-xs font-mono uppercase tracking-widest mb-3">
-            <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
-            <span>Ingeniería Física & Firmware</span>
-          </div>
-
           <h2 class="font-extrabold text-3xl sm:text-5xl text-white tracking-tight uppercase leading-tight">
             Estación LoRa 32: Autonomía Total en el Río
           </h2>
@@ -837,10 +825,6 @@
       <div class="mb-20">
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div>
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-cyan-950/60 border border-cyan-800 text-cyan-300 text-xs font-mono uppercase tracking-widest mb-3">
-              <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
-              <span>Cronograma Oficial</span>
-            </div>
             <h2 class="font-extrabold text-3xl sm:text-5xl text-white tracking-tight uppercase">
               Viernes 25 · Sep · 2026
             </h2>
@@ -975,11 +959,6 @@
       <div class="rounded-3xl border border-cyan-500/40 bg-gradient-to-b from-cyan-950/60 via-slate-900 to-slate-950 p-10 sm:p-16 shadow-2xl relative">
         <div class="absolute inset-0 topo-pattern opacity-30 rounded-3xl pointer-events-none"></div>
 
-        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950 border border-cyan-700 text-cyan-300 text-xs font-mono font-bold uppercase tracking-widest mb-6">
-          <i data-lucide="radio" class="w-3.5 h-3.5 animate-pulse"></i>
-          <span>Tecnología Abierta para Todos</span>
-        </span>
-
         <h2 class="font-extrabold text-3xl sm:text-5xl text-white tracking-tight uppercase max-w-2xl mx-auto leading-tight">
           Explora la Telemetría en Vivo de la Estación
         </h2>
@@ -989,12 +968,12 @@
         </p>
 
         <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
-          <a href="dashboard_rio.html" class="flex items-center gap-2.5 px-8 py-4 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-sm sm:text-base uppercase tracking-wider shadow-xl shadow-cyan-500/30 transition transform hover:-translate-y-0.5 active:scale-95">
+          <a href="dashboard_rio.html" class="flex items-center gap-2.5 px-8 py-4 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-sm sm:text-base uppercase tracking-wider shadow-xl shadow-cyan-500/30 transition-all transform hover:-translate-y-0.5 active:scale-[0.98]">
             <i data-lucide="activity" class="w-5 h-5"></i>
             <span>Lanzar Dashboard en Vivo</span>
           </a>
 
-          <a href="https://desafia.mx" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 px-6 py-4 rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-200 text-sm font-semibold transition">
+          <a href="https://desafia.mx" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 px-6 py-4 rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-200 text-sm font-semibold transition-all active:scale-[0.98]">
             <span>Visitar desafia.mx</span>
             <i data-lucide="external-link" class="w-4 h-4 text-cyan-400"></i>
           </a>
@@ -1134,18 +1113,70 @@
       updateSimulator(val);
     }
 
-    // Micro fluctuación sutil en el hero para dar sensación de vida hidrológica
-    let currentHeroLevel = 2.42;
-    setInterval(() => {
-      const delta = (Math.random() - 0.5) * 0.02;
-      currentHeroLevel = Math.max(2.35, Math.min(2.48, currentHeroLevel + delta));
+    // ==========================================
+    // SINCRONIZACIÓN EN VIVO CON SUPABASE (HERO)
+    // ==========================================
+    const DEFAULT_SUPABASE_URL = 'https://gffxiesxsqijbxlyerwi.supabase.co';
+    const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmZnhpZXN4c3FpamJ4bHllcndpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MzIyOTMsImV4cCI6MjEwNDEwODI5M30.MPxGovxcE3kuW4FZKPnkwc4wtf32KJH3KFT5XbYi3LM';
+
+    function actualizarHeroStats(waterMeters) {
+      waterMeters = Math.max(0, Math.min(MAX_DEPTH_METERS, waterMeters));
       const heroStatLevel = document.getElementById('hero-stat-level');
       const heroStatPct = document.getElementById('hero-stat-percent');
       const heroStatMargin = document.getElementById('hero-stat-margin');
-      if (heroStatLevel) heroStatLevel.textContent = currentHeroLevel.toFixed(2);
-      if (heroStatPct) heroStatPct.textContent = ((currentHeroLevel / MAX_DEPTH_METERS) * 100).toFixed(1) + '%';
-      if (heroStatMargin) heroStatMargin.textContent = (MAX_DEPTH_METERS - currentHeroLevel).toFixed(2);
-    }, 3000);
+      if (heroStatLevel) heroStatLevel.textContent = waterMeters.toFixed(2);
+      if (heroStatPct) heroStatPct.textContent = ((waterMeters / MAX_DEPTH_METERS) * 100).toFixed(1) + '%';
+      if (heroStatMargin) heroStatMargin.textContent = (MAX_DEPTH_METERS - waterMeters).toFixed(2);
+    }
+
+    async function initHeroSupabase() {
+      try {
+        if (!window.supabase) return;
+        const client = window.supabase.createClient(DEFAULT_SUPABASE_URL, DEFAULT_SUPABASE_KEY);
+
+        // 1. Obtener última medición real
+        const { data: rows, error } = await client
+          .from('mediciones_rio')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        if (!error && rows && rows.length > 0) {
+          const w = Number(rows[0].nivel_rio_cm) / 100;
+          if (!isNaN(w) && w > 0) {
+            actualizarHeroStats(w);
+          }
+        }
+
+        // 2. Suscribirse a cambios en tiempo real
+        client
+          .channel('hero_telemetria_sync')
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mediciones_rio' }, payload => {
+            const r = payload.new;
+            if (r && r.nivel_rio_cm) {
+              const w = Number(r.nivel_rio_cm) / 100;
+              if (!isNaN(w) && w > 0) actualizarHeroStats(w);
+            }
+          })
+          .subscribe();
+      } catch (err) {
+        console.warn('Hero Supabase sync notice:', err);
+      }
+    }
+
+    // Inicializar sincronización en vivo
+    initHeroSupabase();
+
+    // Fluctuación hidrológica ambiental si aún no hay telemetría en vivo
+    let currentHeroLevel = 2.42;
+    setInterval(() => {
+      const delta = (Math.random() - 0.5) * 0.015;
+      currentHeroLevel = Math.max(2.38, Math.min(2.46, currentHeroLevel + delta));
+      const heroStatLevel = document.getElementById('hero-stat-level');
+      if (heroStatLevel && heroStatLevel.textContent === '2.42') {
+        actualizarHeroStats(currentHeroLevel);
+      }
+    }, 4000);
   </script>
 </body>
 </html>
