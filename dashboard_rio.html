@@ -102,7 +102,7 @@
     <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 flex flex-wrap items-center justify-between gap-2.5">
       
       <!-- LOGO FUSIONADO E INTERACTIVO (Regresar a la Página Principal) -->
-      <a href="index.html" class="group flex items-center gap-3 p-1.5 -m-1.5 rounded-2xl hover:bg-sky-50/80 border border-transparent hover:border-sky-200 transition-all cursor-pointer" title="← Regresar a la Página Principal (index.html)">
+      <a href="index.html" onclick="sessionStorage.removeItem('lora_rio_active_session'); localStorage.removeItem('lora_rio_active_session');" class="group flex items-center gap-3 p-1.5 -m-1.5 rounded-2xl hover:bg-sky-50/80 border border-transparent hover:border-sky-200 transition-all cursor-pointer" title="← Regresar a la Página Principal (index.html)">
         <div class="p-2.5 bg-gradient-to-tr from-sky-600 via-cyan-600 to-teal-600 rounded-xl shadow-md shadow-sky-600/20 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:rotate-[-4deg] transition-all relative">
           <i data-lucide="waves" class="w-5 h-5 text-white"></i>
           <span class="absolute -bottom-1 -left-1 w-4 h-4 rounded-full bg-white text-sky-700 shadow-xs flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">
@@ -881,6 +881,18 @@
     }
 
     cargarConfiguracionEstaciones();
+    // Calibración de la cubeta informada por el usuario. Aplicar una sola vez
+    // en cada navegador para respetar posteriores ajustes manuales.
+    if (localStorage.getItem('cubeta_calibracion') !== 'rio01-93-32-v1') {
+      let cubeta = stationsConfig.find(s => s.id === 'RIO_01');
+      if (!cubeta) {
+        cubeta = { id: 'RIO_01', name: 'Cubeta de prueba' };
+        stationsConfig.push(cubeta);
+      }
+      Object.assign(cubeta, { bedHeight: 93, yellowAlert: 20, redAlert: 28 });
+      guardarConfiguracionEstaciones();
+      localStorage.setItem('cubeta_calibracion', 'rio01-93-32-v1');
+    }
 
     // Registro en memoria de datos en vivo por estación
     const telemetryStore = {};
@@ -956,7 +968,7 @@
 
     function registrarActividad(action, details, userOverride) {
       try {
-        const session = userOverride || currentUserSession || JSON.parse(localStorage.getItem('lora_rio_active_session') || 'null') || { name: 'Visitante', type: 'guest' };
+        const session = userOverride || currentUserSession || JSON.parse(sessionStorage.getItem('lora_rio_active_session') || 'null') || { name: 'Visitante', type: 'guest' };
         const raw = localStorage.getItem('lora_rio_audit_log') || '[]';
         let list = JSON.parse(raw);
         if (!Array.isArray(list)) list = [];
@@ -1054,7 +1066,9 @@
         assignedStations: matched.assignedStations || []
       };
 
-      localStorage.setItem('lora_rio_active_session', JSON.stringify(currentUserSession));
+      // Seguridad: Solo en memoria temporal de la pestaña actual (sessionStorage)
+      localStorage.removeItem('lora_rio_active_session');
+      sessionStorage.setItem('lora_rio_active_session', JSON.stringify(currentUserSession));
       registrarActividad('LOGIN', 'Entidad "' + matched.name + '" inició sesión en el Dashboard con clave ' + matched.key, currentUserSession);
       aplicarSesionUsuario();
       playAlarmTone(1046, 'sine', 0.15);
@@ -1074,7 +1088,9 @@
           type: 'admin',
           name: 'Administrador Maestro'
         };
-        localStorage.setItem('lora_rio_active_session', JSON.stringify(currentUserSession));
+        // Seguridad: Solo en memoria temporal de la pestaña actual (sessionStorage)
+        localStorage.removeItem('lora_rio_active_session');
+        sessionStorage.setItem('lora_rio_active_session', JSON.stringify(currentUserSession));
         registrarActividad('LOGIN_ADMIN', 'Administrador Maestro inició sesión en la consola hidrológica', currentUserSession);
         aplicarSesionUsuario();
         playAlarmTone(1046, 'sine', 0.15);
@@ -1089,6 +1105,7 @@
         registrarActividad('LOGOUT', (currentUserSession.name || 'Usuario') + ' cerró sesión');
       }
       currentUserSession = null;
+      sessionStorage.removeItem('lora_rio_active_session');
       localStorage.removeItem('lora_rio_active_session');
       const overlay = document.getElementById('gate-login-overlay');
       if (overlay) overlay.classList.remove('hidden');
@@ -1144,7 +1161,8 @@
 
     function verificarEstadoSesion() {
       try {
-        const raw = localStorage.getItem('lora_rio_active_session');
+        localStorage.removeItem('lora_rio_active_session'); // Cero guardado permanente en disco
+        const raw = sessionStorage.getItem('lora_rio_active_session');
         if (raw) {
           const parsed = JSON.parse(raw);
           if (parsed && (parsed.type === 'admin' || parsed.type === 'entity')) {
@@ -1384,7 +1402,7 @@
         }
 
         const transcurrido = (ahora - store.lastPacketTime) / 1000;
-        if (transcurrido > 60) {
+        if (transcurrido > 15) {
           store.isOffline = true;
           desconectadas.push(cfg);
         } else {
@@ -1830,7 +1848,9 @@
         if (status === 'ERR_CABLE') {
           sensorDesc.textContent = 'Sensor desconectado físicamente (Trig 13 / Echo 23)';
         } else if (status === 'SIN_ECO') {
-          sensorDesc.textContent = 'Fuera de rango (>6 metros sin rebote ultrasónico)';
+          sensorDesc.textContent = 'No se obtuvo eco válido; revisar orientación, alimentación y cableado.';
+        } else if (status === 'FUERA_RANGO') {
+          sensorDesc.textContent = 'Zona ciega: aleja el sensor del agua. No hay nivel válido.';
         } else {
           sensorDesc.textContent = 'Lectura anómala detectada';
         }
@@ -1951,13 +1971,11 @@
     // 7. INGESTIÓN Y PROCESAMIENTO CENTRAL DE TELEMETRÍA
     // ==========================================
     function processIncomingData(nodeIdRaw, distance, status, pktNum, rssi, fromHistory = false, customTime = null) {
+      if (!Number.isFinite(distance) || distance < 0 || !['OK','ERR_CABLE','ERR_CORTO','SIN_ECO','MUY_CERCA','FUERA_RANGO','ERR_DESBORDE'].includes(status)) return;
+      if (status === 'MUY_CERCA' || (status === 'OK' && distance <= 20)) status = 'FUERA_RANGO';
       const cleanId = sanitizeStationId(nodeIdRaw);
       if (!/^RIO_\d{2}$/i.test(cleanId)) return;
 
-      if (fromHistory) {
-        const existe = stationsConfig.find(s => s.id === cleanId);
-        if (!existe) return;
-      }
 
       if (cleanId === 'MAR_01') return;
 
@@ -1992,20 +2010,23 @@
       const store = telemetryStore[stationId];
       if (!store) return;
 
+      const measuredAt = customTime ? Date.parse(customTime) : Date.now();
+      if (!Number.isFinite(measuredAt)) return;
+      if (store.lastPacketTime && measuredAt < store.lastPacketTime) return;
       const record = {
         time: timeStr,
         distance: distance,
         waterLevel: waterLevel,
         status: status,
-        packetNum: pktNum || (totalPacketCount + 1),
+        packetNum: Number.isFinite(pktNum) ? pktNum : (totalPacketCount + 1),
         rssi: rssi
       };
 
       if (!fromHistory) {
         totalPacketCount++;
         store.latest = record;
-        store.lastPacketTime = Date.now();
-        store.isOffline = false;
+        store.lastPacketTime = measuredAt;
+        store.isOffline = Date.now() - measuredAt > 15000;
         store.hasReceivedLive = true;
       } else {
         if (!store.latest) {
@@ -2080,10 +2101,26 @@
     // ==========================================
     // 9. CLIENTE SUPABASE REALTIME & NUBE
     // ==========================================
-    const DEFAULT_SUPABASE_URL = 'https://xwhqymwquxptfqdghhrc.supabase.co';
-    const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh3aHF5bXdxdXhwdGZxZGdhaHJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyMzY4MDUsImV4cCI6MjA1NjgxMjgwNX0.wZ0Z7b4-1_YfR89q7i0R6Hq1nZ-vA3wZ7b4-1_YfR89';
+    const DEFAULT_SUPABASE_URL = 'https://gffxiesxsqijbxlyerwi.supabase.co';
+    const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmZnhpZXN4c3FpamJ4bHllcndpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MzIyOTMsImV4cCI6MjEwNDEwODI5M30.MPxGovxcE3kuW4FZKPnkwc4wtf32KJH3KFT5XbYi3LM';
 
+    // Migrar exclusivamente la configuración antigua conocida.
+    if ((localStorage.getItem('supabase_url') || '').includes('xwhqymwquxptfqdghhrc.supabase.co')) {
+      localStorage.removeItem('supabase_url');
+      localStorage.removeItem('supabase_key');
+    }
     let supabaseClient = null;
+    let cloudBusy = false;
+    const cloudSeen = new Set();
+    function receiveCloudRow(row) {
+      if (isDemoMode || isConnectedSerial) return;
+      const identity = row.id != null ? String(row.id) : [row.estacion,row.created_at,row.paquete_num].join('|');
+      if (cloudSeen.has(identity)) return;
+      cloudSeen.add(identity);
+      if (cloudSeen.size > 2000) cloudSeen.delete(cloudSeen.values().next().value);
+      processIncomingData(row.estacion, Number(row.distancia_cm), row.estado || 'SIN_ECO',
+        Number(row.paquete_num), row.rssi_dbm == null ? null : Number(row.rssi_dbm), false, row.created_at);
+    }
     let supabaseChannel = null;
 
     function initSupabase() {
@@ -2093,7 +2130,9 @@
       if (!url || !key) return;
 
       try {
-        supabaseClient = supabase.createClient(url, key);
+        if (supabaseClient) supabaseClient.removeAllChannels();
+        cloudSeen.clear();
+        supabaseClient = supabase.createClient(url.replace(/\/rest\/v1.*$/, ''), key);
         subscribirCanalSupabase();
         cargarHistorialSupabase();
       } catch (e) {
@@ -2109,24 +2148,14 @@
         .channel('realtime_telemetria_rio')
         .on(
           'postgres_changes',
-          { event: 'INSERT', schema: 'public', table: 'telemetria_rio' },
+          { event: 'INSERT', schema: 'public', table: 'mediciones_rio' },
           payload => {
             if (isDemoMode) return;
-            const data = payload.new;
-            if (!data) return;
-
-            const stId = data.station_id || 'RIO_01';
-            const dist = parseFloat(data.distance_cm);
-            const status = data.status || 'OK';
-            const pkt = parseInt(data.packet_num) || 0;
-            const rssi = data.rssi ? parseInt(data.rssi) : null;
-            const t = data.created_at || null;
-
-            processIncomingData(stId, dist, status, pkt, rssi, false, t);
+            if (payload.new) receiveCloudRow(payload.new);
           }
         )
         .subscribe(status => {
-          if (status === 'SUBSCRIBED') {
+          if (status === 'SUBSCRIBED' && !isConnectedSerial) {
             document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-emerald-500';
             document.getElementById('status-label').textContent = 'Nube Enlazada';
           }
@@ -2134,26 +2163,19 @@
     }
 
     async function cargarHistorialSupabase() {
-      if (!supabaseClient || isDemoMode || isConnectedSerial) return;
+      if (!supabaseClient || isDemoMode || isConnectedSerial || cloudBusy) return;
+      cloudBusy = true;
       try {
         const { data, error } = await supabaseClient
-          .from('telemetria_rio')
+          .from('mediciones_rio')
           .select('*')
           .order('created_at', { ascending: false })
           .limit(100);
 
-        if (error || !data || data.length === 0) return;
+        if (error) throw error;
+        if (!data || data.length === 0) return;
 
-        data.reverse().forEach(row => {
-          const stId = row.station_id || 'RIO_01';
-          const dist = parseFloat(row.distance_cm);
-          const status = row.status || 'OK';
-          const pkt = parseInt(row.packet_num) || 0;
-          const rssi = row.rssi ? parseInt(row.rssi) : null;
-          const t = row.created_at;
-
-          processIncomingData(stId, dist, status, pkt, rssi, true, t);
-        });
+        data.reverse().forEach(receiveCloudRow);
 
         if (currentViewMode !== 'ALL') {
           cargarDetalleEstacion(currentViewMode);
@@ -2163,23 +2185,11 @@
         evaluarRiesgoGlobal();
       } catch (err) {
         console.warn('Error al leer historial Supabase:', err);
-      }
+        document.getElementById('status-label').textContent = 'Error de lectura de nube';
+      } finally { cloudBusy = false; }
     }
 
-    async function guardarEnSupabase(stId, dist, water, status, rssi) {
-      if (!supabaseClient) return;
-      try {
-        await supabaseClient.from('telemetria_rio').insert([
-          {
-            station_id: stId,
-            distance_cm: dist,
-            water_level_cm: water,
-            status: status,
-            rssi: rssi
-          }
-        ]);
-      } catch (e) {}
-    }
+    setInterval(cargarHistorialSupabase, 5000);
 
     // ==========================================
     // 10. WEB SERIAL API (CONEXIÓN USB DIRECTA)
@@ -2196,6 +2206,7 @@
     async function startSerialConnection(port) {
       try {
         await port.open({ baudRate: 115200 });
+        serialBuffer = '';
         serialPort = port;
         isConnectedSerial = true;
 
@@ -2280,25 +2291,13 @@
     }
 
     function parsePacketLine(line) {
-      if (line.includes('Recibido:') || line.includes('PKT:')) {
-        let regex = /(?:Recibido:\s*)?([A-Za-z0-9_]+)\s*\|\s*Dist:\s*([0-9.]+)\s*cm\s*\|\s*Estado:\s*([A-Za-z0-9_]+)\s*\|\s*#(\d+)(?:\s*\|\s*RSSI:\s*(-?\d+))?/i;
-        let match = line.match(regex);
-        if (match) {
-          let stId = match[1];
-          let dist = parseFloat(match[2]);
-          let status = match[3];
-          let pkt = parseInt(match[4]);
-          let rssi = match[5] ? parseInt(match[5]) : null;
-
-          processIncomingData(stId, dist, status, pkt, rssi);
-
-          const cfg = stationsConfig.find(s => s.id === stId);
-          const bed = cfg ? cfg.bedHeight : 100;
-          const isOver = (status === 'MUY_CERCA' || status === 'ERR_DESBORDE' || (status === 'OK' && dist > 0 && dist <= 20.0));
-          const w = isOver ? bed : Math.max(0, bed - dist);
-          guardarEnSupabase(stId, dist, w, status, rssi);
-        }
-      }
+      // Gateway actual y formato anterior; las líneas de diagnóstico se ignoran.
+      const csv = line.match(/^RX:\s*([A-Za-z0-9_]+),(-?\d+(?:\.\d+)?),([A-Za-z0-9_]+),(\d+)\s*\|\s*RSSI:\s*(-?\d+)\s*dBm$/i);
+      const legacy = line.match(/^(?:Recibido:|PKT:)\s*([A-Za-z0-9_]+)\s*\|\s*Dist:\s*([0-9.]+)\s*cm\s*\|\s*Estado:\s*([A-Za-z0-9_]+)\s*\|\s*#(\d+)(?:\s*\|\s*RSSI:\s*(-?\d+))?/i);
+      const match = csv || legacy;
+      if (!match) return;
+      processIncomingData(match[1], Number(match[2]), match[3], Number(match[4]), match[5] == null ? null : Number(match[5]));
+      // La escritura en nube pertenece al gateway, nunca al navegador USB.
     }
 
     // ==========================================
@@ -2415,7 +2414,7 @@
         const redVal = parseFloat(document.getElementById('st-edit-red-' + index)?.value);
 
         if (nameVal) cfg.name = nameVal;
-        if (!isNaN(bedVal) && bedVal >= 50) cfg.bedHeight = bedVal;
+        if (!isNaN(bedVal) && bedVal > 20) cfg.bedHeight = bedVal;
         if (!isNaN(yellowVal) && yellowVal > 0) cfg.yellowAlert = yellowVal;
         if (!isNaN(redVal) && redVal > 0) cfg.redAlert = redVal;
       });

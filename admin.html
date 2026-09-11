@@ -47,7 +47,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
       
       <!-- LOGO FUSIONADO E INTERACTIVO (Vuelve a la Página Principal) -->
-      <a href="index.html" class="group flex items-center gap-3 p-1.5 -m-1.5 rounded-2xl hover:bg-sky-50/80 border border-transparent hover:border-sky-200 transition-all cursor-pointer" title="← Regresar a la Página Principal (index.html)">
+      <a href="index.html" onclick="sessionStorage.removeItem('lora_rio_active_session'); localStorage.removeItem('lora_rio_active_session');" class="group flex items-center gap-3 p-1.5 -m-1.5 rounded-2xl hover:bg-sky-50/80 border border-transparent hover:border-sky-200 transition-all cursor-pointer" title="← Regresar a la Página Principal (index.html)">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-orange-500 to-sky-600 flex items-center justify-center text-white shadow-md shadow-amber-500/20 group-hover:scale-105 group-hover:rotate-[-4deg] transition-all relative">
           <i data-lucide="shield-check" class="w-5 h-5"></i>
           <span class="absolute -bottom-1 -left-1 w-4 h-4 rounded-full bg-white text-sky-700 shadow-xs flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">
@@ -128,7 +128,7 @@
       </form>
 
       <div class="pt-2 border-t border-slate-100">
-        <a href="index.html" class="inline-flex items-center gap-1 text-xs text-sky-700 hover:text-sky-900 font-bold">
+        <a href="index.html" onclick="sessionStorage.removeItem('lora_rio_active_session'); localStorage.removeItem('lora_rio_active_session');" class="inline-flex items-center gap-1 text-xs text-sky-700 hover:text-sky-900 font-bold">
           <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
           <span>Regresar a la Página Principal</span>
         </a>
@@ -601,7 +601,8 @@
 
     function checkAdminSession() {
       try {
-        const raw = localStorage.getItem('lora_rio_active_session');
+        localStorage.removeItem('lora_rio_active_session'); // Cero guardado permanente en disco
+        const raw = sessionStorage.getItem('lora_rio_active_session');
         if (raw) {
           const session = JSON.parse(raw);
           if (session && session.type === 'admin') {
@@ -630,7 +631,9 @@
           name: 'Administrador Maestro',
           timestamp: Date.now()
         };
-        localStorage.setItem('lora_rio_active_session', JSON.stringify(session));
+        // Cero persistencia permanente: Solo memoria de la pestaña activa
+        localStorage.removeItem('lora_rio_active_session');
+        sessionStorage.setItem('lora_rio_active_session', JSON.stringify(session));
         document.getElementById('gate-admin-auth').classList.add('hidden');
         registrarActividadAdmin('LOGIN_ADMIN', 'Administrador Maestro ingresó al Centro de Mando');
         initAdminPanel();
@@ -641,6 +644,7 @@
 
     function cerrarSesionAdmin() {
       registrarActividadAdmin('LOGOUT_ADMIN', 'Administrador Maestro cerró sesión');
+      sessionStorage.removeItem('lora_rio_active_session');
       localStorage.removeItem('lora_rio_active_session');
       window.location.href = 'index.html';
     }

@@ -1183,20 +1183,16 @@
       landingAdminTarget = target;
     }
 
+    // ==========================================
+    // INICIO DE SESIÓN VOLÁTIL (CERO PERSISTENCIA POR SEGURIDAD)
+    // ==========================================
+    // Limpieza de cualquier residuo previo en disco local
+    try {
+      localStorage.removeItem('lora_rio_active_session');
+    } catch(e) {}
+
     function abrirModalLoginLanding() {
-      const activeRaw = localStorage.getItem('lora_rio_active_session');
-      if (activeRaw) {
-        try {
-          const session = JSON.parse(activeRaw);
-          if (session && session.type === 'admin') {
-            window.location.href = 'admin.html';
-            return;
-          } else if (session && session.type === 'entity') {
-            window.location.href = 'dashboard_rio.html';
-            return;
-          }
-        } catch(e) {}
-      }
+      // Siempre abre el modal para autenticarse, nunca auto-inicia sin credenciales
       document.getElementById('modal-landing-login').classList.remove('hidden');
       lucide.createIcons();
     }
@@ -1255,7 +1251,10 @@
         key: matched.key,
         assignedStations: matched.assignedStations || []
       };
-      localStorage.setItem('lora_rio_active_session', JSON.stringify(session));
+      
+      // Seguridad: Solo en memoria temporal de la pestaña actual (sessionStorage), NUNCA en disco permanente
+      localStorage.removeItem('lora_rio_active_session');
+      sessionStorage.setItem('lora_rio_active_session', JSON.stringify(session));
 
       try {
         let log = JSON.parse(localStorage.getItem('lora_rio_audit_log') || '[]');
@@ -1290,7 +1289,10 @@
           type: 'admin',
           name: 'Administrador Maestro'
         };
-        localStorage.setItem('lora_rio_active_session', JSON.stringify(session));
+        
+        // Seguridad: Solo en memoria temporal de la pestaña actual (sessionStorage), NUNCA en disco permanente
+        localStorage.removeItem('lora_rio_active_session');
+        sessionStorage.setItem('lora_rio_active_session', JSON.stringify(session));
 
         try {
           let log = JSON.parse(localStorage.getItem('lora_rio_audit_log') || '[]');
@@ -1320,25 +1322,38 @@
 
     function checkLandingAuthButton() {
       try {
-        const raw = localStorage.getItem('lora_rio_active_session');
-        if (raw) {
+        localStorage.removeItem('lora_rio_active_session'); // Cero guardado permanente
+        const raw = sessionStorage.getItem('lora_rio_active_session');
+        const btn = document.getElementById('btn-landing-auth');
+        const txt = document.getElementById('landing-auth-text');
+        const icon = document.getElementById('landing-auth-icon');
+        
+        if (raw && btn) {
           const session = JSON.parse(raw);
-          const btn = document.getElementById('btn-landing-auth');
-          const txt = document.getElementById('landing-auth-text');
-          const icon = document.getElementById('landing-auth-icon');
-          if (btn && session) {
-            if (session.type === 'admin') {
-              txt.textContent = 'Panel Admin';
-              icon.setAttribute('data-lucide', 'shield-check');
-              btn.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-xs transition active:scale-95';
-              btn.onclick = () => { window.location.href = 'admin.html'; };
-            } else if (session.type === 'entity') {
-              txt.textContent = 'Mi Sesión';
-              icon.setAttribute('data-lucide', 'user-check');
-              btn.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-xs transition active:scale-95';
-              btn.onclick = () => { window.location.href = 'dashboard_rio.html'; };
-            }
+          if (session && session.type === 'admin') {
+            txt.textContent = 'Panel Admin';
+            icon.setAttribute('data-lucide', 'shield-check');
+            btn.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-xs transition active:scale-95';
+            btn.onclick = () => { window.location.href = 'admin.html'; };
+            lucide.createIcons();
+            return;
+          } else if (session && session.type === 'entity') {
+            txt.textContent = 'Mi Dashboard';
+            icon.setAttribute('data-lucide', 'waves');
+            btn.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs shadow-xs transition active:scale-95';
+            btn.onclick = () => { window.location.href = 'dashboard_rio.html'; };
+            lucide.createIcons();
+            return;
           }
+        }
+        
+        // Estado por defecto: Ingresar (No autenticado)
+        if (btn) {
+          txt.textContent = 'Ingresar';
+          icon.setAttribute('data-lucide', 'key-round');
+          btn.className = 'inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs shadow-xs transition active:scale-95';
+          btn.onclick = abrirModalLoginLanding;
+          lucide.createIcons();
         }
       } catch(e) {}
     }
