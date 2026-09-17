@@ -40,3 +40,9 @@
 #ui-notice {position:fixed;bottom:22px;right:22px;max-width:calc(100vw - 44px);z-index:100;padding:14px 18px;background:#ecfdf5;color:#065f46;border:1px solid #6ee7b7;border-radius:14px;box-shadow:0 8px 30px #0c4a6e22;font-size:14px}
 @media(min-width:1200px){.entity-station-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:680px){.dashboard-header-layout{grid-template-columns:1fr}.header-icon-tools{grid-area:2/1;justify-self:end;flex-wrap:wrap}.header-session-strip{grid-row:3}.entity-station-grid{grid-template-columns:1fr}.header-icon-tools button,.header-icon-tools a{width:38px;height:38px}.header-icon-tools,.header-icon-tools #admin-actions-bar{gap:5px}}
+
+.gateway-status{display:inline-flex;align-items:center;gap:7px;padding:5px 10px;border-radius:12px;border:1px solid;font-size:12px;font-weight:650;margin-top:7px}
+.gateway-status:before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+.gateway-online{color:#047857;background:#ecfdf5;border-color:#a7f3d0}
+.gateway-offline{color:#be123c;background:#fff1f2;border-color:#fecdd3}
+.gateway-unknown{color:#475569;background:#f8fafc;border-color:#cbd5e1}

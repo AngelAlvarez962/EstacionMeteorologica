@@ -221,6 +221,7 @@
               Aún no hay estaciones agregadas. Accede como Administrador y haz clic en "Estaciones" o "+ Nueva Estación" para comenzar a recibir telemetría.
             </p>
 
+            <div id="gateway-connection-status" class="gateway-status gateway-unknown" role="status">Gateway: comprobando conexión…</div>
             <!-- Diagnóstico específico por estación -->
             <div class="pt-1 flex items-center gap-2 flex-wrap text-xs font-mono" id="risk-station-summary">
               <span class="text-slate-500 text-[11px]">Estaciones analizadas:</span>
@@ -1374,6 +1375,28 @@
     // ==========================================
     // 3. MOTOR CONSOLIDADO DE EVALUACIÓN DE RIESGO HIDROLÓGICO
     // ==========================================
+    // El enlace con Supabase no demuestra que la placa siga encendida.
+    const GATEWAY_ID = 'GATEWAY_01';
+    const GATEWAY_TIMEOUT_MS = 90000;
+    const STATION_TIMEOUT_MS = 15000;
+    let gatewayCloudLastSeen = null;
+    let gatewayCloudBusy = false;
+
+    function registrarSenalGateway(timestamp) {
+      const time = Date.parse(timestamp);
+      if (!Number.isFinite(time) || time > Date.now() + 10000) return;
+      if (gatewayCloudLastSeen === null || time > gatewayCloudLastSeen) gatewayCloudLastSeen = time;
+    }
+
+    function estadoConexionGateway(now = Date.now()) {
+      if (isConnectedSerial) return { connected: true, state: 'online', label: 'Gateway conectado · USB' };
+      if (gatewayCloudLastSeen !== null && now - gatewayCloudLastSeen <= GATEWAY_TIMEOUT_MS) {
+        return { connected: true, state: 'online', label: 'Gateway conectado · Wi-Fi / nube' };
+      }
+      if (gatewayCloudLastSeen !== null) return { connected: false, state: 'offline', label: 'Gateway desconectado · sin comunicación reciente' };
+      return { connected: false, state: 'unknown', label: 'Gateway: conexión sin confirmar' };
+    }
+
     function evaluarRiesgoGlobal() {
       const banner = document.getElementById('consolidated-risk-banner');
       const title = document.getElementById('risk-title');
@@ -1384,6 +1407,13 @@
       const summaryLine = document.getElementById('risk-station-summary');
       const countEl = document.getElementById('global-active-count');
 
+      const gateway = estadoConexionGateway();
+      const gatewayStatus = document.getElementById('gateway-connection-status');
+      gatewayStatus.textContent = gateway.label;
+      gatewayStatus.className = 'gateway-status gateway-' + gateway.state;
+      gatewayStatus.title = isConnectedSerial ? 'Puerto USB del gateway abierto en esta página.' :
+        gatewayCloudLastSeen !== null ? 'Última comunicación del gateway: ' + new Date(gatewayCloudLastSeen).toLocaleString() :
+        'Esperando el aviso periódico del gateway. La conexión de la página a Supabase no confirma la conexión de la placa.';
       const accessible = getAccessibleStations();
       let totalEstaciones = accessible.length;
       let activas = 0;
@@ -1418,7 +1448,7 @@
         }
 
         const transcurrido = (ahora - store.lastPacketTime) / 1000;
-        if (transcurrido > 15) {
+        if (transcurrido * 1000 > STATION_TIMEOUT_MS) {
           store.isOffline = true;
           desconectadas.push(cfg);
         } else {
@@ -1496,10 +1526,12 @@
         banner.className = 'p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-white/95 border-sky-200/90 text-slate-800 shadow-sm';
         iconBox.className = 'p-3 rounded-xl bg-sky-50 border border-sky-200 text-sky-600 shrink-0';
         badge.className = 'text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200';
-        badge.textContent = 'EN ESPERA DE TELEMETRÍA';
+        badge.textContent = 'SIN SEÑAL DE ESTACIÓN';
         title.className = 'font-extrabold text-sm sm:text-base tracking-wide uppercase text-slate-900';
-        title.textContent = 'ESTACIONES SIN SEÑAL / EN ESPERA';
-        reco.textContent = 'Conecte el Gateway LoRa por USB en Google Chrome/Edge o espere la transmisión en vivo por radiofrecuencia (915 MHz).';
+        title.textContent = totalEstaciones === 1 ? 'ESTACIÓN METEOROLÓGICA DESCONECTADA' : 'ESTACIONES METEOROLÓGICAS DESCONECTADAS';
+        reco.textContent = gateway.connected
+          ? 'El gateway está conectado, pero no hay señal reciente de la estación. Verifica su alimentación y el enlace LoRa. El estado se actualizará al recibir una transmisión.'
+          : 'No hay señal reciente de la estación. Comprueba la alimentación y conexión del gateway, y después la alimentación y el enlace LoRa de la estación.';
         icon.setAttribute('data-lucide', 'radio');
       }
 
@@ -1507,7 +1539,7 @@
       accessible.forEach(cfg => {
         const store = telemetryStore[cfg.id];
         if (!store || !store.hasReceivedLive || store.isOffline) {
-          chipsHtml += '<span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 text-[10px] flex items-center gap-1.5 font-mono"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>' + cfg.id + ': En espera</span>';
+          chipsHtml += '<span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 text-[10px] flex items-center gap-1.5 font-mono"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>' + cfg.id + ': Desconectada · sin señal</span>';
         } else if (store.latest && (store.latest.status === 'MUY_CERCA' || store.latest.status === 'ERR_DESBORDE' || (store.latest.status === 'OK' && store.latest.distance > 0 && store.latest.distance <= 20.0))) {
           chipsHtml += '<span class="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300 animate-pulse text-[10px] font-bold flex items-center gap-1.5 font-mono"><span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span>' + cfg.id + ': DESBORDE INMINENTE</span>';
         } else if (!store.latest || store.latest.status !== 'OK') {
@@ -1630,9 +1662,9 @@
 
         let cardBorder = 'border-sky-100 bg-white hover:border-sky-300';
         let badgeColor = 'bg-slate-100 text-slate-600 border-slate-200';
-        let badgeStatus = '⚪ EN ESPERA';
+        let badgeStatus = '⚪ DESCONECTADA';
         let barColor = 'bg-sky-500';
-        let statusMessage = '<span class="text-slate-400">Sin transmisión LoRa activa en este momento</span>';
+        let statusMessage = '<span class="text-slate-400">Sin señal reciente de la estación LoRa</span>';
 
         if (isLive) {
           if (isOverflow) {
@@ -1804,8 +1836,8 @@
 
       badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 border border-slate-200 text-slate-500 font-semibold text-xs sm:text-sm';
       dot.className = 'w-2 h-2 rounded-full bg-slate-400';
-      text.textContent = isOffline ? 'EN ESPERA' : 'SIN LECTURAS';
-      desc.textContent = isOffline ? 'Esperando transmisión por radiofrecuencia' : 'Sensor sin lecturas recientes';
+      text.textContent = isOffline ? 'DESCONECTADA' : 'SIN LECTURAS';
+      desc.textContent = isOffline ? 'Sin señal reciente de la estación LoRa' : 'Sensor sin lecturas recientes';
 
       document.getElementById('metric-meters').textContent = '--.-- metros';
       document.getElementById('metric-water-percent').textContent = 'Capacidad: --%';
@@ -2047,7 +2079,7 @@
         totalPacketCount++;
         store.latest = record;
         store.lastPacketTime = measuredAt;
-        store.isOffline = Date.now() - measuredAt > 15000;
+        store.isOffline = Date.now() - measuredAt > STATION_TIMEOUT_MS;
         store.hasReceivedLive = true;
       } else {
         if (!store.latest) {
@@ -2135,6 +2167,13 @@
     const cloudSeen = new Set();
     function receiveCloudRow(row) {
       if (isDemoMode || isConnectedSerial) return;
+      if (row.estacion === GATEWAY_ID) {
+        if (row.estado === 'GATEWAY_ONLINE') registrarSenalGateway(row.created_at);
+        evaluarRiesgoGlobal();
+        return; // El aviso de conexión no es una lectura del sensor.
+      }
+      // Una medición reciente enviada a la nube también confirma actividad del gateway.
+      if (/^RIO_\d{2}$/.test(row.estacion || '') && Number.isFinite(Number(row.distancia_cm))) registrarSenalGateway(row.created_at);
       const identity = row.id != null ? String(row.id) : [row.estacion,row.created_at,row.paquete_num].join('|');
       if (cloudSeen.has(identity)) return;
       cloudSeen.add(identity);
@@ -2153,8 +2192,10 @@
       try {
         if (supabaseClient) supabaseClient.removeAllChannels();
         cloudSeen.clear();
+        gatewayCloudLastSeen = null;
         supabaseClient = supabase.createClient(url.replace(/\/rest\/v1.*$/, ''), key);
         subscribirCanalSupabase();
+        cargarEstadoGateway();
         cargarHistorialSupabase();
       } catch (e) {
         console.error('Error al inicializar Supabase:', e);
@@ -2189,7 +2230,8 @@
       try {
         const { data, error } = await supabaseClient
           .from('mediciones_rio')
-          .select('*')
+.select('*')
+          .neq('estacion', GATEWAY_ID)
           .order('created_at', { ascending: false })
           .limit(100);
 
@@ -2210,6 +2252,25 @@
       } finally { cloudBusy = false; }
     }
 
+    async function cargarEstadoGateway() {
+      if (!supabaseClient || isDemoMode || isConnectedSerial || gatewayCloudBusy) return;
+      gatewayCloudBusy = true;
+      const client = supabaseClient;
+      try {
+        const { data, error } = await client.from('mediciones_rio')
+          .select('estacion,estado,created_at').eq('estacion', GATEWAY_ID)
+          .eq('estado', 'GATEWAY_ONLINE').order('created_at', { ascending: false }).limit(1);
+        if (client !== supabaseClient) return;
+        if (error) throw error;
+        if (data && data[0]) registrarSenalGateway(data[0].created_at);
+      } catch (error) {
+        console.warn('No se pudo comprobar el estado del gateway.');
+      } finally {
+        gatewayCloudBusy = false;
+        evaluarRiesgoGlobal();
+      }
+    }
+    setInterval(cargarEstadoGateway, 5000);
     setInterval(cargarHistorialSupabase, 5000);
 
     // ==========================================
@@ -2235,6 +2296,7 @@
         btnConnect.className = 'flex items-center gap-1.5 bg-rose-600 hover:bg-rose-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow-sm transition active:scale-95';
         document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-emerald-500';
         document.getElementById('status-label').textContent = 'USB Conectado';
+        evaluarRiesgoGlobal();
 
         const textDecoder = new TextDecoderStream();
         readableStreamClosed = serialPort.readable.pipeTo(textDecoder.writable);
@@ -2267,6 +2329,8 @@
     });
 
     async function disconnectSerial() {
+      isConnectedSerial = false;
+      evaluarRiesgoGlobal();
       try {
         if (serialReader) {
           await serialReader.cancel();
