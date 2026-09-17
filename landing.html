@@ -137,6 +137,8 @@
     ::-webkit-scrollbar-thumb { background: #7dd3fc; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #0284c7; }
   </style>
+  <link rel="stylesheet" href="web-ui.css">
+  <script src="web-ui.js"></script>
 </head>
 
 <body class="bg-gradient-to-b from-[#f8fafc] via-[#f0f9ff] to-[#ecfdf5] text-slate-800 min-h-screen font-sans antialiased selection:bg-ocean-200 selection:text-ocean-950 relative overflow-x-hidden">
@@ -1226,7 +1228,7 @@
       const input = document.getElementById('landing-entity-key');
       const errorBox = document.getElementById('landing-entity-error');
       const errorText = document.getElementById('landing-entity-error-text');
-      const keyVal = (input.value || '').trim().toUpperCase();
+      const keyVal = (input.value || '').trim();
 
       errorBox.classList.add('hidden');
       if (!keyVal) return;
@@ -1237,9 +1239,9 @@
         if (raw) entities = JSON.parse(raw);
       } catch(e) {}
 
-      const matched = entities.find(ent => ent.key.trim().toUpperCase() === keyVal);
+      const matched = entities.find(ent => LoraUI.matches(ent, keyVal));
       if (!matched) {
-        errorText.textContent = 'Clave "' + keyVal + '" no registrada. El Administrador debe darte de alta en el Panel de Administración.';
+        errorText.textContent = 'Clave o contraseña no reconocida. Consulta al administrador.';
         errorBox.classList.remove('hidden');
         return;
       }
@@ -1265,7 +1267,7 @@
           dateStr: new Date().toLocaleDateString('es-MX'),
           userName: matched.name,
           userType: 'entity',
-          userKey: matched.key,
+          userKey: matched.id,
           action: 'LOGIN',
           details: 'Inició sesión desde la Landing Page'
         });
@@ -1284,7 +1286,7 @@
       errorBox.classList.add('hidden');
       const validPin = localStorage.getItem('admin_pin') || 'admin2026';
 
-      if ((user.toLowerCase() === 'admin' || user.toLowerCase() === 'administrador') && (pass === validPin || pass === 'admin2026' || pass === 'admin')) {
+      if ((user.toLowerCase() === 'admin' || user.toLowerCase() === 'administrador') && (pass === validPin)) {
         const session = {
           type: 'admin',
           name: 'Administrador Maestro'
@@ -1396,9 +1398,9 @@
       <form id="form-landing-entity" onsubmit="handleLandingEntityLogin(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Clave de Acceso Única</label>
-          <input type="text" id="landing-entity-key" placeholder="Ej: PC-TABASCO-2026" required
-                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm font-mono font-bold uppercase">
-          <p class="text-[10px] text-slate-500 mt-1">Clave proporcionada por el Administrador de la red.</p>
+          <input type="password" autocomplete="current-password" aria-label="Clave o contraseña de la entidad" id="landing-entity-key" placeholder="Clave o contraseña" required
+                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm font-mono font-bold">
+          <p class="text-[10px] text-slate-500 mt-1">Clave o contraseña proporcionada por el Administrador. Respeta las mayúsculas y minúsculas de las contraseñas nuevas.</p>
         </div>
 
         <div id="landing-entity-error" class="hidden p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">

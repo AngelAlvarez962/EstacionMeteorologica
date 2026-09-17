@@ -39,6 +39,8 @@
       box-shadow: 0 4px 12px -2px rgba(2, 132, 199, 0.35);
     }
   </style>
+  <link rel="stylesheet" href="web-ui.css">
+  <script src="web-ui.js"></script>
 </head>
 <body class="bg-gradient-to-b from-sky-50 via-cyan-50/40 to-slate-50 text-slate-800 min-h-screen flex flex-col font-sans antialiased selection:bg-cyan-500 selection:text-white pb-12">
 
@@ -625,7 +627,7 @@
       errorBox.classList.add('hidden');
       const validPin = getAdminPin();
 
-      if ((user.toLowerCase() === 'admin' || user.toLowerCase() === 'administrador') && (pass === validPin || pass === 'admin2026' || pass === 'admin')) {
+      if ((user.toLowerCase() === 'admin' || user.toLowerCase() === 'administrador') && (pass === validPin)) {
         const session = {
           type: 'admin',
           name: 'Administrador Maestro',
@@ -676,7 +678,7 @@
         dateStr: new Date().toLocaleDateString('es-MX'),
         userName: userOverride ? userOverride.name : 'Administrador Maestro',
         userType: userOverride ? userOverride.type : 'admin',
-        userKey: userOverride ? userOverride.key : 'ROOT',
+        userKey: userOverride ? (userOverride.id || 'DEMO') : 'ROOT',
         action: action,
         details: details
       };
@@ -792,7 +794,7 @@
       registrarActividadAdmin(chosenAction.type, chosenAction.text, {
         name: chosenEntity.name,
         type: 'entity',
-        key: chosenEntity.key
+        id: chosenEntity.id || 'DEMO'
       });
 
       playAudioBeep(880, 0.1);
@@ -851,6 +853,7 @@
       const statCounter = document.getElementById('stat-stations-count');
       const badgeTab = document.getElementById('badge-tab-stations');
 
+      grid.classList.remove('entity-group-list');
       counter.textContent = stationsConfig.length;
       statCounter.textContent = stationsConfig.length;
       badgeTab.textContent = stationsConfig.length;
@@ -865,7 +868,7 @@
       empty.classList.add('hidden');
       grid.innerHTML = stationsConfig.map(st => {
         return `
-          <div class="p-5 rounded-2xl bg-white border border-sky-100 shadow-sm hover:border-sky-300 transition space-y-3">
+          <div data-station-id="${st.id}" class="p-5 rounded-2xl bg-white border border-sky-100 shadow-sm hover:border-sky-300 transition space-y-3">
             <div class="flex items-start justify-between gap-2">
               <div class="flex items-center gap-2">
                 <span class="px-2.5 py-1 rounded-xl bg-sky-100 text-sky-800 font-mono font-extrabold text-xs border border-sky-200">
@@ -905,6 +908,7 @@
           </div>
         `;
       }).join('');
+      LoraUI.groupCards(grid, stationsConfig);
 
       renderCheckboxesEstacionesParaEntidades();
       lucide.createIcons();
@@ -1031,6 +1035,7 @@
 
     function guardarEntidadesStorage() {
       localStorage.setItem('entidades_acceso_lora', JSON.stringify(entitiesConfig));
+      renderEstacionesAdmin();
     }
 
     function renderCheckboxesEstacionesParaEntidades() {
@@ -1072,7 +1077,7 @@
 
       const currentFilter = filterSelect.value;
       filterSelect.innerHTML = '<option value="ALL">Ver Todos los Usuarios</option>' +
-        entitiesConfig.map(e => `<option value="${e.name}">${e.name} (${e.key})</option>`).join('');
+        entitiesConfig.map(e => `<option value="${LoraUI.esc(e.name)}">${LoraUI.esc(e.name)}</option>`).join('');
       filterSelect.value = currentFilter;
 
       if (entitiesConfig.length === 0) {
@@ -1092,19 +1097,20 @@
             <div class="flex items-start justify-between gap-2">
               <div class="space-y-0.5">
                 <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">ENTIDAD REGISTRADA</span>
-                <h5 class="font-black text-base text-slate-900 leading-tight pt-1">${ent.name}</h5>
+                <h5 class="font-black text-base text-slate-900 leading-tight pt-1">${LoraUI.esc(ent.name)}</h5>
               </div>
               <button onclick="eliminarEntidad('${ent.id}')" class="p-1.5 rounded-lg hover:bg-rose-50 text-rose-600 border border-transparent hover:border-rose-200 transition" title="Revocar y eliminar clave de esta entidad">
                 <i data-lucide="trash-2" class="w-4 h-4"></i>
               </button>
             </div>
 
-            <div class="flex items-center justify-between p-2.5 rounded-xl bg-amber-50/60 border border-amber-200/80">
+            <div class="flex flex-wrap gap-2 items-center justify-between p-2.5 rounded-xl bg-amber-50/60 border border-amber-200/80">
               <div>
                 <span class="text-[9px] font-mono text-amber-800 uppercase font-bold block">Clave de Acceso Única</span>
-                <span class="font-mono text-xs sm:text-sm font-black text-amber-950">${ent.key}</span>
+                <span class="font-mono text-xs sm:text-sm font-black text-amber-950">${ent.credentialVersion === 1 ? '••••••••' : LoraUI.esc(ent.key)}</span>
               </div>
-              <button onclick="copiarClave('${ent.key}')" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold transition flex items-center gap-1 shadow-2xs">
+              <button type="button" class="password-change-btn" onclick="LoraUI.resetPassword('${ent.id}')">Cambiar contraseña</button>
+              <button onclick="LoraUI.copyEntity('${ent.id}')" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold transition flex items-center gap-1 shadow-2xs">
                 <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                 <span>Copiar</span>
               </button>
@@ -1118,7 +1124,7 @@
             </div>
 
             <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-              <button onclick="filtrarActividadPorUsuario('${ent.name}')" class="text-sky-700 hover:text-sky-900 font-bold flex items-center gap-1">
+              <button data-entity-name="${LoraUI.esc(ent.name)}" onclick="filtrarActividadPorUsuario(this.dataset.entityName)" class="text-sky-700 hover:text-sky-900 font-bold flex items-center gap-1">
                 <i data-lucide="activity" class="w-3.5 h-3.5"></i>
                 <span>Ver qué hace este usuario</span>
               </button>
@@ -1147,7 +1153,7 @@
         return;
       }
 
-      if (entitiesConfig.some(ent => ent.key === key)) {
+      if (entitiesConfig.some(ent => String(ent.key).toUpperCase() === key)) {
         alert('La clave "' + key + '" ya está en uso. Por favor genera o escribe una diferente.');
         return;
       }
@@ -1162,7 +1168,7 @@
 
       entitiesConfig.push(newEntity);
       guardarEntidadesStorage();
-      registrarActividadAdmin('USER_CREATED', 'Creó la entidad "' + name + '" con clave ' + key + ' (' + assigned.length + ' estaciones)');
+      registrarActividadAdmin('USER_CREATED', 'Creó la entidad "' + name + '" (' + assigned.length + ' estaciones)');
 
       document.getElementById('entity-input-name').value = '';
       generarClaveAleatoria();
@@ -1185,7 +1191,7 @@
         entitiesConfig = entitiesConfig.filter(e => e.id !== entId);
         guardarEntidadesStorage();
         if (ent) {
-          registrarActividadAdmin('USER_DELETED', 'Revocó el acceso de la entidad "' + ent.name + '" (' + ent.key + ')');
+          registrarActividadAdmin('USER_DELETED', 'Revocó el acceso de la entidad "' + ent.name + '"');
         }
         renderEntidadesAdmin();
       }

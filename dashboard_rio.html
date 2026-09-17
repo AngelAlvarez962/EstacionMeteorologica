@@ -94,6 +94,8 @@
       box-shadow: 0 4px 12px -2px rgba(2, 132, 199, 0.35);
     }
   </style>
+  <link rel="stylesheet" href="web-ui.css">
+  <script src="web-ui.js"></script>
 </head>
 <body class="bg-gradient-to-b from-sky-50 via-cyan-50/40 to-slate-50 text-slate-800 min-h-screen flex flex-col font-sans antialiased selection:bg-cyan-500 selection:text-white pb-8">
 
@@ -606,8 +608,8 @@
             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
               <i data-lucide="key" class="w-4 h-4"></i>
             </div>
-            <input type="text" id="login-entity-key" placeholder="Ej: PC-TABASCO-2026" 
-                   class="w-full pl-10 pr-4 py-3 rounded-xl bg-sky-50/40 border border-sky-200 focus:border-sky-500 text-slate-900 font-mono text-sm tracking-wider uppercase placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-sky-400">
+            <input type="password" autocomplete="current-password" aria-label="Clave o contraseña de la entidad" id="login-entity-key" placeholder="Clave o contraseña" 
+                   class="w-full pl-10 pr-4 py-3 rounded-xl bg-sky-50/40 border border-sky-200 focus:border-sky-500 text-slate-900 font-mono text-sm tracking-wider placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-sky-400">
           </div>
           <p class="text-[11px] text-slate-500 leading-relaxed">
             Ingresa la clave que te generó el Administrador para consultar únicamente tus estaciones meteorológicas asignadas.
@@ -894,6 +896,18 @@
       localStorage.setItem('cubeta_calibracion', 'rio01-93-32-v1');
     }
 
+    // Segunda estación de prueba. No cambia RIO_01.
+    if (localStorage.getItem('cubeta_rio02_calibracion') !== '93-32-v1') {
+      let segunda = stationsConfig.find(s => s.id === 'RIO_02');
+      if (!segunda) {
+        segunda = { id: 'RIO_02', name: 'Cubeta RIO_02' };
+        stationsConfig.push(segunda);
+      }
+      Object.assign(segunda, { bedHeight: 93, yellowAlert: 20, redAlert: 28 });
+      guardarConfiguracionEstaciones();
+      localStorage.setItem('cubeta_rio02_calibracion', '93-32-v1');
+    }
+
     // Registro en memoria de datos en vivo por estación
     const telemetryStore = {};
     function inicializarStoreEstacion(stId) {
@@ -964,6 +978,7 @@
 
     function saveStoredEntities(entities) {
       localStorage.setItem('entidades_acceso_lora', JSON.stringify(entities));
+      renderGridEstaciones();
     }
 
     function registrarActividad(action, details, userOverride) {
@@ -981,7 +996,7 @@
           dateStr: new Date().toLocaleDateString('es-MX'),
           userName: session.name || (session.type === 'admin' ? 'Administrador Maestro' : 'Entidad'),
           userType: session.type || 'guest',
-          userKey: session.key || (session.type === 'admin' ? 'ROOT' : 'N/A'),
+          userKey: session.id || (session.type === 'admin' ? 'ROOT' : 'N/A'),
           action: action,
           details: details
         };
@@ -1038,7 +1053,7 @@
       const input = document.getElementById('login-entity-key');
       const errorBox = document.getElementById('login-entity-error');
       const errorText = document.getElementById('login-entity-error-text');
-      const keyVal = (input.value || '').trim().toUpperCase();
+      const keyVal = (input.value || '').trim();
 
       errorBox.classList.add('hidden');
 
@@ -1049,10 +1064,10 @@
       }
 
       const entities = getStoredEntities();
-      const matched = entities.find(ent => ent.key.trim().toUpperCase() === keyVal);
+      const matched = entities.find(ent => LoraUI.matches(ent, keyVal));
 
       if (!matched) {
-        errorText.textContent = 'Clave "' + keyVal + '" no registrada. El Administrador debe crear tu entidad en el sistema.';
+        errorText.textContent = 'Clave o contraseña no reconocida. Consulta al administrador.';
         errorBox.classList.remove('hidden');
         playAlarmTone(330, 'sawtooth', 0.2);
         return;
@@ -1069,7 +1084,7 @@
       // Seguridad: Solo en memoria temporal de la pestaña actual (sessionStorage)
       localStorage.removeItem('lora_rio_active_session');
       sessionStorage.setItem('lora_rio_active_session', JSON.stringify(currentUserSession));
-      registrarActividad('LOGIN', 'Entidad "' + matched.name + '" inició sesión en el Dashboard con clave ' + matched.key, currentUserSession);
+      registrarActividad('LOGIN', 'Entidad "' + matched.name + '" inició sesión en el Dashboard', currentUserSession);
       aplicarSesionUsuario();
       playAlarmTone(1046, 'sine', 0.15);
     }
@@ -1083,7 +1098,7 @@
       errorBox.classList.add('hidden');
 
       const validPin = getAdminPin();
-      if ((user.toLowerCase() === 'admin' || user.toLowerCase() === 'administrador') && (pass === validPin || pass === 'admin2026' || pass === 'admin')) {
+      if ((user.toLowerCase() === 'admin' || user.toLowerCase() === 'administrador') && (pass === validPin)) {
         currentUserSession = {
           type: 'admin',
           name: 'Administrador Maestro'
@@ -1329,9 +1344,9 @@
         card.innerHTML = `
           <div class="space-y-1">
             <div class="flex items-center gap-2 flex-wrap">
-              <span class="font-bold text-xs text-slate-900">${ent.name}</span>
+              <span class="font-bold text-xs text-slate-900">${LoraUI.esc(ent.name)}</span>
               <span class="px-2 py-0.5 rounded-md bg-amber-100 border border-amber-300 text-amber-900 font-mono text-[10px] font-bold tracking-wider">
-                ${ent.key}
+                ${ent.credentialVersion === 1 ? '••••••••' : LoraUI.esc(ent.key)}
               </span>
             </div>
             <div class="flex items-center gap-1.5 flex-wrap text-xs text-slate-500">
@@ -1341,7 +1356,8 @@
           </div>
 
           <div class="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
-            <button onclick="copiarClaveEntidad('${ent.key}')" class="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800 text-[11px] font-semibold transition" title="Copiar clave">
+            <button type="button" class="password-change-btn" onclick="LoraUI.resetPassword('${ent.id}')">Cambiar contraseña</button>
+            <button onclick="LoraUI.copyEntity('${ent.id}')" class="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800 text-[11px] font-semibold transition" title="Copiar clave">
               <i data-lucide="copy" class="w-3 h-3 text-sky-600"></i>
               <span>Copiar</span>
             </button>
@@ -1576,6 +1592,7 @@
       const grid = document.getElementById('stations-summary-grid');
       if (!grid) return;
       grid.innerHTML = '';
+      grid.classList.remove('entity-group-list');
 
       const accessible = getAccessibleStations();
       if (accessible.length === 0) {
@@ -1655,7 +1672,10 @@
 
         const card = document.createElement('div');
         card.className = `rounded-3xl border ${cardBorder} p-5 shadow-xs transition-all hover:shadow-md cursor-pointer flex flex-col justify-between group`;
+        card.dataset.stationId = cfg.id;
+        card.setAttribute('role','button');card.tabIndex=0;
         card.onclick = () => cambiarVistaEstacion(cfg.id);
+        card.onkeydown = event => {if(event.key==='Enter'||event.key===' '){event.preventDefault();cambiarVistaEstacion(cfg.id);}};
 
         card.innerHTML = `
           <div>
@@ -1719,6 +1739,7 @@
         `;
         grid.appendChild(card);
       });
+      LoraUI.groupCards(grid, accessible);
       lucide.createIcons();
     }
 

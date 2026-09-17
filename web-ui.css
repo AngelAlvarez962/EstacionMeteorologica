@@ -1,0 +1,42 @@
+.dashboard-header-layout {display:grid!important;grid-template-columns:minmax(180px,1fr) auto;align-items:center;gap:12px!important}
+.dashboard-header-layout>a {grid-area:1/1;justify-self:start}
+.header-icon-tools {grid-area:1/2;display:flex;justify-content:flex-end;align-items:center;gap:8px}
+.header-session-strip {grid-column:1/-1;grid-row:2;display:flex;flex-wrap:wrap;gap:8px}
+.header-icon-tools #admin-actions-bar {gap:8px}
+.header-icon-tools button,.header-icon-tools a {position:relative;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;padding:0!important;border-radius:13px;flex-shrink:0}
+.header-icon-tools #admin-actions-bar span {position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important}
+.header-icon-tools #admin-actions-bar a svg:last-child:not(:first-child){display:none}
+.header-icon-tools svg {width:19px;height:19px}
+.header-icon-tools [data-tooltip]:after {content:attr(data-tooltip);position:absolute;top:calc(100% + 9px);right:0;width:max-content;max-width:min(260px,90vw);padding:8px 11px;border-radius:9px;background:#0c4a6e;color:white;font-size:12px;line-height:1.4;font-weight:500;white-space:normal;box-shadow:0 6px 20px #0c4a6e25;opacity:0;pointer-events:none;transform:translateY(-4px);transition:opacity .15s,transform .15s;z-index:70}
+.header-icon-tools [data-tooltip]:hover:after,.header-icon-tools [data-tooltip]:focus-visible:after {opacity:1;transform:translateY(0)}
+.header-icon-tools :focus-visible {outline:3px solid #38bdf8;outline-offset:3px}
+#terminal-logs {background:linear-gradient(120deg,#f0f9ff,#ecfeff)!important;border-color:#bae6fd!important;color:#075985!important;font-size:12px;line-height:1.65}
+#terminal-logs>div:hover {background:#e0f2fe!important}
+#terminal-logs .text-white {color:#0c4a6e!important}
+#terminal-logs .text-cyan-400 {color:#0369a1!important}
+#terminal-logs .text-slate-500 {color:#475569!important}
+#terminal-logs .log-error {color:#b45309!important}
+.entity-group-list {display:flex!important;flex-direction:column;gap:24px!important}
+.entity-station-section {width:100%;min-width:0}
+.entity-section-heading {display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;margin-bottom:12px;border:1px solid #bae6fd;border-radius:14px;background:linear-gradient(100deg,#e0f2fe,#f0fdfa)}
+.entity-section-heading h3 {font-size:16px;font-weight:750;color:#0c4a6e;overflow-wrap:anywhere}
+.entity-section-heading>span {flex-shrink:0;font-size:12px;color:#0369a1;background:#fff;padding:4px 9px;border-radius:20px}
+.entity-station-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.entity-empty {padding:16px;color:#64748b;font-size:14px}
+.credential-dialog {border:1px solid #bae6fd;border-radius:22px;padding:26px;width:min(480px,calc(100vw - 28px));color:#0f172a;box-shadow:0 24px 80px #0c4a6e33}
+.credential-dialog::backdrop {background:#082f4966;backdrop-filter:blur(3px)}
+.credential-heading,.credential-actions {display:flex;align-items:center;justify-content:space-between;gap:12px}
+.credential-heading h2 {font-size:20px;font-weight:750}
+#credential-entity {color:#0369a1;font-weight:650;margin:8px 0 12px;overflow-wrap:anywhere}
+.credential-help {font-size:13px;line-height:1.5;color:#475569;margin:12px 0}
+.credential-dialog label {display:block;font-size:14px;font-weight:650;margin:16px 0 6px}
+.credential-dialog input {display:block;width:100%;border:1px solid #7dd3fc;border-radius:10px;padding:11px;background:#f0f9ff;font-size:16px}
+.credential-dialog input:focus {outline:2px solid #0ea5e9;outline-offset:2px}
+.credential-error {color:#be123c;font-size:14px;margin:10px 0}
+.credential-actions {justify-content:flex-end;margin-top:20px}
+.credential-actions button,.password-change-btn {border:1px solid #bae6fd;border-radius:10px;padding:9px 12px;font-size:13px;font-weight:650;color:#075985;background:#f0f9ff}
+.credential-actions .credential-primary {background:#0284c7;color:white;border-color:#0284c7}
+.password-change-btn:hover {background:#e0f2fe}
+#ui-notice {position:fixed;bottom:22px;right:22px;max-width:calc(100vw - 44px);z-index:100;padding:14px 18px;background:#ecfdf5;color:#065f46;border:1px solid #6ee7b7;border-radius:14px;box-shadow:0 8px 30px #0c4a6e22;font-size:14px}
+@media(min-width:1200px){.entity-station-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:680px){.dashboard-header-layout{grid-template-columns:1fr}.header-icon-tools{grid-area:2/1;justify-self:end;flex-wrap:wrap}.header-session-strip{grid-row:3}.entity-station-grid{grid-template-columns:1fr}.header-icon-tools button,.header-icon-tools a{width:38px;height:38px}.header-icon-tools,.header-icon-tools #admin-actions-bar{gap:5px}}
