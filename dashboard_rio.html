@@ -117,7 +117,6 @@
               <i data-lucide="arrow-left" class="w-3 h-3 text-sky-600 group-hover:-translate-x-1 transition-transform"></i>
               <span>Volver a Inicio</span>
             </span>
-            <span class="text-[10px] uppercase font-bold tracking-widest px-1.5 py-0.2 rounded-md bg-sky-100 text-sky-800 border border-sky-200">LoRa 32</span>
           </div>
           <h1 class="font-extrabold text-base sm:text-lg text-slate-900 tracking-tight leading-tight group-hover:text-sky-700 transition-colors">
             Alerta Río & Mar
@@ -141,10 +140,7 @@
         </div>
 
         <!-- Indicador de enlace Nube / LoRa -->
-        <div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white border border-sky-200 text-xs shadow-xs">
-          <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse" id="status-dot"></span>
-          <span class="font-medium text-slate-600 text-[11px] sm:text-xs" id="status-label">En espera</span>
-        </div>
+        <div id="cloud-indicator" class="cloud-indicator" hidden role="status" aria-label="Base de datos desconectada" title="Base de datos desconectada"><span id="status-dot" class="cloud-dot"></span></div>
 
         <!-- ACCIONES EXCLUSIVAS DE ADMINISTRADOR (Ocultas para Entidades) -->
         <div id="admin-actions-bar" class="hidden flex items-center gap-1.5">
@@ -168,15 +164,9 @@
           </button>
 
           <!-- Botón Configuración Supabase -->
-          <button id="btn-open-supabase" class="flex items-center gap-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border border-emerald-300 font-semibold px-2.5 py-1.5 rounded-xl text-xs transition active:scale-95" title="Configurar conexión con Supabase">
+          <button id="btn-open-supabase" class="flex items-center gap-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border border-emerald-300 font-semibold px-2.5 py-1.5 rounded-xl text-xs transition active:scale-95" title="Conexión a base de datos">
             <i data-lucide="database" class="w-3.5 h-3.5 text-emerald-700"></i>
-            <span class="hidden md:inline">Supabase</span>
-          </button>
-
-          <!-- Botón Conectar USB LoRa (Web Serial) -->
-          <button id="btn-connect" class="flex items-center gap-1.5 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-500 hover:to-cyan-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow-sm transition active:scale-95" title="Conectar puerto USB LoRa del Gateway">
-            <i data-lucide="usb" class="w-3.5 h-3.5"></i>
-            <span id="btn-connect-text">Conectar USB</span>
+            <span class="hidden md:inline">Conexión a base de datos</span>
           </button>
         </div>
 
@@ -529,7 +519,7 @@
       </div>
 
       <div id="terminal-logs" class="mt-2.5 h-28 bg-slate-950 rounded-xl p-2.5 font-mono text-[11px] text-cyan-300 overflow-y-auto space-y-1 border border-slate-800 select-text">
-        <div class="text-slate-500 italic">// Consola lista. Esperando tramas de telemetría de Supabase o enlace LoRa USB.</div>
+        <div class="text-slate-500 italic">// Consola lista. Esperando tramas de telemetría de la base de datos.</div>
       </div>
     </div>
 
@@ -550,7 +540,6 @@
           </div>
         </div>
         <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Alerta Río & Mar</h2>
-        <p class="text-xs text-slate-500">Portal de Acceso Hidrológico & Meteorológico · DesafIA 2026</p>
       </div>
 
       <!-- Pestañas de Tipo de Acceso (Admin vs Entidad) -->
@@ -593,10 +582,6 @@
           <i data-lucide="shield-check" class="w-4 h-4"></i>
           <span>Acceso Total (Administrador)</span>
         </button>
-
-        <p class="text-[11px] text-slate-500 text-center">
-          Credenciales maestras: <strong class="text-slate-800 font-mono">admin</strong> / <strong class="text-slate-800 font-mono">admin2026</strong>
-        </p>
       </form>
 
       <!-- Formulario 2: Clave de Entidad -->
@@ -801,7 +786,7 @@
       <div class="flex items-center justify-between pb-3 border-b border-sky-100">
         <div class="flex items-center gap-2">
           <i data-lucide="database" class="w-5 h-5 text-emerald-600"></i>
-          <h3 class="font-bold text-base text-slate-900">Conexión con Supabase</h3>
+          <h3 class="font-bold text-base text-slate-900">Conexión a base de datos</h3>
         </div>
         <button id="btn-close-supabase-modal" class="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-800">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -1121,6 +1106,7 @@
         registrarActividad('LOGOUT', (currentUserSession.name || 'Usuario') + ' cerró sesión');
       }
       currentUserSession = null;
+      document.getElementById('cloud-indicator').hidden = true;
       sessionStorage.removeItem('lora_rio_active_session');
       localStorage.removeItem('lora_rio_active_session');
       const overlay = document.getElementById('gate-login-overlay');
@@ -1140,6 +1126,7 @@
       const overlay = document.getElementById('gate-login-overlay');
       if (overlay) overlay.classList.add('hidden');
 
+      document.getElementById('cloud-indicator').hidden = currentUserSession?.type !== 'admin';
       const adminBar = document.getElementById('admin-actions-bar');
       const quickAdd = document.getElementById('btn-quick-add-station');
       const sessionName = document.getElementById('session-name');
@@ -1203,7 +1190,7 @@
 
     function abrirModalEntidades() {
       if (!currentUserSession || currentUserSession.type !== 'admin') {
-        alert('Acceso restringido únicamente a administradores.');
+        LoraUI.alert('Acceso restringido únicamente a administradores.');
         return;
       }
       renderCheckboxesEstaciones();
@@ -1255,12 +1242,12 @@
       const key = (keyInput.value || '').trim().toUpperCase();
 
       if (!name) {
-        alert('Por favor especifica el nombre de la entidad u organismo.');
+        LoraUI.alert('Por favor especifica el nombre de la entidad u organismo.');
         nameInput.focus();
         return;
       }
       if (!key) {
-        alert('Por favor especifica o genera una clave de acceso.');
+        LoraUI.alert('Por favor especifica o genera una clave de acceso.');
         keyInput.focus();
         return;
       }
@@ -1269,13 +1256,13 @@
       const assigned = Array.from(checkedInputs).map(cb => cb.value);
 
       if (assigned.length === 0) {
-        alert('Debes seleccionar al menos una estación meteorológica para esta entidad.');
+        LoraUI.alert('Debes seleccionar al menos una estación meteorológica para esta entidad.');
         return;
       }
 
       const entities = getStoredEntities();
       if (entities.some(e => e.key.toUpperCase() === key)) {
-        alert('La clave "' + key + '" ya está en uso por otra entidad. Elige una clave diferente.');
+        LoraUI.alert('La clave "' + key + '" ya está en uso por otra entidad. Elige una clave diferente.');
         keyInput.focus();
         return;
       }
@@ -1294,15 +1281,15 @@
       nameInput.value = '';
       keyInput.value = '';
       renderListaEntidades();
-      alert('Entidad "' + name + '" registrada con éxito.\nClave asignada: ' + key);
+      LoraUI.alert('Entidad "' + name + '" registrada con éxito.\nClave asignada: ' + key);
     }
 
-    function eliminarEntidad(entId) {
+    async function eliminarEntidad(entId) {
       const entities = getStoredEntities();
       const ent = entities.find(e => e.id === entId);
       if (!ent) return;
 
-      if (confirm('¿Estás seguro de revocar el acceso y eliminar la clave de "' + ent.name + '"?')) {
+      if (await LoraUI.confirm('¿Estás seguro de revocar el acceso y eliminar la clave de "' + ent.name + '"?')) {
         const filtered = entities.filter(e => e.id !== entId);
         saveStoredEntities(filtered);
         renderListaEntidades();
@@ -1311,9 +1298,9 @@
 
     function copiarClaveEntidad(key) {
       navigator.clipboard.writeText(key).then(() => {
-        alert('Clave ' + key + ' copiada al portapapeles.');
+        LoraUI.alert('Clave ' + key + ' copiada al portapapeles.');
       }).catch(() => {
-        prompt('Copia esta clave de acceso:', key);
+        LoraUI.copyText('Copia esta clave de acceso:', key);
       });
     }
 
@@ -1389,7 +1376,6 @@
     }
 
     function estadoConexionGateway(now = Date.now()) {
-      if (isConnectedSerial) return { connected: true, state: 'online', label: 'Gateway conectado · USB' };
       if (gatewayCloudLastSeen !== null && now - gatewayCloudLastSeen <= GATEWAY_TIMEOUT_MS) {
         return { connected: true, state: 'online', label: 'Gateway conectado · Wi-Fi / nube' };
       }
@@ -1411,8 +1397,7 @@
       const gatewayStatus = document.getElementById('gateway-connection-status');
       gatewayStatus.textContent = gateway.label;
       gatewayStatus.className = 'gateway-status gateway-' + gateway.state;
-      gatewayStatus.title = isConnectedSerial ? 'Puerto USB del gateway abierto en esta página.' :
-        gatewayCloudLastSeen !== null ? 'Última comunicación del gateway: ' + new Date(gatewayCloudLastSeen).toLocaleString() :
+      gatewayStatus.title = gatewayCloudLastSeen !== null ? 'Última comunicación del gateway: ' + new Date(gatewayCloudLastSeen).toLocaleString() :
         'Esperando el aviso periódico del gateway. La conexión de la página a Supabase no confirma la conexión de la placa.';
       const accessible = getAccessibleStations();
       let totalEstaciones = accessible.length;
@@ -2166,7 +2151,7 @@
     let cloudBusy = false;
     const cloudSeen = new Set();
     function receiveCloudRow(row) {
-      if (isDemoMode || isConnectedSerial) return;
+      if (isDemoMode) return;
       if (row.estacion === GATEWAY_ID) {
         if (row.estado === 'GATEWAY_ONLINE') registrarSenalGateway(row.created_at);
         evaluarRiesgoGlobal();
@@ -2184,6 +2169,7 @@
     let supabaseChannel = null;
 
     function initSupabase() {
+      LoraUI.setCloudStatus(false);
       const url = localStorage.getItem('supabase_url') || DEFAULT_SUPABASE_URL;
       const key = localStorage.getItem('supabase_key') || DEFAULT_SUPABASE_KEY;
 
@@ -2217,15 +2203,12 @@
           }
         )
         .subscribe(status => {
-          if (status === 'SUBSCRIBED' && !isConnectedSerial) {
-            document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-emerald-500';
-            document.getElementById('status-label').textContent = 'Nube Enlazada';
-          }
+          LoraUI.setCloudStatus(status === 'SUBSCRIBED');
         });
     }
 
     async function cargarHistorialSupabase() {
-      if (!supabaseClient || isDemoMode || isConnectedSerial || cloudBusy) return;
+      if (!supabaseClient || isDemoMode || cloudBusy) return;
       cloudBusy = true;
       try {
         const { data, error } = await supabaseClient
@@ -2236,6 +2219,7 @@
           .limit(100);
 
         if (error) throw error;
+        LoraUI.setCloudStatus(true);
         if (!data || data.length === 0) return;
 
         data.reverse().forEach(receiveCloudRow);
@@ -2248,12 +2232,12 @@
         evaluarRiesgoGlobal();
       } catch (err) {
         console.warn('Error al leer historial Supabase:', err);
-        document.getElementById('status-label').textContent = 'Error de lectura de nube';
+        LoraUI.setCloudStatus(false);
       } finally { cloudBusy = false; }
     }
 
     async function cargarEstadoGateway() {
-      if (!supabaseClient || isDemoMode || isConnectedSerial || gatewayCloudBusy) return;
+      if (!supabaseClient || isDemoMode || gatewayCloudBusy) return;
       gatewayCloudBusy = true;
       const client = supabaseClient;
       try {
@@ -2272,118 +2256,6 @@
     }
     setInterval(cargarEstadoGateway, 5000);
     setInterval(cargarHistorialSupabase, 5000);
-
-    // ==========================================
-    // 10. WEB SERIAL API (CONEXIÓN USB DIRECTA)
-    // ==========================================
-    let isConnectedSerial = false;
-    let serialPort = null;
-    let serialReader = null;
-    let readableStreamClosed = null;
-    let serialBuffer = '';
-
-    const btnConnect = document.getElementById('btn-connect');
-    const btnConnectText = document.getElementById('btn-connect-text');
-
-    async function startSerialConnection(port) {
-      try {
-        await port.open({ baudRate: 115200 });
-        serialBuffer = '';
-        serialPort = port;
-        isConnectedSerial = true;
-
-        btnConnectText.textContent = 'Desconectar';
-        btnConnect.className = 'flex items-center gap-1.5 bg-rose-600 hover:bg-rose-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow-sm transition active:scale-95';
-        document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-emerald-500';
-        document.getElementById('status-label').textContent = 'USB Conectado';
-        evaluarRiesgoGlobal();
-
-        const textDecoder = new TextDecoderStream();
-        readableStreamClosed = serialPort.readable.pipeTo(textDecoder.writable);
-        serialReader = textDecoder.readable.getReader();
-
-        readSerialLoop();
-      } catch (err) {
-        console.warn('Error al conectar serial:', err);
-      }
-    }
-
-    btnConnect.addEventListener('click', async () => {
-      if (isDemoMode) stopDemoMode();
-      if (isConnectedSerial) {
-        await disconnectSerial();
-        return;
-      }
-
-      if (!('serial' in navigator)) {
-        alert('Web Serial API no está disponible en este navegador. Para conectar por USB utiliza Google Chrome o Microsoft Edge.');
-        return;
-      }
-
-      try {
-        const port = await navigator.serial.requestPort();
-        await startSerialConnection(port);
-      } catch (err) {
-        console.error('Error al pedir puerto:', err);
-      }
-    });
-
-    async function disconnectSerial() {
-      isConnectedSerial = false;
-      evaluarRiesgoGlobal();
-      try {
-        if (serialReader) {
-          await serialReader.cancel();
-          await readableStreamClosed.catch(() => {});
-          serialReader = null;
-          readableStreamClosed = null;
-        }
-        if (serialPort) {
-          await serialPort.close();
-          serialPort = null;
-        }
-      } catch (e) {}
-
-      isConnectedSerial = false;
-      btnConnectText.textContent = 'Conectar USB';
-      btnConnect.className = 'flex items-center gap-1.5 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-500 hover:to-cyan-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow-sm transition active:scale-95';
-      document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-rose-500';
-      document.getElementById('status-label').textContent = 'En espera';
-    }
-
-    async function readSerialLoop() {
-      while (isConnectedSerial && serialReader) {
-        try {
-          const { value, done } = await serialReader.read();
-          if (done) break;
-          if (value) parseSerialChunk(value);
-        } catch (e) {
-          break;
-        }
-      }
-      if (isConnectedSerial) disconnectSerial();
-    }
-
-    function parseSerialChunk(chunk) {
-      serialBuffer += chunk;
-      let lines = serialBuffer.split(/\r?\n/);
-      serialBuffer = lines.pop();
-
-      lines.forEach(line => {
-        let trimmed = line.trim();
-        if (trimmed) parsePacketLine(trimmed);
-      });
-    }
-
-    function parsePacketLine(line) {
-      // Gateway actual y formato anterior; las líneas de diagnóstico se ignoran.
-      const csv = line.match(/^RX:\s*([A-Za-z0-9_]+),(-?\d+(?:\.\d+)?),([A-Za-z0-9_]+),(\d+)\s*\|\s*RSSI:\s*(-?\d+)\s*dBm$/i);
-      const legacy = line.match(/^(?:Recibido:|PKT:)\s*([A-Za-z0-9_]+)\s*\|\s*Dist:\s*([0-9.]+)\s*cm\s*\|\s*Estado:\s*([A-Za-z0-9_]+)\s*\|\s*#(\d+)(?:\s*\|\s*RSSI:\s*(-?\d+))?/i);
-      const match = csv || legacy;
-      if (!match) return;
-      processIncomingData(match[1], Number(match[2]), match[3], Number(match[4]), match[5] == null ? null : Number(match[5]));
-      // La escritura en nube pertenece al gateway, nunca al navegador USB.
-    }
 
     // ==========================================
     // 11. GESTIÓN DE ESTACIONES (MODAL ADMIN)
@@ -2445,8 +2317,8 @@
       modalManage.classList.remove('hidden');
     }
 
-    function eliminarEstacion(index) {
-      if (confirm('¿Deseas eliminar la estación ' + stationsConfig[index].name + '?')) {
+    async function eliminarEstacion(index) {
+      if (await LoraUI.confirm('¿Deseas eliminar la estación ' + stationsConfig[index].name + '?')) {
         stationsConfig.splice(index, 1);
         guardarConfiguracionEstaciones();
         abrirModalGestionEstaciones();
@@ -2465,12 +2337,12 @@
       const bed = parseFloat(bedInput.value) || 100;
 
       if (!id || !name) {
-        alert('Por favor ingresa un ID LoRa y un Nombre para la estación.');
+        LoraUI.alert('Por favor ingresa un ID LoRa y un Nombre para la estación.');
         return;
       }
 
       if (stationsConfig.find(s => s.id === id)) {
-        alert('Ya existe una estación con ese ID LoRa.');
+        LoraUI.alert('Ya existe una estación con ese ID LoRa.');
         return;
       }
 
@@ -2510,11 +2382,11 @@
       if (currentViewMode !== 'ALL') cargarDetalleEstacion(currentViewMode);
       else renderGridEstaciones();
       evaluarRiesgoGlobal();
-      alert('Configuración de estaciones guardada correctamente.');
+      LoraUI.alert('Configuración de estaciones guardada correctamente.');
     });
 
-    document.getElementById('btn-reset-default-stations').addEventListener('click', () => {
-      if (confirm('¿Deseas limpiar y borrar todas las estaciones meteorológicas del sistema?')) {
+    document.getElementById('btn-reset-default-stations').addEventListener('click', async () => {
+      if (await LoraUI.confirm('¿Deseas limpiar y borrar todas las estaciones meteorológicas del sistema?')) {
         stationsConfig = [];
         guardarConfiguracionEstaciones();
         abrirModalGestionEstaciones();
@@ -2544,7 +2416,7 @@
       const newPin = document.getElementById('cfg-new-pin').value.trim();
 
       if (!url || !key) {
-        alert('Ingresa la URL y la Anon Key de Supabase.');
+        LoraUI.alert('Ingresa la URL y la Anon Key de Supabase.');
         return;
       }
 
@@ -2553,9 +2425,9 @@
 
       if (newPin) {
         localStorage.setItem('admin_pin', newPin);
-        alert('Credenciales guardadas y contraseña de administrador actualizada.');
+        LoraUI.alert('Credenciales guardadas y contraseña de administrador actualizada.');
       } else {
-        alert('Credenciales de Supabase actualizadas.');
+        LoraUI.alert('Credenciales de Supabase actualizadas.');
       }
 
       modalSupabase.classList.add('hidden');
@@ -2687,7 +2559,7 @@
       }
 
       if (rows.length === 0) {
-        alert('Aún no hay datos de telemetría registrados para exportar.');
+        LoraUI.alert('Aún no hay datos de telemetría registrados para exportar.');
         return;
       }
 

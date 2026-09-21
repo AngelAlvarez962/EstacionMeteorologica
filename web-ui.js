@@ -81,7 +81,7 @@
   }
   function announce(message){let box=document.getElementById('ui-notice');if(!box){box=document.createElement('div');box.id='ui-notice';box.setAttribute('role','status');document.body.append(box);}box.textContent=message;box.hidden=false;setTimeout(()=>box.hidden=true,6000);}
   function resetPassword(id){if(session()?.type!=='admin')return;const ent=readEntities().find(e=>e.id===id);if(!ent)return;opener=document.activeElement;selectedId=id;ensureDialog();document.getElementById('credential-entity').textContent=ent.name;dialog.showModal();document.getElementById('entity-password-new').focus();}
-  async function copyEntity(id){if(session()?.type!=='admin')return;const ent=readEntities().find(e=>e.id===id);if(!ent)return;try{await navigator.clipboard.writeText(ent.key);announce('Clave copiada.');}catch{window.prompt('Copia la clave de acceso:',ent.key);}}
+  async function copyEntity(id){if(session()?.type!=='admin')return;const ent=readEntities().find(e=>e.id===id);if(!ent)return;try{await navigator.clipboard.writeText(ent.key);announce('Clave copiada.');}catch{copyText('Copia la clave de acceso:',ent.key);}}
   function verifyEntitySession(){const user=session();if(user?.type!=='entity')return;const ent=readEntities().find(e=>e.id===user.id);if(!ent || !matches(ent,String(user.key||''))){sessionStorage.removeItem('lora_rio_active_session');location.reload();}else{user.assignedStations=ent.assignedStations||[];user.name=ent.name;sessionStorage.setItem('lora_rio_active_session',JSON.stringify(user));if(typeof currentUserSession!=='undefined')currentUserSession=user;}}
   function initToolbar(){
     const admin=document.getElementById('admin-actions-bar');if(!admin)return;
@@ -89,10 +89,35 @@
     row.classList.add('dashboard-header-layout');controls.classList.add('header-session-strip');
     const nav=document.createElement('nav');nav.className='header-icon-tools';nav.setAttribute('aria-label','Herramientas del dashboard');row.append(nav);
     nav.append(admin);['btn-sound','btn-export'].forEach(id=>{const b=document.getElementById(id);if(b)nav.append(b);});
-    function labels(){nav.querySelectorAll('button,a').forEach(b=>{let label=b.id==='btn-connect'?(document.getElementById('btn-connect-text')?.textContent||'Conectar USB'):(b.textContent.trim().replace(/\s+/g,' ')||b.getAttribute('title'));b.setAttribute('aria-label',label);b.dataset.tooltip=label;b.title=label;});}
-    labels();const usb=document.getElementById('btn-connect-text');if(usb)new MutationObserver(labels).observe(usb,{childList:true,characterData:true,subtree:true});
+    function labels(){nav.querySelectorAll('button,a').forEach(b=>{let label=b.textContent.trim().replace(/\s+/g,' ')||b.getAttribute('title');b.setAttribute('aria-label',label);b.dataset.tooltip=label;b.title=label;});}
+    labels();
   }
-  window.LoraUI={esc,matches,groups,groupCards,resetPassword,copyEntity};
+
+  let messageQueue=Promise.resolve();
+  function showMessage(message, kind, value='') {
+    const task=()=>new Promise(resolve=>{
+      const previous=document.activeElement;
+      const box=document.createElement('dialog');box.className='credential-dialog site-message-dialog';
+      box.innerHTML='<h2 id="site-message-title"></h2><p class="site-message-body"></p><div class="credential-actions"><button type="button" data-cancel>Cancelar</button><button type="button" class="credential-primary" data-accept>Confirmar</button></div>';
+      box.setAttribute('aria-labelledby','site-message-title');
+      box.querySelector('h2').textContent=kind==='confirm'?'Confirmar acción':kind==='copy'?'Clave de acceso':'Alerta Río & Mar';
+      box.querySelector('p').textContent=message;
+      if(kind==='copy'){const input=document.createElement('input');input.value=value;input.readOnly=true;input.setAttribute('aria-label','Clave para copiar');box.querySelector('p').after(input);}
+      const cancel=box.querySelector('[data-cancel]'),accept=box.querySelector('[data-accept]');
+      cancel.hidden=kind!=='confirm';accept.textContent=kind==='confirm'?'Confirmar':'Aceptar';
+      let result=false;
+      cancel.onclick=()=>box.close();accept.onclick=()=>{result=true;box.close();};
+      box.addEventListener('close',()=>{box.remove();if(previous?.isConnected)previous.focus();resolve(result);},{once:true});
+      document.body.append(box);box.showModal();
+      if(kind==='copy'){box.querySelector('input').focus();box.querySelector('input').select();}else (kind==='confirm'?cancel:accept).focus();
+    });
+    const pending=messageQueue.then(task);messageQueue=pending.catch(()=>{});return pending;
+  }
+  function copyText(message,value){return showMessage(message,'copy',value);}
+  function setCloudStatus(connected){const el=document.getElementById('cloud-indicator');if(!el)return;el.dataset.connected=String(connected);const label=connected?'Base de datos conectada':'Base de datos desconectada';el.title=label;el.setAttribute('aria-label',label);el.hidden=session()?.type!=='admin';}
+  window.addEventListener('offline',()=>setCloudStatus(false));
+
+  window.LoraUI={confirm:message=>showMessage(message,"confirm"),alert:message=>showMessage(message,"alert"),copyText,setCloudStatus,esc,matches,groups,groupCards,resetPassword,copyEntity};
   document.addEventListener('DOMContentLoaded',()=>{initToolbar();verifyEntitySession();});
   window.addEventListener('storage',event=>{if(event.key===ENTITY_KEY){verifyEntitySession();refresh();}});
   window.addEventListener('pageshow',verifyEntitySession);

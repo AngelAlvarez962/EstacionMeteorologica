@@ -120,7 +120,7 @@
         </div>
 
         <div id="gate-error" class="hidden p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
-          Credenciales incorrectas. (Predeterminado: admin / admin2026)
+          Credenciales incorrectas.
         </div>
 
         <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-extrabold text-sm shadow-md transition active:scale-95 flex items-center justify-center gap-2">
@@ -802,7 +802,7 @@
 
     function exportarAuditoriaCSV() {
       if (auditLog.length === 0) {
-        alert('No hay registros de auditoría para exportar.');
+        LoraUI.alert('No hay registros de auditoría para exportar.');
         return;
       }
 
@@ -820,8 +820,8 @@
       URL.revokeObjectURL(url);
     }
 
-    function limpiarHistorialAuditoria() {
-      if (confirm('¿Estás seguro de que deseas vaciar el historial de auditoría de usuarios?')) {
+    async function limpiarHistorialAuditoria() {
+      if (await LoraUI.confirm('¿Estás seguro de que deseas vaciar el historial de auditoría de usuarios?')) {
         auditLog = [];
         guardarAuditoria();
         renderLiveAuditFeed();
@@ -926,19 +926,19 @@
       const red = parseFloat(document.getElementById('station-input-red').value) || 80;
 
       if (!/^RIO_\d{2}$/i.test(rawId)) {
-        alert('El ID debe tener el formato estricto RIO_XX (Ej: RIO_01, RIO_02)');
+        LoraUI.alert('El ID debe tener el formato estricto RIO_XX (Ej: RIO_01, RIO_02)');
         return;
       }
 
       if (yellow >= red) {
-        alert('La alerta amarilla debe ser menor al nivel crítico de alerta roja.');
+        LoraUI.alert('La alerta amarilla debe ser menor al nivel crítico de alerta roja.');
         return;
       }
 
       const existingIndex = stationsConfig.findIndex(s => s.id === rawId);
 
       if (mode === 'create' && existingIndex !== -1) {
-        alert('Ya existe una estación registrada con el identificador ' + rawId);
+        LoraUI.alert('Ya existe una estación registrada con el identificador ' + rawId);
         return;
       }
 
@@ -1000,8 +1000,8 @@
       document.getElementById('btn-cancel-station-edit').classList.add('hidden');
     }
 
-    function eliminarEstacion(stId) {
-      if (confirm(`¿Estás seguro de eliminar la estación ${stId}? Se desvinculará de las entidades que la tenían asignada.`)) {
+    async function eliminarEstacion(stId) {
+      if (await LoraUI.confirm(`¿Estás seguro de eliminar la estación ${stId}? Se desvinculará de las entidades que la tenían asignada.`)) {
         cargarEstaciones();
         stationsConfig = stationsConfig.filter(s => s.id !== stId);
         guardarEstacionesStorage();
@@ -1149,12 +1149,12 @@
       const assigned = Array.from(checkedBoxes).map(cb => cb.value);
 
       if (!name || !key) {
-        alert('Por favor completa el nombre de la entidad y la clave.');
+        LoraUI.alert('Por favor completa el nombre de la entidad y la clave.');
         return;
       }
 
       if (entitiesConfig.some(ent => String(ent.key).toUpperCase() === key)) {
-        alert('La clave "' + key + '" ya está en uso. Por favor genera o escribe una diferente.');
+        LoraUI.alert('La clave "' + key + '" ya está en uso. Por favor genera o escribe una diferente.');
         return;
       }
 
@@ -1178,14 +1178,14 @@
 
     function copiarClave(key) {
       navigator.clipboard.writeText(key).then(() => {
-        alert('Clave "' + key + '" copiada al portapapeles. Puedes compartirla con el responsable de la entidad.');
+        LoraUI.alert('Clave "' + key + '" copiada al portapapeles. Puedes compartirla con el responsable de la entidad.');
       }).catch(() => {
-        prompt('Copia esta clave:', key);
+        LoraUI.copyText('Copia esta clave:', key);
       });
     }
 
-    function eliminarEntidad(entId) {
-      if (confirm('¿Estás seguro de revocar y eliminar el acceso para esta entidad?')) {
+    async function eliminarEntidad(entId) {
+      if (await LoraUI.confirm('¿Estás seguro de revocar y eliminar el acceso para esta entidad?')) {
         cargarEntidades();
         const ent = entitiesConfig.find(e => e.id === entId);
         entitiesConfig = entitiesConfig.filter(e => e.id !== entId);

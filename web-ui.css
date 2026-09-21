@@ -46,3 +46,5 @@
 .gateway-online{color:#047857;background:#ecfdf5;border-color:#a7f3d0}
 .gateway-offline{color:#be123c;background:#fff1f2;border-color:#fecdd3}
 .gateway-unknown{color:#475569;background:#f8fafc;border-color:#cbd5e1}
+
+.cloud-indicator{display:inline-flex;align-items:center;justify-content:center;padding:8px}.cloud-indicator[hidden]{display:none!important}.cloud-dot{width:10px;height:10px;display:block;border-radius:50%;background:#e11d48;animation:cloud-blink 1.6s ease-in-out infinite}.cloud-indicator[data-connected="true"] .cloud-dot{background:#10b981}@keyframes cloud-blink{50%{opacity:.3}}@media(prefers-reduced-motion:reduce){.cloud-dot{animation:none}}.site-message-dialog{margin:auto;background:#fff;max-height:85vh;overflow:auto}.site-message-dialog h2{font-size:20px;font-weight:750}.site-message-body{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6;margin:16px 0;color:#475569}.site-message-dialog [hidden]{display:none!important}
