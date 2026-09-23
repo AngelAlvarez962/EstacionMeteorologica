@@ -1,9 +1,7 @@
-<!DOCTYPE html>
-<html lang="es" class="scroll-smooth">
-<head>
+<!DOCTYPE html><html lang="es" class="scroll-smooth"><head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>Alerta Río & Mar — Red Hidrológica LoRa 32 | DesafIA 2026</title>
+  <title>Alerta Río &amp; Mar — Red Hidrológica LoRa 32 | DesafIA 2026</title>
   
   <!-- SEO & Metadatos Oficiales -->
   <meta name="description" content="Sistema telemétrico hidrológico y marítimo para monitoreo de cauces, estuarios y alerta temprana ante inundaciones con radioenlace LoRa 915 MHz y Supabase Cloud en el sureste mexicano.">
@@ -19,8 +17,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 
   <script>
     tailwind.config = {
@@ -139,7 +137,7 @@
   </style>
   <link rel="stylesheet" href="web-ui.css">
   <script src="web-ui.js"></script>
-</head>
+<script src="portal.js"></script></head>
 
 <body class="bg-gradient-to-b from-[#f8fafc] via-[#f0f9ff] to-[#ecfdf5] text-slate-800 min-h-screen font-sans antialiased selection:bg-ocean-200 selection:text-ocean-950 relative overflow-x-hidden">
 
@@ -166,7 +164,7 @@
         </div>
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
-            <span class="font-black text-base sm:text-lg tracking-tight text-slate-900 group-hover:text-sky-700 transition-colors">Alerta Río & Mar</span>
+            <span class="font-black text-base sm:text-lg tracking-tight text-slate-900 group-hover:text-sky-700 transition-colors">Alerta Río &amp; Mar</span>
             <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200 flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
               <span>LoRa 32</span>
@@ -198,9 +196,7 @@
       <div class="flex items-center gap-2">
         
         <!-- BOTÓN DE AMBIENTACIÓN FLUVIO-MARÍTIMA -->
-        <button id="btn-water-audio" onclick="toggleWaterAudio()" 
-                class="inline-flex items-center justify-center p-2 sm:px-2.5 sm:py-1.5 rounded-xl border border-sky-200 bg-sky-50/80 hover:bg-sky-100 text-sky-800 text-xs font-bold transition-all active:scale-95 shadow-xs"
-                title="Rumor de agua de río viva">
+        <button id="btn-water-audio" onclick="toggleWaterAudio()" class="inline-flex items-center justify-center p-2 sm:px-2.5 sm:py-1.5 rounded-xl border border-sky-200 bg-sky-50/80 hover:bg-sky-100 text-sky-800 text-xs font-bold transition-all active:scale-95 shadow-xs" title="Rumor de agua de río viva">
           <i data-lucide="volume-x" id="audio-icon" class="w-3.5 h-3.5 text-sky-600"></i>
           <span id="audio-label" class="hidden md:inline ml-1">Sonido</span>
         </button>
@@ -212,8 +208,7 @@
         </a>
 
         <!-- BOTÓN DE INICIO DE SESIÓN / ACCESO -->
-        <button id="btn-landing-auth" onclick="abrirModalLoginLanding()" 
-                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-teal-600 hover:from-sky-500 hover:to-teal-500 text-white font-bold text-xs shadow-sm shadow-sky-600/20 transition-all hover:-translate-y-0.5 active:scale-95" title="Iniciar sesión como Administrador o Entidad">
+        <button id="btn-landing-auth" onclick="abrirModalLoginLanding()" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-teal-600 hover:from-sky-500 hover:to-teal-500 text-white font-bold text-xs shadow-sm shadow-sky-600/20 transition-all hover:-translate-y-0.5 active:scale-95" title="Iniciar sesión como Administrador o Entidad">
           <i data-lucide="log-in" class="w-3.5 h-3.5" id="landing-auth-icon"></i>
           <span id="landing-auth-text">Ingresar</span>
         </button>
@@ -236,7 +231,7 @@
           <!-- Insignia Fluvial / DesafIA 2026 -->
           <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-sky-300 bg-gradient-to-r from-sky-50 to-cyan-50 text-sky-900 text-xs font-bold shadow-sm">
             <span class="w-2.5 h-2.5 rounded-full bg-sky-500 animate-ping"></span>
-            <span>DesafIA 2026 · Cuenca Baja del Río Grijalva & Costa del Golfo</span>
+            <span>DesafIA 2026 · Cuenca Baja del Río Grijalva &amp; Costa del Golfo</span>
           </div>
 
           <!-- Título Principal con Flujo de Agua -->
@@ -459,7 +454,7 @@
             </div>
             <div>
               <div class="flex items-center gap-2">
-                <h4 class="font-bold text-slate-900 text-sm">Modo Pescador & Ribereño</h4>
+                <h4 class="font-bold text-slate-900 text-sm">Modo Pescador &amp; Ribereño</h4>
                 <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-200 text-amber-800 font-bold">Libre</span>
               </div>
               <p class="text-xs text-slate-600 mt-1 leading-relaxed">Consulta instantánea para cooperativas pesqueras, lancheros de paso y familias en zonas bajas sin necesidad de registro ni contraseñas.</p>
@@ -498,7 +493,7 @@
           <span>Dimensiones de la Cuenca Fluvial y Marina</span>
         </div>
         <h2 class="font-black text-3xl sm:text-5xl text-slate-900 tracking-tight">
-          Los 6 Ejes del Reto Fluvial & Costero
+          Los 6 Ejes del Reto Fluvial &amp; Costero
         </h2>
         <p class="mt-3 text-base text-slate-600 leading-relaxed">
           Cada eje de DesafIA 2026 está implementado con instrumental hidrométrico concreto para responder a los ciclos vivos del agua.
@@ -516,7 +511,7 @@
             <div class="flex items-center justify-between mb-4">
               <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-sky-100 text-sky-800 border border-sky-200 flex items-center gap-1.5">
                 <i data-lucide="radio" class="w-3.5 h-3.5 text-sky-600"></i>
-                <span>02 / MONITOREO · SONDA ACÚSTICA & BATIMETRÍA</span>
+                <span>02 / MONITOREO · SONDA ACÚSTICA &amp; BATIMETRÍA</span>
               </span>
               <div class="w-10 h-10 rounded-2xl bg-sky-600 text-white flex items-center justify-center shadow-md shadow-sky-600/30">
                 <i data-lucide="activity" class="w-5 h-5"></i>
@@ -536,7 +531,7 @@
               <span class="w-2.5 h-2.5 rounded-full bg-sky-500 animate-ping"></span>
               <span>Telemetría de cauce activa cada 1.5s</span>
             </span>
-            <a href="dashboard_rio.html" class="text-sky-700 hover:text-sky-900 flex items-center gap-1 font-bold">Abrir consola hidrológica &rarr;</a>
+            <a href="dashboard_rio.html" class="text-sky-700 hover:text-sky-900 flex items-center gap-1 font-bold">Abrir consola hidrológica →</a>
           </div>
         </div>
 
@@ -553,7 +548,7 @@
               </div>
             </div>
 
-            <h3 class="text-xl font-bold text-slate-900">Dragado, Azolvamiento & Taludes</h3>
+            <h3 class="text-xl font-bold text-slate-900">Dragado, Azolvamiento &amp; Taludes</h3>
             <p class="text-xs text-emerald-700 font-semibold mt-1">Control morfológico del río</p>
             <p class="text-xs text-slate-600 mt-3 leading-relaxed">
               Monitoreo anticipado del fondo aluvial en época de estiaje para identificar acumulación de sedimentos y planificar obras de dragado antes de que inicien los ciclones tropicales.
@@ -579,7 +574,7 @@
               </div>
             </div>
 
-            <h3 class="text-xl font-bold text-slate-900">Gasto Hidráulico & Cotas Críticas</h3>
+            <h3 class="text-xl font-bold text-slate-900">Gasto Hidráulico &amp; Cotas Críticas</h3>
             <p class="text-xs text-amber-700 font-semibold mt-1">Semáforo de seguridad fluvial</p>
             <p class="text-xs text-slate-600 mt-3 leading-relaxed">
               Algoritmo de cálculo de corte transversal y umbrales calibrados por estación. Genera tres estados automáticos: Caudal Seguro (&lt;3.5m), Caudal Elevado (3.5-5.2m) y Desborde Ribereño (&gt;5.2m).
@@ -605,7 +600,7 @@
               </div>
             </div>
 
-            <h3 class="text-xl font-bold text-slate-900">Balizas & Sirenas a Comunidades</h3>
+            <h3 class="text-xl font-bold text-slate-900">Balizas &amp; Sirenas a Comunidades</h3>
             <p class="text-xs text-rose-700 font-semibold mt-1">Avisos a puertos y malecones</p>
             <p class="text-xs text-slate-600 mt-3 leading-relaxed">
               Alertas visuales con pulsos de alta visibilidad y avisos sonoros para proteger embarcaciones menores, pescadores y asentamientos frente al avance nocturno del río o la marejada.
@@ -631,7 +626,7 @@
               </div>
             </div>
 
-            <h3 class="text-xl font-bold text-slate-900">Bitácora del Río & Conciencia</h3>
+            <h3 class="text-xl font-bold text-slate-900">Bitácora del Río &amp; Conciencia</h3>
             <p class="text-xs text-cyan-700 font-semibold mt-1">Escuelas y comités ribereños</p>
             <p class="text-xs text-slate-600 mt-3 leading-relaxed">
               Modo Ciudadano abierto para que estudiantes, docentes de bachillerato y familias ribereñas comprendan cómo influyen las presas de la sierra y la luna en las mareas vivas.
@@ -657,7 +652,7 @@
               </div>
             </div>
 
-            <h3 class="text-xl font-bold text-slate-900">Retorno de Mareas & Vaciado</h3>
+            <h3 class="text-xl font-bold text-slate-900">Retorno de Mareas &amp; Vaciado</h3>
             <p class="text-xs text-sky-700 font-semibold mt-1">Datos históricos de desagüe</p>
             <p class="text-xs text-slate-600 mt-3 leading-relaxed">
               Trazabilidad en CSV del tiempo que tarda el agua en regresar a su cauce natural tras el temporal. Fundamental para reactivar campos de cultivo y planificar canales de alivio permanente.
@@ -795,8 +790,7 @@
                 </span>
                 <span id="sim-slider-val" class="text-sky-800 font-bold bg-sky-100 px-2 py-0.5 rounded border border-sky-200">2.42 m</span>
               </div>
-              <input id="sim-range" type="range" min="0.20" max="6.00" step="0.05" value="2.42" 
-                     class="w-full h-3.5 bg-sky-200 rounded-lg appearance-none cursor-pointer accent-sky-600 focus:outline-none shadow-inner">
+              <input id="sim-range" type="range" min="0.20" max="6.00" step="0.05" value="2.42" class="w-full h-3.5 bg-sky-200 rounded-lg appearance-none cursor-pointer accent-sky-600 focus:outline-none shadow-inner">
             </div>
 
             <!-- Escenarios Fluvio-Marítimos Táctiles -->
@@ -860,7 +854,7 @@
 
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/30 text-white text-xs font-mono font-bold uppercase tracking-wider mb-4">
           <i data-lucide="waves" class="w-3.5 h-3.5 text-cyan-200"></i>
-          <span>Red Fluvial & Marítima en Tiempo Real</span>
+          <span>Red Fluvial &amp; Marítima en Tiempo Real</span>
         </div>
 
         <h2 class="font-black text-3xl sm:text-5xl text-white tracking-tight max-w-2xl mx-auto leading-tight">
@@ -900,7 +894,7 @@
         <div class="md:col-span-2">
           <div class="flex items-center gap-2 mb-3">
             <i data-lucide="waves" class="w-5 h-5 text-sky-400"></i>
-            <span class="font-extrabold text-sm text-white tracking-tight">Alerta Río & Mar · Estación Hidrológica LoRa 32</span>
+            <span class="font-extrabold text-sm text-white tracking-tight">Alerta Río &amp; Mar · Estación Hidrológica LoRa 32</span>
           </div>
           <p class="text-xs text-slate-400 leading-relaxed max-w-sm font-sans">
             Desarrollado para el reto "Hackeando las Inundaciones" de DesafIA 2026. Telemetría de cauces en cuenca baja, detección de mareas vivas y alerta comunitaria con Heltec LoRa 32 (915 MHz) y Supabase Cloud.
@@ -933,7 +927,7 @@
       <div class="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
         <p>© 2026 Sistema Hidrológico y Marítimo LoRa 32 · DesafIA 2026 Sureste Mexicano.</p>
         <p class="flex items-center gap-2">
-          <span>Ríos Grijalva & Usumacinta</span>
+          <span>Ríos Grijalva &amp; Usumacinta</span>
           <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
           <span>Golfo de México</span>
         </p>
@@ -1193,172 +1187,19 @@
       localStorage.removeItem('lora_rio_active_session');
     } catch(e) {}
 
-    function abrirModalLoginLanding() {
-      // Siempre abre el modal para autenticarse, nunca auto-inicia sin credenciales
-      document.getElementById('modal-landing-login').classList.remove('hidden');
-      lucide.createIcons();
-    }
+    function abrirModalLoginLanding(){Portal.showLogin();}
 
     function cerrarModalLoginLanding() {
       document.getElementById('modal-landing-login').classList.add('hidden');
     }
 
-    function switchLandingLoginTab(tab) {
-      const btnEntity = document.getElementById('tab-landing-entity');
-      const btnAdmin = document.getElementById('tab-landing-admin');
-      const formEntity = document.getElementById('form-landing-entity');
-      const formAdmin = document.getElementById('form-landing-admin');
+    function switchLandingLoginTab(){}
 
-      if (tab === 'admin') {
-        btnAdmin.className = 'py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 bg-amber-100 text-amber-900 border border-amber-300 shadow-xs font-bold';
-        btnEntity.className = 'py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-slate-500 hover:text-slate-900';
-        formAdmin.classList.remove('hidden');
-        formEntity.classList.add('hidden');
-      } else {
-        btnEntity.className = 'py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 bg-sky-100 text-sky-800 border border-sky-300 shadow-xs font-bold';
-        btnAdmin.className = 'py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-slate-500 hover:text-slate-900';
-        formEntity.classList.remove('hidden');
-        formAdmin.classList.add('hidden');
-      }
-      lucide.createIcons();
-    }
+    function handleLandingEntityLogin(e){e?.preventDefault();}
 
-    function handleLandingEntityLogin(e) {
-      e.preventDefault();
-      const input = document.getElementById('landing-entity-key');
-      const errorBox = document.getElementById('landing-entity-error');
-      const errorText = document.getElementById('landing-entity-error-text');
-      const keyVal = (input.value || '').trim();
+    function handleLandingAdminLogin(e){e?.preventDefault();}
 
-      errorBox.classList.add('hidden');
-      if (!keyVal) return;
-
-      let entities = [];
-      try {
-        const raw = localStorage.getItem('entidades_acceso_lora');
-        if (raw) entities = JSON.parse(raw);
-      } catch(e) {}
-
-      const matched = entities.find(ent => LoraUI.matches(ent, keyVal));
-      if (!matched) {
-        errorText.textContent = 'Clave o contraseña no reconocida. Consulta al administrador.';
-        errorBox.classList.remove('hidden');
-        return;
-      }
-
-      const session = {
-        type: 'entity',
-        id: matched.id,
-        name: matched.name,
-        key: matched.key,
-        assignedStations: matched.assignedStations || []
-      };
-      
-      // Seguridad: Solo en memoria temporal de la pestaña actual (sessionStorage), NUNCA en disco permanente
-      localStorage.removeItem('lora_rio_active_session');
-      sessionStorage.setItem('lora_rio_active_session', JSON.stringify(session));
-
-      try {
-        let log = JSON.parse(localStorage.getItem('lora_rio_audit_log') || '[]');
-        log.unshift({
-          id: 'act_' + Date.now(),
-          timestamp: Date.now(),
-          timeStr: new Date().toLocaleTimeString('es-MX'),
-          dateStr: new Date().toLocaleDateString('es-MX'),
-          userName: matched.name,
-          userType: 'entity',
-          userKey: matched.id,
-          action: 'LOGIN',
-          details: 'Inició sesión desde la Landing Page'
-        });
-        localStorage.setItem('lora_rio_audit_log', JSON.stringify(log));
-      } catch(e) {}
-
-      window.location.href = 'dashboard_rio.html';
-    }
-
-    function handleLandingAdminLogin(e) {
-      e.preventDefault();
-      const user = (document.getElementById('landing-admin-user').value || '').trim();
-      const pass = (document.getElementById('landing-admin-pass').value || '').trim();
-      const errorBox = document.getElementById('landing-admin-error');
-
-      errorBox.classList.add('hidden');
-      const validPin = localStorage.getItem('admin_pin') || 'admin2026';
-
-      if ((user.toLowerCase() === 'admin' || user.toLowerCase() === 'administrador') && (pass === validPin)) {
-        const session = {
-          type: 'admin',
-          name: 'Administrador Maestro'
-        };
-        
-        // Seguridad: Solo en memoria temporal de la pestaña actual (sessionStorage), NUNCA en disco permanente
-        localStorage.removeItem('lora_rio_active_session');
-        sessionStorage.setItem('lora_rio_active_session', JSON.stringify(session));
-
-        try {
-          let log = JSON.parse(localStorage.getItem('lora_rio_audit_log') || '[]');
-          log.unshift({
-            id: 'act_' + Date.now(),
-            timestamp: Date.now(),
-            timeStr: new Date().toLocaleTimeString('es-MX'),
-            dateStr: new Date().toLocaleDateString('es-MX'),
-            userName: 'Administrador Maestro',
-            userType: 'admin',
-            userKey: 'ROOT',
-            action: 'LOGIN_ADMIN',
-            details: 'Administrador inició sesión desde la Landing Page'
-          });
-          localStorage.setItem('lora_rio_audit_log', JSON.stringify(log));
-        } catch(e) {}
-
-        if (landingAdminTarget === 'admin') {
-          window.location.href = 'admin.html';
-        } else {
-          window.location.href = 'dashboard_rio.html';
-        }
-      } else {
-        errorBox.classList.remove('hidden');
-      }
-    }
-
-    function checkLandingAuthButton() {
-      try {
-        localStorage.removeItem('lora_rio_active_session'); // Cero guardado permanente
-        const raw = sessionStorage.getItem('lora_rio_active_session');
-        const btn = document.getElementById('btn-landing-auth');
-        const txt = document.getElementById('landing-auth-text');
-        const icon = document.getElementById('landing-auth-icon');
-        
-        if (raw && btn) {
-          const session = JSON.parse(raw);
-          if (session && session.type === 'admin') {
-            txt.textContent = 'Panel Admin';
-            icon.setAttribute('data-lucide', 'shield-check');
-            btn.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-xs transition active:scale-95';
-            btn.onclick = () => { window.location.href = 'admin.html'; };
-            lucide.createIcons();
-            return;
-          } else if (session && session.type === 'entity') {
-            txt.textContent = 'Mi Dashboard';
-            icon.setAttribute('data-lucide', 'waves');
-            btn.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs shadow-xs transition active:scale-95';
-            btn.onclick = () => { window.location.href = 'dashboard_rio.html'; };
-            lucide.createIcons();
-            return;
-          }
-        }
-        
-        // Estado por defecto: Ingresar (No autenticado)
-        if (btn) {
-          txt.textContent = 'Ingresar';
-          icon.setAttribute('data-lucide', 'key-round');
-          btn.className = 'inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs shadow-xs transition active:scale-95';
-          btn.onclick = abrirModalLoginLanding;
-          lucide.createIcons();
-        }
-      } catch(e) {}
-    }
+    function checkLandingAuthButton(){Portal.landingButton();}
 
     window.addEventListener('DOMContentLoaded', () => {
       checkLandingAuthButton();
@@ -1366,84 +1207,7 @@
   </script>
 
   <!-- ==================== MODAL DE INICIO DE SESIÓN DIRECTO DESDE LA LANDING ==================== -->
-  <div id="modal-landing-login" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="max-w-md w-full rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border border-sky-200 space-y-5 relative">
-      
-      <!-- Botón cerrar modal -->
-      <button onclick="cerrarModalLoginLanding()" class="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
+  <div id="modal-landing-login" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden"><div class="portal-login-card"><h2>Alerta Río &amp; Mar</h2><p>Cargando acceso…</p></div></div>
 
-      <div class="text-center space-y-1">
-        <div class="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-sky-600 via-cyan-600 to-teal-500 text-white flex items-center justify-center shadow-md shadow-sky-600/20 mb-2">
-          <i data-lucide="waves" class="w-6 h-6"></i>
-        </div>
-        <h3 class="text-xl font-black text-slate-900">Acceso a la Plataforma</h3>
-        <p class="text-xs text-slate-600">Ingresa como Administrador o como Entidad Autorizada.</p>
-      </div>
 
-      <!-- Selector de Pestañas (Admin / Entidad) -->
-      <div class="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-slate-100 border border-slate-200 text-xs font-bold">
-        <button id="tab-landing-entity" onclick="switchLandingLoginTab('entity')" class="py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 bg-sky-100 text-sky-800 border border-sky-300 shadow-xs">
-          <i data-lucide="building" class="w-3.5 h-3.5"></i>
-          <span>Entidad / Clave</span>
-        </button>
-        <button id="tab-landing-admin" onclick="switchLandingLoginTab('admin')" class="py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-slate-500 hover:text-slate-900">
-          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-          <span>Administrador</span>
-        </button>
-      </div>
-
-      <!-- Formulario 1: Entidad / Organismo con Clave -->
-      <form id="form-landing-entity" onsubmit="handleLandingEntityLogin(event)" class="space-y-4">
-        <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Clave de Acceso Única</label>
-          <input type="password" autocomplete="current-password" aria-label="Clave o contraseña de la entidad" id="landing-entity-key" placeholder="Clave o contraseña" required
-                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm font-mono font-bold">
-          <p class="text-[10px] text-slate-500 mt-1">Clave o contraseña proporcionada por el Administrador. Respeta las mayúsculas y minúsculas de las contraseñas nuevas.</p>
-        </div>
-
-        <div id="landing-entity-error" class="hidden p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
-          <span id="landing-entity-error-text">Clave de acceso no registrada.</span>
-        </div>
-
-        <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-sky-600 to-teal-600 hover:from-sky-500 hover:to-teal-500 text-white font-extrabold text-xs uppercase tracking-wider shadow-md transition active:scale-95 flex items-center justify-center gap-2">
-          <i data-lucide="log-in" class="w-4 h-4"></i>
-          <span>Ingresar a Mis Estaciones</span>
-        </button>
-      </form>
-
-      <!-- Formulario 2: Administrador Maestro -->
-      <form id="form-landing-admin" onsubmit="handleLandingAdminLogin(event)" class="space-y-4 hidden">
-        <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Usuario Maestro</label>
-          <input type="text" id="landing-admin-user" value="admin" required
-                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm font-semibold">
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Contraseña</label>
-          <input type="password" id="landing-admin-pass" placeholder="••••••••" required
-                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm font-semibold font-mono">
-        </div>
-
-        <div id="landing-admin-error" class="hidden p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
-          Usuario o contraseña incorrectos. (Predeterminado: admin / admin2026)
-        </div>
-
-        <!-- Botones para elegir destino de Admin: Dashboard o Panel Admin -->
-        <div class="grid grid-cols-2 gap-2 pt-1">
-          <button type="submit" onclick="setLandingAdminTarget('dashboard')" class="py-2.5 px-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs transition active:scale-95 flex items-center justify-center gap-1.5">
-            <i data-lucide="waves" class="w-3.5 h-3.5"></i>
-            <span>Ver Dashboard</span>
-          </button>
-          <button type="submit" onclick="setLandingAdminTarget('admin')" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-xs transition active:scale-95 flex items-center justify-center gap-1.5">
-            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-            <span>Panel Admin</span>
-          </button>
-        </div>
-      </form>
-
-    </div>
-  </div>
-</body>
-</html>
+</body></html>

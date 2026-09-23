@@ -9,6 +9,7 @@
     return ent.credentialVersion === 1 ? ent.key === value.trim() : String(ent.key).trim().toUpperCase() === value.trim().toUpperCase();
   }
   function groups(stations, entities) {
+    const combined=new Map();for(const ent of entities){const key=ent.entityName||ent.name;if(!combined.has(key))combined.set(key,{...ent,name:key,assignedStations:[]});combined.get(key).assignedStations.push(...(ent.assignedStations||[]));}entities=[...combined.values()];
     const assigned=new Set();
     const result=entities.map(ent=>{
       const ids=new Set(ent.assignedStations||[]);
@@ -82,7 +83,7 @@
   function announce(message){let box=document.getElementById('ui-notice');if(!box){box=document.createElement('div');box.id='ui-notice';box.setAttribute('role','status');document.body.append(box);}box.textContent=message;box.hidden=false;setTimeout(()=>box.hidden=true,6000);}
   function resetPassword(id){if(session()?.type!=='admin')return;const ent=readEntities().find(e=>e.id===id);if(!ent)return;opener=document.activeElement;selectedId=id;ensureDialog();document.getElementById('credential-entity').textContent=ent.name;dialog.showModal();document.getElementById('entity-password-new').focus();}
   async function copyEntity(id){if(session()?.type!=='admin')return;const ent=readEntities().find(e=>e.id===id);if(!ent)return;try{await navigator.clipboard.writeText(ent.key);announce('Clave copiada.');}catch{copyText('Copia la clave de acceso:',ent.key);}}
-  function verifyEntitySession(){const user=session();if(user?.type!=='entity')return;const ent=readEntities().find(e=>e.id===user.id);if(!ent || !matches(ent,String(user.key||''))){sessionStorage.removeItem('lora_rio_active_session');location.reload();}else{user.assignedStations=ent.assignedStations||[];user.name=ent.name;sessionStorage.setItem('lora_rio_active_session',JSON.stringify(user));if(typeof currentUserSession!=='undefined')currentUserSession=user;}}
+  function verifyEntitySession(){const user=session();if(user?.cloud||user?.type!=='entity')return;const ent=readEntities().find(e=>e.id===user.id);if(!ent || !matches(ent,String(user.key||''))){sessionStorage.removeItem('lora_rio_active_session');location.reload();}else{user.assignedStations=ent.assignedStations||[];user.name=ent.name;sessionStorage.setItem('lora_rio_active_session',JSON.stringify(user));if(typeof currentUserSession!=='undefined')currentUserSession=user;}}
   function initToolbar(){
     const admin=document.getElementById('admin-actions-bar');if(!admin)return;
     const controls=admin.parentElement,row=controls.parentElement;

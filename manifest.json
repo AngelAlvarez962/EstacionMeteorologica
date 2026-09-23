@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "Alerta Río - LoRa 32",
   "short_name": "Alerta Río",
   "description": "Sistema de Monitoreo Hidrológico de Río en Tiempo Real con Heltec LoRa 32 y Supabase",

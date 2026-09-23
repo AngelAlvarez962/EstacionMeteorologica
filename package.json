@@ -1,0 +1,8 @@
+{
+  "name": "alerta-rio-mar",
+  "version": "2.0.0",
+  "private": true,
+  "type": "commonjs",
+  "engines": { "node": "22.x" },
+  "scripts": { "start": "node --env-file-if-exists=.env.local servidor_local.js" }
+}
