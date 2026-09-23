@@ -173,17 +173,14 @@
         <span class="px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-mono" id="badge-tab-entities">0</span>
       </button>
 
-      <button onclick="switchAdminTab('security')" id="tab-btn-security" class="bg-white hover:bg-sky-50 text-slate-700 border border-sky-200 flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition active:scale-95 shadow-xs">
-        <i data-lucide="lock" class="w-4 h-4 text-teal-600"></i>
-        <span>Mi cuenta</span>
-      </button>
+
 
     </div>
 
     <!-- ========================================================================= -->
     <!-- SECCIÓN 1: MONITOR DE ACTIVIDAD EN TIEMPO REAL (USER AUDIT FEED)           -->
     <!-- ========================================================================= -->
-    <div id="panel-section-activity" class="space-y-4"><div class="portal-section-heading"><div><h2>Solicitudes de estaciones</h2><p>Atiende los tickets enviados por los usuarios.</p></div><button class="portal-secondary" onclick="Portal.refreshTickets()">Actualizar</button></div><label class="portal-filter">Estado <select id="ticket-filter" onchange="Portal.refreshTickets()"><option value="all">Todos</option><option value="open">Abiertos</option><option value="in_progress">En revisión</option><option value="resolved">Resueltos</option><option value="rejected">No aprobados</option></select></label><p id="ticket-sync" role="status"></p><div data-ticket-list="">Cargando solicitudes…</div></div>
+    <div id="panel-section-activity" class="space-y-4"><div class="portal-section-heading"><div><h2>Solicitudes y aprobaciones</h2><p>Revisa cada acción y acepta o rechaza la solicitud.</p></div><button class="portal-secondary" onclick="Portal.refreshTickets()">Actualizar</button></div><label class="portal-filter">Estado <select id="ticket-filter" onchange="Portal.refreshTickets()"><option value="all">Todos</option><option value="open">Pendientes</option><option value="approved">Aprobadas</option><option value="resolved">Completadas</option><option value="rejected">Rechazadas</option></select></label><p id="ticket-sync" role="status"></p><div data-ticket-list="">Cargando solicitudes…</div></div>
 
     <!-- ========================================================================= -->
     <!-- SECCIÓN 2: GESTIÓN DE ESTACIONES LORA (AGREGAR / EDITAR / ELIMINAR)        -->
@@ -295,12 +292,12 @@
     <!-- ========================================================================= -->
     <!-- SECCIÓN 3: GESTIÓN DE ENTIDADES / USUARIOS Y CLAVES DE ACCESO              -->
     <!-- ========================================================================= -->
-    <div id="panel-section-entities" class="space-y-6 hidden"><div class="portal-section-heading"><div><h2>Usuarios y roles</h2><p>Un solo acceso para administradores y usuarios.</p></div><button class="portal-primary" onclick="Portal.editUser()">Crear cuenta</button></div><button class="portal-secondary" onclick="Portal.importLegacy()">Importar cuentas y estaciones anteriores</button><div id="portal-users-list" class="portal-users-grid"></div></div>
+    <div id="panel-section-entities" class="space-y-6 hidden"><div class="portal-section-heading"><div><h2>Usuarios y roles</h2><p>Un solo acceso para administradores y usuarios.</p></div><button class="portal-primary" onclick="Portal.editUser()">Crear cuenta</button></div><button class="portal-secondary" onclick="Portal.importLegacy()">Importar cuentas y estaciones anteriores</button><div id="portal-users-list" class="portal-users-workspace"></div></div>
 
     <!-- ========================================================================= -->
     <!-- SECCIÓN 4: SEGURIDAD Y PIN MAESTRO DE ADMINISTRADOR                        -->
     <!-- ========================================================================= -->
-    <div id="panel-section-security" class="space-y-6 hidden"><div class="portal-user-card"><h2>Mi cuenta</h2><p>Cambia tu usuario o contraseña. Al guardar tendrás que iniciar sesión de nuevo.</p><button class="portal-primary" onclick="Portal.editUser(Portal.user)">Editar mi cuenta</button></div></div>
+
 
   </main>
 
@@ -353,7 +350,7 @@
     // ==========================================
     function cargarEstaciones() {
       try {
-        const raw = localStorage.getItem('estaciones_config');
+        const raw = sessionStorage.getItem('estaciones_config');
         stationsConfig = raw ? JSON.parse(raw) : [];
         if (!Array.isArray(stationsConfig)) stationsConfig = [];
       } catch (e) {
@@ -543,7 +540,7 @@
     // ==========================================
     function cargarEntidades() {
       try {
-        const raw = localStorage.getItem('entidades_acceso_lora');
+        const raw = sessionStorage.getItem('entidades_acceso_lora');
         entitiesConfig = raw ? JSON.parse(raw) : [];
         if (!Array.isArray(entitiesConfig)) entitiesConfig = [];
       } catch (e) {
@@ -552,7 +549,7 @@
     }
 
     function guardarEntidadesStorage() {
-      localStorage.setItem('entidades_acceso_lora', JSON.stringify(entitiesConfig));
+      sessionStorage.setItem('entidades_acceso_lora', JSON.stringify(entitiesConfig));
       renderEstacionesAdmin();
     }
 
@@ -579,7 +576,7 @@
     // 6. NAVEGACIÓN ENTRE PESTAÑAS Y MÉTRICAS
     // ==========================================
     function switchAdminTab(tabName) {
-      const tabs = ['activity', 'stations', 'entities', 'security'];
+      const tabs = ['activity', 'stations', 'entities'];
       tabs.forEach(t => {
         const sec = document.getElementById('panel-section-' + t);
         const btn = document.getElementById('tab-btn-' + t);

@@ -690,12 +690,7 @@
     // ==========================================
     // REINICIO LIMPIO (INICIO DESDE CERO SOLICITADO)
     // ==========================================
-    if (!localStorage.getItem('lora_fresh_start_clean_v4')) {
-      localStorage.setItem('lora_fresh_start_clean_v4', 'true');
-      localStorage.removeItem('estaciones_config');
-      localStorage.removeItem('entidades_acceso_lora');
-      localStorage.removeItem('lora_rio_active_session');
-    }
+
 
     // ==========================================
     // 1. ESTADO GLOBAL Y CONFIGURACIÓN MULTI-ESTACIÓN
@@ -705,7 +700,7 @@
 
     function cargarConfiguracionEstaciones() {
       try {
-        const raw = localStorage.getItem('estaciones_config');
+        const raw = sessionStorage.getItem('estaciones_config');
         if (raw) {
           stationsConfig = JSON.parse(raw);
           stationsConfig = stationsConfig.filter(s => s && typeof s.id === 'string' && /^RIO_\d{2}$/i.test(s.id));
@@ -758,7 +753,7 @@
 
     function getStoredEntities() {
       try {
-        const raw = localStorage.getItem('entidades_acceso_lora');
+        const raw = sessionStorage.getItem('entidades_acceso_lora');
         if (raw) {
           const parsed = JSON.parse(raw);
           if (Array.isArray(parsed)) return parsed;
@@ -770,7 +765,7 @@
     }
 
     function saveStoredEntities(entities) {
-      localStorage.setItem('entidades_acceso_lora', JSON.stringify(entities));
+      sessionStorage.setItem('entidades_acceso_lora', JSON.stringify(entities));
       renderGridEstaciones();
     }
 

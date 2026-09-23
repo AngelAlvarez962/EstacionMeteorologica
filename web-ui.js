@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   const ENTITY_KEY = 'entidades_acceso_lora';
-  const readEntities = () => { try { const x=JSON.parse(localStorage.getItem(ENTITY_KEY)||'[]'); return Array.isArray(x)?x:[]; } catch { return []; } };
+  const readEntities = () => { try { const x=JSON.parse(sessionStorage.getItem(ENTITY_KEY)||'[]'); return Array.isArray(x)?x:[]; } catch { return []; } };
   const session = () => { try { return JSON.parse(sessionStorage.getItem('lora_rio_active_session')||'null'); } catch { return null; } };
   const esc = value => String(value??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function matches(ent, value) {
