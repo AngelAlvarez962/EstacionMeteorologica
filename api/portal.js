@@ -24,9 +24,14 @@ async function db(route, method='GET', body, prefer='return=representation') {
   if(!r.ok){if(r.status===409)throw fail(409,'Ese usuario ya existe.');throw fail(503,'No se pudo acceder a los datos. Verifica la configuración y el SQL del portal.');}
   const text=await r.text();return text?JSON.parse(text):null;
 }
+function sessionName(req) {
+  const tab=req.headers['x-portal-tab'];
+  if(typeof tab!=='string'||! /^[a-f0-9]{32}$/.test(tab))throw fail(401,'Inicia sesión en esta pestaña.');
+  return 'rio_session_'+tab;
+}
 function cookie(req, value, maxAge) {
   const local=/^(localhost|127\.0\.0\.1)(:\d+)?$/.test(req.headers.host||'');
-  return `rio_session=${value}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${maxAge}${local?'':'; Secure'}`;
+  return `${sessionName(req)}=${value}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${maxAge}${local?'':'; Secure'}`;
 }
 function stationList(items) {
   if(!Array.isArray(items)||items.length>300)throw fail(400,'Lista de estaciones inválida.');
@@ -53,7 +58,9 @@ module.exports=async function handler(req,res){
     const body=typeof req.body==='string'?JSON.parse(req.body):(req.body||{});
     if(JSON.stringify(body).length>100000)throw fail(413,'Solicitud demasiado grande.');
     const action=req.method==='GET'?req.query?.action:body.action;
-    const rawCookie=(req.headers.cookie||'').match(/(?:^|;\s*)rio_session=([a-f0-9]{64})(?:;|$)/)?.[1];
+    const name=sessionName(req);
+    const rawCookie=(req.headers.cookie||'').split(';').map(x=>x.trim()).find(x=>x.startsWith(name+'='))?.slice(name.length+1);
+    if(rawCookie&&!/^[a-f0-9]{64}$/.test(rawCookie))throw fail(401,'Sesión inválida.');
     if(action==='login' && req.method==='POST'){
       const username=clean(body.username,48).toLowerCase(),password=String(body.password||'');
       if(!/^[a-z0-9._-]{3,48}$/.test(username)||password.length>256)throw fail(401,'Usuario o contraseña incorrectos.');
@@ -99,7 +106,7 @@ module.exports=async function handler(req,res){
       const id=input.id||crypto.randomUUID();if(!/^[a-f0-9-]{36}$/.test(id))throw fail(400,'Cuenta inválida.');
       const existing=(await db('portal_users?id=eq.'+id+'&limit=1'))[0];
       if(input.id&&!existing)throw fail(404,'La cuenta ya no existe.');
-      if(id===ROOT && (input.role!=='admin'||input.active===false||username!==existing.username))throw fail(400,'La cuenta principal debe permanecer activa como administradora.');
+      if(id===ROOT && (input.role!=='admin'||input.active===false))throw fail(400,'La cuenta principal debe permanecer activa como administradora.');
       const assigned=Array.isArray(input.assignedStations)?[...new Set(input.assignedStations)]:[];
       if(assigned.length>300||assigned.some(x=>!/^RIO_\d{2}$/.test(x)))throw fail(400,'Estaciones inválidas.');
       const data={id,username,name:clean(input.name),entity_name:clean(input.entityName||input.name),role:input.role,active:input.active!==false,assigned_stations:assigned};
@@ -115,24 +122,46 @@ module.exports=async function handler(req,res){
     }
     if(action==='saveStations' && req.method==='POST'){
       requireAdmin();const stations=stationList(body.stations);
-      await db('portal_config?on_conflict=id','POST',{id:'stations',value:stations},'resolution=merge-duplicates,return=minimal');return res.status(200).json({ok:true});
+      const result=await db('rpc/portal_save_stations','POST',{actor_id:user.id,items:stations});if(result.error)throw fail(409,result.error);return res.status(200).json({ok:true});
     }
+    const ticketSelect='id,user_id,user_name,entity_name,kind,station,description,status,created_at,updated_at';
     if(action==='tickets'){
-      return res.status(200).json({tickets:await db('portal_tickets?order=created_at.desc&limit=300'+(admin?'':'&user_id=eq.'+user.id))});
+      return res.status(200).json({tickets:await db('portal_tickets?select='+ticketSelect+'&order=created_at.desc&limit=300'+(admin?'':'&user_id=eq.'+user.id))});
     }
     if(action==='createTicket' && req.method==='POST'){
-      const kind=body.kind,station=clean(body.station,16),description=clean(body.description,3000);
-      if(!['add','modify'].includes(kind)||description.length<10)throw fail(400,'Describe tu solicitud con al menos 10 caracteres.');
-      if(kind==='modify'&&!user.assigned_stations.includes(station)&&!admin)throw fail(403,'Selecciona una estación asignada a tu cuenta.');
-      const data={user_id:user.id,user_name:user.name,entity_name:user.entity_name,kind,station:kind==='modify'?station:null,description};
-      return res.status(200).json({ticket:(await db('portal_tickets','POST',data))[0]});
+      const kind=body.kind,station=clean(body.station,16);
+      if(!['add','modify','delete','password'].includes(kind))throw fail(400,'Acción inválida.');
+      const state=(await db('portal_config?id=eq.stations&limit=1'))[0];const all=state?.value||[];
+      let payload={},description='';
+      if(kind==='password'){
+        if(typeof body.password!=='string'||body.password.length<8||body.password.length>256)throw fail(400,'La contraseña debe tener entre 8 y 256 caracteres.');
+        if(!await passwordMatches(String(body.currentPassword||''),user.password_hash))throw fail(400,'La contraseña actual no coincide.');
+        payload={password_hash:await passwordHash(body.password),base_hash:user.password_hash};description='Cambiar la contraseña de @'+user.username+'.';
+      }else{
+        const current=all.find(s=>s.id===station);
+        if(kind!=='add'&&(!current||(!admin&&!user.assigned_stations.includes(station))))throw fail(403,'Selecciona una estación asignada a tu cuenta.');
+        if(kind==='add'||kind==='modify'){
+          const next=stationList([{...body.details,id:kind==='modify'?station:body.details?.id}])[0];
+          if(kind==='add'&&all.some(s=>s.id===next.id))throw fail(409,'Ese identificador ya está registrado.');
+          payload={next,previous:current||null};
+          description=(kind==='add'?'Agregar':'Modificar')+' estación '+next.name+' ('+next.id+'). Altura: '+next.bedHeight+' cm; aviso: '+next.yellowAlert+' cm; alerta: '+next.redAlert+' cm.';
+        }else{payload={previous:current};description='Eliminar estación '+current.name+' ('+station+'). Se conserva el historial de mediciones.';}
+      }
+      const row=(await db('portal_tickets','POST',{user_id:user.id,user_name:user.name,entity_name:user.entity_name,kind,station:kind==='add'?payload.next.id:kind==='password'?null:station,description,payload}))[0];
+      const safe={...row};delete safe.payload;delete safe.response;
+      return res.status(200).json({ticket:safe});
+    }
+    if(action==='executeTicket' && req.method==='POST'){
+      if(!/^[a-f0-9-]{36}$/.test(body.id))throw fail(400,'Solicitud inválida.');
+      const result=await db('rpc/portal_execute_ticket','POST',{actor_id:user.id,ticket_id:body.id});
+      if(result.error)throw fail(409,result.error);
+      return res.status(200).json({ok:true});
     }
     if(action==='updateTicket' && req.method==='POST'){
-      requireAdmin();if(!/^[a-f0-9-]{36}$/.test(body.id)||!['open','in_progress','resolved','rejected'].includes(body.status))throw fail(400,'Ticket o estado inválido.');
-      const response=clean(body.response,3000);
-      if(['resolved','rejected'].includes(body.status)&&!response)throw fail(400,'Incluye una respuesta antes de cerrar el ticket.');
-      const rows=await db('portal_tickets?id=eq.'+body.id,'PATCH',{status:body.status,response,updated_at:new Date().toISOString()});
-      if(!rows.length)throw fail(404,'El ticket no existe.');return res.status(200).json({ticket:rows[0]});
+      requireAdmin();if(!/^[a-f0-9-]{36}$/.test(body.id)||!['resolved','rejected'].includes(body.status))throw fail(400,'Selecciona aceptar o rechazar.');
+      const result=await db('rpc/portal_decide_ticket','POST',{actor_id:user.id,ticket_id:body.id,accept_request:body.status==='resolved'});
+      if(result.error)throw fail(409,result.error);
+      return res.status(200).json({ok:true});
     }
     throw fail(404,'Acción no encontrada.');
   }catch(error){res.status(error.status||500).json({error:error.status?error.message:'No se pudo completar la solicitud.'});}
