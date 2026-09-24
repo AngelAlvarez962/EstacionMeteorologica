@@ -34,7 +34,7 @@
     return result;
   }
   function session(next){user=next;sessionStorage.setItem('lora_rio_active_session',JSON.stringify(next));document.body.dataset.role=next.role;}
-  function loginMarkup(){return `<div class="portal-login-brand"><i data-lucide="waves"></i><h2>Alerta Río &amp; Mar</h2></div><form class="portal-form" data-unified-login><label>Usuario<input name="username" autocomplete="username" required maxlength="48" placeholder="Tu usuario"></label><label>Contraseña<input name="password" type="password" autocomplete="current-password" required maxlength="256" placeholder="Tu contraseña"></label><p class="portal-error" role="alert"></p><button class="portal-primary" type="submit">Iniciar sesión</button></form><a class="portal-back" href="index.html">← Volver al inicio</a>`;}
+  function loginMarkup(){return `<div class="portal-login-brand"><i data-lucide="waves"></i><h2>Hackeando las inundaciones</h2></div><form class="portal-form" data-unified-login><label>Usuario<input name="username" autocomplete="username" required maxlength="48" placeholder="Tu usuario"></label><label>Contraseña<input name="password" type="password" autocomplete="current-password" required maxlength="256" placeholder="Tu contraseña"></label><p class="portal-error" role="alert"></p><button class="portal-primary" type="submit">Iniciar sesión</button></form><a class="portal-back" href="index.html">← Volver al inicio</a>`;}
   function installLogin(){
     for(const id of ['gate-login-overlay','gate-admin-auth','modal-landing-login']){
       const container=$(id);if(!container)continue;

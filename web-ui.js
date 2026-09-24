@@ -101,7 +101,7 @@
       const box=document.createElement('dialog');box.className='credential-dialog site-message-dialog';
       box.innerHTML='<h2 id="site-message-title"></h2><p class="site-message-body"></p><div class="credential-actions"><button type="button" data-cancel>Cancelar</button><button type="button" class="credential-primary" data-accept>Confirmar</button></div>';
       box.setAttribute('aria-labelledby','site-message-title');
-      box.querySelector('h2').textContent=kind==='confirm'?'Confirmar acción':kind==='copy'?'Clave de acceso':'Alerta Río & Mar';
+      box.querySelector('h2').textContent=kind==='confirm'?'Confirmar acción':kind==='copy'?'Clave de acceso':'Hackeando las inundaciones';
       box.querySelector('p').textContent=message;
       if(kind==='copy'){const input=document.createElement('input');input.value=value;input.readOnly=true;input.setAttribute('aria-label','Clave para copiar');box.querySelector('p').after(input);}
       const cancel=box.querySelector('[data-cancel]'),accept=box.querySelector('[data-accept]');

@@ -1,12 +1,12 @@
 <!DOCTYPE html><html lang="es" class="scroll-smooth"><head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Sistema Hidrológico &amp; Marítimo — Red de Estaciones LoRa 32 | DesafIA 2026</title>
+  <title>Hackeando las inundaciones — Estaciones LoRa</title>
   
   <!-- Soporte PWA y Móvil -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Alerta Río &amp; Mar">
+  <meta name="apple-mobile-web-app-title" content="Hackeando las inundaciones">
   <meta name="theme-color" content="#0284c7">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%230284c7'/><path d='M18,58 Q34,42 50,58 T82,58' stroke='white' stroke-width='7' fill='none' stroke-linecap='round'/><path d='M18,72 Q34,56 50,72 T82,72' stroke='%2338bdf8' stroke-width='6' fill='none' stroke-linecap='round'/></svg>">
@@ -117,7 +117,7 @@
             </span>
           </div>
           <h1 class="font-extrabold text-base sm:text-lg text-slate-900 tracking-tight leading-tight group-hover:text-sky-700 transition-colors">
-            Alerta Río &amp; Mar
+            Hackeando las inundaciones
           </h1>
         </div>
       </a>
@@ -185,7 +185,7 @@
   <!-- ==================== CONTENIDO PRINCIPAL ==================== -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-5">
 
-    <!-- 1. MOTOR DE EVALUACIÓN INTEGRAL DE RIESGO HIDROLÓGICO Y MARÍTIMO -->
+    <!-- 1. MOTOR DE EVALUACIÓN DE RIESGO POR NIVEL DE AGUA -->
     <div id="consolidated-risk-banner" class="p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-white/95 border-sky-200/90 text-slate-800 shadow-sm">
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
         
@@ -311,7 +311,7 @@
           </div>
         </div>
 
-        <!-- NIVEL DEL RÍO / MAR CALCULADO -->
+        <!-- NIVEL DE AGUA CALCULADO -->
         <div class="bg-white/95 border border-sky-100 p-4 rounded-2xl flex flex-col justify-between shadow-sm">
           <div class="flex items-center justify-between text-slate-500 text-[11px] font-semibold uppercase tracking-wider mb-1">
             <span>Nivel / Profundidad Río</span>
@@ -485,7 +485,7 @@
   </main>
 
   <!-- ==================== PANTALLA COMPLETA DE INICIO DE SESIÓN / GATE ==================== -->
-  <div id="gate-login-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto"><div class="portal-login-card"><h2>Alerta Río &amp; Mar</h2><p>Cargando acceso…</p></div></div>
+  <div id="gate-login-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto"><div class="portal-login-card"><h2>Hackeando las inundaciones</h2><p>Cargando acceso…</p></div></div>
 
   <!-- ==================== MODAL: GESTIÓN DE ENTIDADES Y CLAVES DE ACCESO (ADMIN) ==================== -->
   <div id="modal-manage-entities" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
@@ -680,7 +680,7 @@
 
   <!-- FOOTER -->
   <footer class="mt-auto bg-white/80 border-t border-sky-100 py-4 text-center text-[11px] text-slate-500">
-    Sistema de Monitoreo Hidrológico &amp; Marítimo LoRa 32 © 2026 | Arquitectura Multi-Estación Vercel + Supabase Realtime
+    Hackeando las inundaciones © 2026 | Arquitectura Multi-Estación Vercel + Supabase Realtime
   </footer>
 
   <!-- ==================== JAVASCRIPT PRINCIPAL ==================== -->
@@ -1116,7 +1116,7 @@
         title.textContent = 'PELIGRO CRÍTICO DE DESBORDE / INUNDACIÓN';
 
         const nombres = peligros.map(p => p.cfg.name + ' (' + p.water.toFixed(1) + 'cm)').join(', ');
-        reco.textContent = 'Nivel peligroso detectado en: ' + nombres + '. Se recomienda evacuar riberas y zonas bajas inmediatamente. Evite el cruce de puentes o vados.';
+        reco.textContent = 'Nivel elevado detectado en: ' + nombres + '. Evita acercarte al agua y cruzar puentes o vados afectados; consulta los avisos de Protección Civil y las autoridades locales.';
         icon.setAttribute('data-lucide', 'alert-octagon');
         playAlarmTone(980, 'square', 0.3);
 
@@ -2192,7 +2192,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'Monitoreo_Rio_Mar_' + new Date().toISOString().slice(0, 10) + '.csv';
+      a.download = 'Monitoreo_Inundaciones_' + new Date().toISOString().slice(0, 10) + '.csv';
       a.click();
       URL.revokeObjectURL(url);
       registrarActividad('EXPORT_CSV', (currentUserSession ? currentUserSession.name : 'Usuario') + ' descargó reporte histórico en CSV (' + rows.length + ' lecturas)');

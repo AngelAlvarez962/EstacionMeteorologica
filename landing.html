@@ -1,11 +1,11 @@
 <!DOCTYPE html><html lang="es" class="scroll-smooth"><head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>Alerta Río &amp; Mar — Red Hidrológica LoRa 32 | DesafIA 2026</title>
+  <title>Hackeando las inundaciones — Red Hidrológica LoRa 32 | DesafIA 2026</title>
   
   <!-- SEO & Metadatos Oficiales -->
-  <meta name="description" content="Sistema telemétrico hidrológico y marítimo para monitoreo de cauces, estuarios y alerta temprana ante inundaciones con radioenlace LoRa 915 MHz y Supabase Cloud en el sureste mexicano.">
-  <meta name="keywords" content="DesafIA 2026, Hackeando las Inundaciones, Telemetria Fluvial, Mareas, LoRa 32, Monitoreo de Rios, Tabasco, Grijalva, Usumacinta, IoT">
+  <meta name="description" content="Monitoreo de niveles de agua en ríos y zonas urbanas con riesgo de inundación mediante estaciones LoRa y una plataforma de consulta.">
+  <meta name="keywords" content="Hackeando las inundaciones, DesafIA, monitoreo de ríos, niveles de agua, alerta temprana, Tabasco, LoRa">
   <meta name="theme-color" content="#0284c7">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%230284c7'/><path d='M18,58 Q34,42 50,58 T82,58' stroke='white' stroke-width='7' fill='none' stroke-linecap='round'/><path d='M18,72 Q34,56 50,72 T82,72' stroke='%2338bdf8' stroke-width='6' fill='none' stroke-linecap='round'/></svg>">
 
@@ -141,7 +141,7 @@
 
 <body class="bg-gradient-to-b from-[#f8fafc] via-[#f0f9ff] to-[#ecfdf5] text-slate-800 min-h-screen font-sans antialiased selection:bg-ocean-200 selection:text-ocean-950 relative overflow-x-hidden">
 
-  <!-- ATMÓSFERA INMERSIVA DE RÍO & MAR (Luz de sol sobre el agua y brisa de estuario) -->
+  <!-- ATMÓSFERA VISUAL DE RÍOS Y ZONAS DE RIESGO -->
   <div class="fixed inset-0 pointer-events-none z-0">
     <div class="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[1400px] h-[650px] bg-gradient-to-b from-sky-200/40 via-cyan-100/30 to-transparent rounded-full blur-[140px]"></div>
     <div class="absolute top-[30%] -left-48 w-[700px] h-[700px] bg-emerald-100/45 rounded-full blur-[160px]"></div>
@@ -150,7 +150,7 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- BARRA DE NAVEGACIÓN (Estilo Bitácora Náutica y Fluvial)                    -->
+  <!-- BARRA DE NAVEGACIÓN -->
   <!-- ========================================================================= -->
   <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-sky-200/80 shadow-sm transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
@@ -164,14 +164,14 @@
         </div>
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
-            <span class="font-black text-base sm:text-lg tracking-tight text-slate-900 group-hover:text-sky-700 transition-colors">Alerta Río &amp; Mar</span>
-            <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200 flex items-center gap-1">
+            <span class="font-black text-xs sm:text-base lg:text-lg leading-tight max-w-[155px] sm:max-w-none tracking-tight text-slate-900 group-hover:text-sky-700 transition-colors">Hackeando las inundaciones</span>
+            <span class="hidden lg:flex text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200 items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
               <span>LoRa 32</span>
             </span>
           </div>
           <span class="text-[10px] font-semibold text-slate-500 tracking-wider hidden sm:flex items-center gap-1.5">
-            <span>Cuenca Grijalva · DesafIA 2026</span>
+            <span>Ríos y zonas de riesgo · DesafIA</span>
           </span>
         </div>
       </a>
@@ -186,6 +186,10 @@
           <i data-lucide="compass" class="w-3.5 h-3.5 text-teal-600"></i>
           <span>Los 6 Ejes</span>
         </a>
+        <a href="#desafia" class="hover:text-sky-600 transition-colors py-1 flex items-center gap-1">
+          <i data-lucide="users" class="w-3.5 h-3.5 text-teal-600"></i>
+          <span>DesafIA</span>
+        </a>
         <a href="#simulador" class="hover:text-sky-600 transition-colors py-1 flex items-center gap-1">
           <i data-lucide="sliders" class="w-3.5 h-3.5 text-cyan-600"></i>
           <span>Corte Hidráulico</span>
@@ -195,16 +199,15 @@
       <!-- Acciones de Navegación + Inmersión Sonora + Acceso Plataforma -->
       <div class="flex items-center gap-2">
         
-        <!-- BOTÓN DE AMBIENTACIÓN FLUVIO-MARÍTIMA -->
+        <!-- BOTÓN DE AMBIENTACIÓN DE RÍO -->
         <button id="btn-water-audio" onclick="toggleWaterAudio()" class="inline-flex items-center justify-center p-2 sm:px-2.5 sm:py-1.5 rounded-xl border border-sky-200 bg-sky-50/80 hover:bg-sky-100 text-sky-800 text-xs font-bold transition-all active:scale-95 shadow-xs" title="Rumor de agua de río viva">
           <i data-lucide="volume-x" id="audio-icon" class="w-3.5 h-3.5 text-sky-600"></i>
           <span id="audio-label" class="hidden md:inline ml-1">Sonido</span>
         </button>
 
-        <a href="https://desafia.mx" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center gap-1 p-2 sm:px-2.5 sm:py-1.5 rounded-xl border border-sky-200 bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-800 text-xs font-semibold transition-all active:scale-[0.98]" title="Sitio oficial DesafIA">
-          <i data-lucide="globe" class="w-3.5 h-3.5 text-sky-600"></i>
-          <span class="hidden md:inline">desafia.mx</span>
-          <i data-lucide="external-link" class="w-3 h-3 opacity-60"></i>
+        <a href="#aliados" class="hidden sm:inline-flex items-center gap-1 p-2 sm:px-2.5 sm:py-1.5 rounded-xl border border-sky-200 bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-800 text-xs font-semibold transition-all active:scale-[0.98]" title="Instituciones colaboradoras">
+          <i data-lucide="handshake" class="w-3.5 h-3.5 text-sky-600"></i>
+          <span class="hidden md:inline">Colaboradores</span>
         </a>
 
         <!-- BOTÓN DE INICIO DE SESIÓN / ACCESO -->
@@ -231,17 +234,17 @@
           <!-- Insignia Fluvial / DesafIA 2026 -->
           <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-sky-300 bg-gradient-to-r from-sky-50 to-cyan-50 text-sky-900 text-xs font-bold shadow-sm">
             <span class="w-2.5 h-2.5 rounded-full bg-sky-500 animate-ping"></span>
-            <span>DesafIA 2026 · Cuenca Baja del Río Grijalva &amp; Costa del Golfo</span>
+            <span>DesafIA · Monitoreo de ríos y zonas de riesgo</span>
           </div>
 
           <!-- Título Principal con Flujo de Agua -->
           <h1 class="font-black text-4xl sm:text-6xl lg:text-7xl tracking-[-0.03em] text-slate-900 leading-[1.04]">
-            Vigilancia continua del cauce para proteger la <span class="bg-gradient-to-r from-sky-600 via-cyan-600 to-teal-600 bg-clip-text text-transparent">vida ribereña</span>
+            Hackeando las inundaciones con <span class="bg-gradient-to-r from-sky-600 via-cyan-600 to-teal-600 bg-clip-text text-transparent">datos del agua</span>
           </h1>
 
           <!-- Subtexto Conciso y Territorial -->
           <p class="text-base sm:text-lg text-slate-600 leading-relaxed font-normal max-w-xl">
-            Red de boyas y sondas hidrométricas con radioenlace LoRa 915 MHz. Mide tirantes de agua, detecta frentes de crecida y alerta a pescadores y familias costeras aun cuando colapsan las redes celulares y eléctricas.
+            Estaciones con sensores de nivel y radio LoRa ayudan a observar ríos, cauces y puntos urbanos vulnerables, como avenidas que pueden inundarse. Consulta sus lecturas y su estado desde la plataforma.
           </p>
 
           <!-- Botones de Acción -->
@@ -258,19 +261,19 @@
             </a>
           </div>
 
-          <!-- Especificaciones Náuticas & de Radioenlace -->
+          <!-- Especificaciones de medición y radioenlace -->
           <div class="pt-4 flex flex-wrap items-center gap-6 text-xs font-mono text-slate-600 border-t border-sky-200/80">
             <div class="flex items-center gap-2">
               <i data-lucide="radio" class="w-4 h-4 text-emerald-600"></i>
-              <span class="font-bold text-slate-800">915 MHz Fluvial Off-Grid</span>
+              <span class="font-bold text-slate-800">Radio LoRa entre estación y gateway</span>
             </div>
             <div class="flex items-center gap-2">
               <i data-lucide="map-pin" class="w-4 h-4 text-sky-600"></i>
-              <span class="font-bold text-slate-800">15 km Alcance en Espejo de Agua</span>
+              <span class="font-bold text-slate-800">Enlace LoRa entre estación y gateway</span>
             </div>
             <div class="flex items-center gap-2">
               <i data-lucide="cloud-rain" class="w-4 h-4 text-teal-600"></i>
-              <span class="font-bold text-slate-800">Supabase Cloud</span>
+              <span class="font-bold text-slate-800">Consulta de lecturas en la plataforma</span>
             </div>
           </div>
 
@@ -292,15 +295,15 @@
                 </span>
                 <div>
                   <h3 class="text-xs font-mono font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                    <span>Estación Malecón Río</span>
+                  <span>Ejemplo de estación</span>
                     <i data-lucide="anchor" class="w-3 h-3 text-sky-600"></i>
                   </h3>
-                  <p class="text-[10px] font-mono text-slate-500">ID: RIO_01 · HELTEC LORA 32</p>
+                  <p class="text-[10px] font-mono text-slate-500">Ilustración · LoRa 32</p>
                 </div>
               </div>
               <div class="text-right">
                 <span class="text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-sky-100 text-sky-800 border border-sky-200 block">
-                  RSSI: -78 dBm
+                  Vista educativa
                 </span>
                 <span class="text-[9px] font-mono text-slate-500 mt-0.5 block">Banda ISM 915 MHz</span>
               </div>
@@ -311,7 +314,7 @@
               <div>
                 <div class="flex items-center gap-1.5 text-[11px] font-mono font-bold text-sky-800 uppercase tracking-wider">
                   <i data-lucide="droplet" class="w-3.5 h-3.5 text-sky-600"></i>
-                  <span>Tirante Hidráulico ($y$)</span>
+                  <span>Nivel ilustrativo ($y$)</span>
                 </div>
                 <div class="flex items-baseline gap-2 mt-1">
                   <span id="hero-stat-level" class="text-5xl sm:text-6xl font-black text-slate-900 font-mono tracking-tight">2.42</span>
@@ -319,7 +322,7 @@
                 </div>
                 <div class="mt-2.5 flex items-center gap-2">
                   <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300" id="hero-stat-badge">Caudal en Calma</span>
+                  <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300" id="hero-stat-badge">Ejemplo visual</span>
                 </div>
               </div>
 
@@ -355,19 +358,19 @@
               <div class="p-3.5 rounded-2xl bg-gradient-to-br from-sky-50 to-cyan-50/60 border border-sky-200">
                 <div class="flex items-center gap-1 text-[10px] text-slate-600 uppercase font-bold">
                   <i data-lucide="gauge" class="w-3 h-3 text-sky-600"></i>
-                  <span>Capacidad del Cauce</span>
+                  <span>Porcentaje de ejemplo</span>
                 </div>
                 <span id="hero-stat-percent" class="text-base font-bold text-sky-800 mt-1 block">40.3%</span>
-                <span class="text-[10px] text-slate-500 block">sección hidráulica</span>
+                <span class="text-[10px] text-slate-500 block">escenario ilustrativo</span>
               </div>
 
               <div class="p-3.5 rounded-2xl bg-gradient-to-br from-sky-50 to-cyan-50/60 border border-sky-200">
                 <div class="flex items-center gap-1 text-[10px] text-slate-600 uppercase font-bold">
                   <i data-lucide="shield-alert" class="w-3 h-3 text-amber-600"></i>
-                  <span>Margen al Bordo</span>
+                  <span>Espacio restante</span>
                 </div>
                 <span id="hero-stat-margin" class="text-base font-bold text-slate-900 mt-1 block">3.58 m</span>
-                <span class="text-[10px] text-slate-500 block">antes del desborde</span>
+                <span class="text-[10px] text-slate-500 block">solo en esta ilustración</span>
               </div>
             </div>
 
@@ -375,7 +378,7 @@
             <div class="mt-4 pt-3 border-t border-sky-200 flex items-center justify-between text-xs font-mono">
               <span class="text-slate-600 font-medium flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                <span>Supabase Realtime Conectado</span>
+                <span>Consulta estaciones para datos reales</span>
               </span>
               <a href="dashboard_rio.html" class="font-bold text-sky-700 hover:text-sky-900 flex items-center gap-1 group">
                 <span>Abrir consola</span>
@@ -414,7 +417,7 @@
           </div>
 
           <h2 class="font-black text-3xl sm:text-5xl text-slate-900 tracking-tight leading-tight">
-            Hackeando las Inundaciones en el Delta
+            El reto: anticipar las inundaciones
           </h2>
 
           <div class="p-6 rounded-2xl border-l-4 border-sky-500 bg-gradient-to-r from-sky-50/90 via-cyan-50/60 to-white border border-sky-200 text-slate-800 text-base sm:text-lg leading-relaxed shadow-sm">
@@ -423,16 +426,16 @@
             </p>
             <p class="text-xs font-mono font-bold text-sky-800 mt-3 uppercase tracking-wider flex items-center gap-1.5">
               <i data-lucide="anchor" class="w-3 h-3 text-sky-600"></i>
-              <span>Convocatoria Oficial desafia.mx · Ríos Grijalva, Carrizal y Usumacinta</span>
+              <span>Reto DesafIA · Soluciones para la prevención de inundaciones</span>
             </p>
           </div>
 
           <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
-            El sureste concentra más del <strong class="text-slate-900 font-bold">30% del escurrimiento superficial de agua dulce de México</strong>. Cuando convergen las lluvias torrenciales de la sierra y la pleamar del Golfo de México, la planicie se transforma. Nuestra estación hidrométrica proporciona ojos digitales donde las defensas tradicionales se quedan ciegas.
+            Las lluvias intensas y el aumento del nivel de los ríos pueden afectar viviendas, caminos y avenidas. Este proyecto busca facilitar la observación del agua en puntos de riesgo y aportar información útil para la prevención.
           </p>
         </div>
 
-        <!-- 3 Tarjetas de Instrumentación Náutica y Fluvial -->
+        <!-- 3 tarjetas del sistema de monitoreo -->
         <div class="lg:col-span-5 grid grid-cols-1 gap-4">
           
           <div class="p-5 rounded-2xl bg-gradient-to-r from-sky-50/80 to-white border border-sky-200 hover:border-sky-400 shadow-sm transition-all flex items-start gap-4">
@@ -441,10 +444,10 @@
             </div>
             <div>
               <div class="flex items-center gap-2">
-                <h4 class="font-bold text-slate-900 text-sm">Baliza LoRa 915 MHz Off-Grid</h4>
-                <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-sky-200 text-sky-800 font-bold">15 km</span>
+                <h4 class="font-bold text-slate-900 text-sm">Radio LoRa para las mediciones</h4>
+                <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-sky-200 text-sky-800 font-bold">LoRa</span>
               </div>
-              <p class="text-xs text-slate-600 mt-1 leading-relaxed">Transmisión de paquetes sobre el espejo de agua hasta 15 km de distancia, inmune a cortes de fibra óptica o caída de torres celulares costeras.</p>
+              <p class="text-xs text-slate-600 mt-1 leading-relaxed">La estación envía sus mediciones por LoRa al gateway. El gateway necesita conexión a internet para mostrar datos recientes en esta web.</p>
             </div>
           </div>
 
@@ -454,10 +457,10 @@
             </div>
             <div>
               <div class="flex items-center gap-2">
-                <h4 class="font-bold text-slate-900 text-sm">Modo Pescador &amp; Ribereño</h4>
-                <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-200 text-amber-800 font-bold">Libre</span>
+                <h4 class="font-bold text-slate-900 text-sm">Ríos y zonas urbanas de riesgo</h4>
+                <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-200 text-amber-800 font-bold">Proyecto</span>
               </div>
-              <p class="text-xs text-slate-600 mt-1 leading-relaxed">Consulta instantánea para cooperativas pesqueras, lancheros de paso y familias en zonas bajas sin necesidad de registro ni contraseñas.</p>
+              <p class="text-xs text-slate-600 mt-1 leading-relaxed">La propuesta contempla estaciones cerca de ríos y en lugares donde el agua puede acumularse, como vialidades y zonas bajas.</p>
             </div>
           </div>
 
@@ -470,7 +473,7 @@
                 <h4 class="font-bold text-slate-900 text-sm">Hidroinformática Abierta</h4>
                 <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-200 text-emerald-800 font-bold">PostgreSQL</span>
               </div>
-              <p class="text-xs text-slate-600 mt-1 leading-relaxed">Registro histórico de hidrogramas y escorrentías en Supabase Cloud para modelación hidrodinámica y estimación del vaciado de lagunas.</p>
+              <p class="text-xs text-slate-600 mt-1 leading-relaxed">Las lecturas recibidas permiten consultar cambios de nivel y revisar el comportamiento de cada estación a lo largo del tiempo.</p>
             </div>
           </div>
 
@@ -490,13 +493,13 @@
       <div class="max-w-3xl mb-14">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-100 text-cyan-800 text-xs font-bold uppercase tracking-wider mb-3">
           <i data-lucide="layers" class="w-3.5 h-3.5"></i>
-          <span>Dimensiones de la Cuenca Fluvial y Marina</span>
+          <span>Un reto, distintas soluciones</span>
         </div>
         <h2 class="font-black text-3xl sm:text-5xl text-slate-900 tracking-tight">
-          Los 6 Ejes del Reto Fluvial &amp; Costero
+          Seis ejes para enfrentar las inundaciones
         </h2>
         <p class="mt-3 text-base text-slate-600 leading-relaxed">
-          Cada eje de DesafIA 2026 está implementado con instrumental hidrométrico concreto para responder a los ciclos vivos del agua.
+          DesafIA reúne seis formas de abordar el riesgo. Nuestra estación contribuye principalmente al monitoreo; los otros ejes orientan el trabajo con la comunidad.
         </p>
       </div>
 
@@ -511,25 +514,25 @@
             <div class="flex items-center justify-between mb-4">
               <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-sky-100 text-sky-800 border border-sky-200 flex items-center gap-1.5">
                 <i data-lucide="radio" class="w-3.5 h-3.5 text-sky-600"></i>
-                <span>02 / MONITOREO · SONDA ACÚSTICA &amp; BATIMETRÍA</span>
+                <span>02 / MONITOREO · SENSOR ULTRASÓNICO</span>
               </span>
               <div class="w-10 h-10 rounded-2xl bg-sky-600 text-white flex items-center justify-center shadow-md shadow-sky-600/30">
                 <i data-lucide="activity" class="w-5 h-5"></i>
               </div>
             </div>
 
-            <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Sonda Acústica y Telemetría del Espejo de Agua</h3>
+            <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Medición y consulta del nivel de agua</h3>
             <p class="text-sm font-semibold text-sky-700 mt-2">"Vigilancia continua del tirante hidráulico en cauces de alta vulnerabilidad."</p>
 
             <p class="text-xs sm:text-sm text-slate-600 mt-4 leading-relaxed max-w-2xl">
-              Sensor ultrasónico estanco JSN-SR04T calibrado con compensación acústica de punto ciego (20 cm a 6.0 m) y tubo de conducción anti-turbulencia. Transmite paquetes de telemetría a través del aire y agua mediante LoRa 915 MHz hacia Supabase Cloud con latencia &lt; 2 segundos.
+              Un sensor ultrasónico mide la distancia hasta el agua. La estación envía esa lectura por LoRa al gateway, que la publica en la plataforma cuando dispone de internet.
             </p>
           </div>
 
           <div class="mt-8 pt-5 border-t border-sky-200 flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-sky-800">
             <span class="flex items-center gap-2 font-bold">
               <span class="w-2.5 h-2.5 rounded-full bg-sky-500 animate-ping"></span>
-              <span>Telemetría de cauce activa cada 1.5s</span>
+              <span>Lecturas cuando la estación transmite</span>
             </span>
             <a href="dashboard_rio.html" class="text-sky-700 hover:text-sky-900 flex items-center gap-1 font-bold">Abrir consola hidrológica →</a>
           </div>
@@ -548,16 +551,16 @@
               </div>
             </div>
 
-            <h3 class="text-xl font-bold text-slate-900">Dragado, Azolvamiento &amp; Taludes</h3>
-            <p class="text-xs text-emerald-700 font-semibold mt-1">Control morfológico del río</p>
+            <h3 class="text-xl font-bold text-slate-900">Prevención en zonas vulnerables</h3>
+            <p class="text-xs text-emerald-700 font-semibold mt-1">Preparación ante crecidas</p>
             <p class="text-xs text-slate-600 mt-3 leading-relaxed">
-              Monitoreo anticipado del fondo aluvial en época de estiaje para identificar acumulación de sedimentos y planificar obras de dragado antes de que inicien los ciclones tropicales.
+              Identificar sitios expuestos y consultar datos del agua ayuda a preparar medidas de prevención en riberas, pasos y zonas bajas.
             </p>
           </div>
 
           <div class="mt-6 pt-4 border-t border-emerald-100 text-[11px] font-mono text-emerald-700 font-semibold flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>Mapeo preventivo de cuenca baja</span>
+            <span>Identificación de puntos de riesgo</span>
           </div>
         </div>
 
@@ -567,23 +570,23 @@
             <div class="flex items-center justify-between mb-4">
               <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200 flex items-center gap-1">
                 <i data-lucide="triangle-alert" class="w-3 h-3 text-amber-600"></i>
-                <span>03 / RIESGO FLUVIAL</span>
+                <span>03 / GESTIÓN DEL RIESGO</span>
               </span>
               <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center">
                 <i data-lucide="gauge" class="w-5 h-5"></i>
               </div>
             </div>
 
-            <h3 class="text-xl font-bold text-slate-900">Gasto Hidráulico &amp; Cotas Críticas</h3>
-            <p class="text-xs text-amber-700 font-semibold mt-1">Semáforo de seguridad fluvial</p>
+            <h3 class="text-xl font-bold text-slate-900">Niveles y umbrales de riesgo</h3>
+            <p class="text-xs text-amber-700 font-semibold mt-1">Lecturas comparadas con límites configurados</p>
             <p class="text-xs text-slate-600 mt-3 leading-relaxed">
-              Algoritmo de cálculo de corte transversal y umbrales calibrados por estación. Genera tres estados automáticos: Caudal Seguro (&lt;3.5m), Caudal Elevado (3.5-5.2m) y Desborde Ribereño (&gt;5.2m).
+              Cada estación puede tener alturas y límites configurados para mostrar cuándo una lectura requiere atención. El simulador usa cifras de ejemplo independientes.
             </p>
           </div>
 
           <div class="mt-6 pt-4 border-t border-amber-100 text-[11px] font-mono text-amber-700 font-semibold flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-            <span>Semáforo de tirante hidrométrico</span>
+            <span>Niveles de cada estación</span>
           </div>
         </div>
 
@@ -593,23 +596,23 @@
             <div class="flex items-center justify-between mb-4">
               <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200 flex items-center gap-1">
                 <i data-lucide="bell-ring" class="w-3 h-3 text-rose-600"></i>
-                <span>04 / ALERTA COSTERA</span>
+                <span>04 / ALERTAMIENTO TEMPRANO</span>
               </span>
               <div class="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center">
                 <i data-lucide="life-buoy" class="w-5 h-5"></i>
               </div>
             </div>
 
-            <h3 class="text-xl font-bold text-slate-900">Balizas &amp; Sirenas a Comunidades</h3>
-            <p class="text-xs text-rose-700 font-semibold mt-1">Avisos a puertos y malecones</p>
+            <h3 class="text-xl font-bold text-slate-900">Avisos sobre niveles elevados</h3>
+            <p class="text-xs text-rose-700 font-semibold mt-1">Comunicación de riesgo</p>
             <p class="text-xs text-slate-600 mt-3 leading-relaxed">
-              Alertas visuales con pulsos de alta visibilidad y avisos sonoros para proteger embarcaciones menores, pescadores y asentamientos frente al avance nocturno del río o la marejada.
+              La plataforma destaca lecturas que superan los límites configurados. El sonido de la web requiere que la persona active el audio en su navegador.
             </p>
           </div>
 
           <div class="mt-6 pt-4 border-t border-rose-100 text-[11px] font-mono text-rose-700 font-semibold flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-            <span>Alerta PWA inmediata en celular</span>
+            <span>Estado visible en la plataforma</span>
           </div>
         </div>
 
@@ -627,15 +630,15 @@
             </div>
 
             <h3 class="text-xl font-bold text-slate-900">Bitácora del Río &amp; Conciencia</h3>
-            <p class="text-xs text-cyan-700 font-semibold mt-1">Escuelas y comités ribereños</p>
+            <p class="text-xs text-cyan-700 font-semibold mt-1">Escuelas y comunidades</p>
             <p class="text-xs text-slate-600 mt-3 leading-relaxed">
-              Modo Ciudadano abierto para que estudiantes, docentes de bachillerato y familias ribereñas comprendan cómo influyen las presas de la sierra y la luna en las mareas vivas.
+              El simulador explica de forma visual cómo cambia el nivel de un río y por qué una lectura elevada puede requerir atención.
             </p>
           </div>
 
           <div class="mt-6 pt-4 border-t border-cyan-100 text-[11px] font-mono text-cyan-700 font-semibold flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-cyan-500"></span>
-            <span>Cultura del agua sin barreras</span>
+            <span>Aprendizaje con ejemplos visuales</span>
           </div>
         </div>
 
@@ -645,17 +648,17 @@
             <div class="flex items-center justify-between mb-4">
               <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200 flex items-center gap-1">
                 <i data-lucide="sprout" class="w-3 h-3 text-sky-600"></i>
-                <span>06 / RESILIENCIA DEL DELTA</span>
+                <span>06 / RECUPERACIÓN</span>
               </span>
               <div class="w-10 h-10 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center">
                 <i data-lucide="anchor" class="w-5 h-5"></i>
               </div>
             </div>
 
-            <h3 class="text-xl font-bold text-slate-900">Retorno de Mareas &amp; Vaciado</h3>
-            <p class="text-xs text-sky-700 font-semibold mt-1">Datos históricos de desagüe</p>
+            <h3 class="text-xl font-bold text-slate-900">Recuperación y seguimiento</h3>
+            <p class="text-xs text-sky-700 font-semibold mt-1">Seguimiento del descenso del agua</p>
             <p class="text-xs text-slate-600 mt-3 leading-relaxed">
-              Trazabilidad en CSV del tiempo que tarda el agua en regresar a su cauce natural tras el temporal. Fundamental para reactivar campos de cultivo y planificar canales de alivio permanente.
+              El historial ayuda a observar cómo desciende el nivel del agua después de una crecida y a documentar lo ocurrido.
             </p>
           </div>
 
@@ -670,6 +673,54 @@
     </div>
   </section>
 
+  <section id="desafia" class="py-20 bg-white/80 relative z-10" aria-labelledby="desafia-title">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <span class="inline-flex px-3 py-1 rounded-full bg-sky-100 border border-sky-200 text-sky-800 text-xs font-bold uppercase tracking-wider">El proyecto y su origen</span>
+      <h2 id="desafia-title" class="mt-4 font-black text-3xl sm:text-5xl text-slate-900 tracking-tight">De DesafIA a una red de monitoreo</h2>
+      <p class="mt-5 max-w-3xl text-slate-600 leading-relaxed">DesafIA reúne a estudiantes, docentes, especialistas e instituciones para trabajar en problemas reales. «Hackeando las inundaciones» inspira esta propuesta de medición del nivel de agua en ríos y lugares vulnerables.</p>
+      <div class="grid md:grid-cols-3 gap-5 mt-9">
+        <article class="rounded-2xl border border-sky-200 bg-sky-50/70 p-6">
+          <i data-lucide="map-pin" class="w-6 h-6 text-sky-700" aria-hidden="true"></i>
+          <h3 class="font-bold text-slate-900 mt-3">Identificar puntos de riesgo</h3>
+          <p class="text-sm text-slate-600 mt-2">Elegir riberas, pasos y avenidas donde observar el nivel del agua pueda ser útil.</p>
+        </article>
+        <article class="rounded-2xl border border-cyan-200 bg-cyan-50/70 p-6">
+          <i data-lucide="radio-tower" class="w-6 h-6 text-cyan-700" aria-hidden="true"></i>
+          <h3 class="font-bold text-slate-900 mt-3">Medir y transmitir</h3>
+          <p class="text-sm text-slate-600 mt-2">El sensor envía la lectura por LoRa; el gateway conectado a internet la lleva a la plataforma.</p>
+        </article>
+        <article class="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-6">
+          <i data-lucide="chart-no-axes-combined" class="w-6 h-6 text-emerald-700" aria-hidden="true"></i>
+          <h3 class="font-bold text-slate-900 mt-3">Consultar y aprender</h3>
+          <p class="text-sm text-slate-600 mt-2">Visualizar las mediciones recientes y usar el simulador para explicar escenarios de crecida.</p>
+        </article>
+      </div>
+      <div class="mt-10 rounded-3xl border border-sky-200 bg-white p-6 sm:p-8">
+        <h3 class="text-xl font-bold text-slate-900">Cómo participa la comunidad en DesafIA</h3>
+        <p class="mt-2 text-sm text-slate-600">El reto convoca a estudiantes, docentes, mentores e instituciones. Su proceso reúne formación de equipos, registro, materiales de trabajo, mentorías y presentación de propuestas.</p>
+        <p class="mt-3 text-sm text-slate-600">Esta página muestra una propuesta de monitoreo nacida de ese reto; la disponibilidad de convocatorias y registros debe anunciarse por separado cuando se confirme una nueva edición.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="aliados" class="py-20 bg-gradient-to-b from-sky-50/80 to-white relative z-10" aria-labelledby="aliados-title">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <span class="inline-flex px-3 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold uppercase tracking-wider">Vinculación</span>
+      <h2 id="aliados-title" class="mt-4 font-black text-3xl sm:text-5xl text-slate-900 tracking-tight">Instituciones y colaboración</h2>
+      <p class="mt-4 max-w-3xl text-slate-600 leading-relaxed">La experiencia técnica y la coordinación local ayudan a convertir las lecturas del agua en información útil para la prevención.</p>
+      <div class="grid md:grid-cols-2 gap-5 mt-8">
+        <article class="rounded-3xl border border-sky-200 bg-white p-6 shadow-sm flex flex-col sm:flex-row items-center gap-5">
+          <img src="assets/asociacion-mexicana-hidraulica-tabasco.png" alt="Asociación Mexicana de Hidráulica, Sección Tabasco" class="w-full sm:w-56 h-36 object-contain" loading="lazy" width="1280" height="853">
+          <div><h3 class="font-bold text-slate-900">Asociación Mexicana de Hidráulica</h3><p class="text-sm text-slate-600 mt-1">Sección Tabasco</p></div>
+        </article>
+        <article class="rounded-3xl border border-teal-200 bg-white p-6 shadow-sm flex flex-col justify-center">
+          <div class="flex items-center gap-3"><i data-lucide="shield-check" class="w-7 h-7 text-teal-700" aria-hidden="true"></i><h3 class="font-bold text-slate-900">Protección Civil</h3></div>
+          <p class="text-sm text-slate-600 mt-3">Integración en preparación para apoyar la consulta de niveles en zonas de riesgo. Los avisos oficiales corresponden a las autoridades competentes.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
   <!-- ========================================================================= -->
   <!-- SECCIÓN 4: SIMULADOR DE CORTE HIDRÁULICO TRANSVERSAL DE RÍO               -->
   <!-- ========================================================================= -->
@@ -679,7 +730,7 @@
       <div class="text-center max-w-3xl mx-auto mb-14">
         <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-100 border border-sky-200 text-sky-900 text-xs font-bold uppercase tracking-wider mb-3">
           <i data-lucide="sliders" class="w-3.5 h-3.5 text-sky-600"></i>
-          <span>Simulador Dinámico de Cauce</span>
+          <span>Simulador educativo de nivel</span>
         </div>
         <h2 class="font-black text-3xl sm:text-5xl text-slate-900 tracking-tight">
           Corte Hidráulico Transversal del Río
@@ -687,6 +738,12 @@
         <p class="mt-3 text-base text-slate-600">
           Modifica el tirante de agua para observar la elevación sobre el lecho fluvial, la boya de superficie y el comportamiento de las alertas ribereñas.
         </p>
+        <p class="mt-3 text-sm font-semibold text-amber-800">Simulación educativa: los niveles de ejemplo no son lecturas ni avisos reales.</p>
+        <button type="button" id="sim-audio-toggle" aria-pressed="false" class="mt-5 inline-flex items-center gap-2 rounded-xl border border-sky-200 bg-white px-4 py-2 text-sm font-bold text-sky-800 hover:bg-sky-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-600">
+          <i data-lucide="volume-x" id="sim-audio-icon" class="w-4 h-4" aria-hidden="true"></i>
+          <span id="sim-audio-label">Activar sonido del simulador</span>
+        </button>
+        <p id="sim-audio-help" class="mt-2 text-xs text-slate-500" role="status">El sonido solo se reproduce al pasar a aviso o peligro.</p>
       </div>
 
       <!-- Interfaz del Simulador Fluvial -->
@@ -702,7 +759,7 @@
               <!-- Bordo Ribereño Izquierdo y Derecho (Talud) -->
               <div class="absolute top-[13.3%] inset-x-0 border-b-2 border-dashed border-rose-500 z-20 flex justify-between px-3">
                 <span class="text-[9px] font-mono font-bold text-rose-700 bg-rose-100/90 px-1.5 py-0.5 rounded border border-rose-300">Bordo Izq.</span>
-                <span class="text-[9px] font-mono font-bold text-rose-700 bg-rose-100/90 px-1.5 py-0.5 rounded border border-rose-300">Cota 5.2m Desborde</span>
+                <span class="text-[9px] font-mono font-bold text-rose-700 bg-rose-100/90 px-1.5 py-0.5 rounded border border-rose-300">Ejemplo: 5.2 m</span>
               </div>
 
               <!-- Escala Hidrométrica Oficial (Regla graduada en el agua) -->
@@ -717,7 +774,7 @@
               <!-- Sensor Acústico LoRa 32 montado en puente / estructura superior -->
               <div class="absolute top-2 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/95 border border-sky-300 text-[10px] font-mono font-bold text-sky-800 shadow-sm z-20">
                 <i data-lucide="radio" class="w-3 h-3 text-sky-600"></i>
-                <span>JSN-SR04T</span>
+              <span>Sensor ultrasónico</span>
               </div>
 
               <!-- Columna de Agua con Física Fluida y Boya Flotante -->
@@ -795,7 +852,7 @@
 
             <!-- Escenarios Fluvio-Marítimos Táctiles -->
             <div>
-              <p class="text-[11px] font-mono text-slate-600 uppercase tracking-wider font-bold mb-2">Escenarios Hidrológicos del Sureste:</p>
+              <p class="text-[11px] font-mono text-slate-600 uppercase tracking-wider font-bold mb-2">Escenarios de ejemplo:</p>
               <div class="grid grid-cols-3 gap-2">
                 <button onclick="setSimScenario(1.80)" class="flex items-center justify-center gap-1 px-2.5 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-bold border border-sky-200 transition-all shadow-xs active:scale-[0.98]" title="Cota de estiaje ordinario (1.8m)">
                   <span class="text-sm">🌊</span>
@@ -819,9 +876,9 @@
             <div id="sim-recommendation-box" class="p-4 rounded-2xl border border-emerald-300 bg-emerald-50/85 text-emerald-900 text-xs leading-relaxed shadow-sm">
               <div class="flex items-center gap-2 font-bold mb-1">
                 <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
-                <span id="sim-rec-title">CONDICIÓN SEGURA: AGUAS EN CAUCE NATURAL</span>
+                <span id="sim-rec-title">SIMULACIÓN: NIVEL BAJO</span>
               </div>
-              <p id="sim-rec-text">El caudal del río se mantiene dentro del cauce ordinario. Vía libre y segura para navegación de lanchas, pesca artesanal y tránsito ribereño.</p>
+              <p id="sim-rec-text">El nivel simulado permanece bajo el umbral de aviso. Consulta las lecturas actuales de cada estación para conocer su situación real.</p>
             </div>
 
             <div class="pt-2 flex justify-end">
@@ -854,7 +911,7 @@
 
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/30 text-white text-xs font-mono font-bold uppercase tracking-wider mb-4">
           <i data-lucide="waves" class="w-3.5 h-3.5 text-cyan-200"></i>
-          <span>Red Fluvial &amp; Marítima en Tiempo Real</span>
+          <span>Red de monitoreo de agua</span>
         </div>
 
         <h2 class="font-black text-3xl sm:text-5xl text-white tracking-tight max-w-2xl mx-auto leading-tight">
@@ -862,7 +919,7 @@
         </h2>
 
         <p class="mt-4 text-sky-100 text-sm sm:text-base max-w-xl mx-auto font-medium">
-          Accede a la consola meteorológica y de tirantes de agua, simula escenarios de marea y conoce la tecnología que protege a Tabasco.
+          Consulta las estaciones, explora sus lecturas y usa el simulador para conocer escenarios de crecida.
         </p>
 
         <div class="mt-8 flex flex-wrap items-center justify-center gap-3.5">
@@ -871,10 +928,9 @@
             <span>Abrir Dashboard</span>
           </a>
 
-          <a href="https://desafia.mx" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 px-5 py-3.5 rounded-xl border-2 border-white/40 bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-bold transition-all active:scale-[0.98]">
-            <i data-lucide="globe" class="w-4 h-4"></i>
-            <span>desafia.mx</span>
-            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          <a href="#desafia" class="flex items-center gap-1.5 px-5 py-3.5 rounded-xl border-2 border-white/40 bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-bold transition-all active:scale-[0.98]">
+            <i data-lucide="users" class="w-4 h-4"></i>
+            <span>Conoce el proyecto</span>
           </a>
         </div>
 
@@ -894,42 +950,43 @@
         <div class="md:col-span-2">
           <div class="flex items-center gap-2 mb-3">
             <i data-lucide="waves" class="w-5 h-5 text-sky-400"></i>
-            <span class="font-extrabold text-sm text-white tracking-tight">Alerta Río &amp; Mar · Estación Hidrológica LoRa 32</span>
+            <span class="font-extrabold text-sm text-white tracking-tight">Hackeando las inundaciones · Estación Hidrológica LoRa 32</span>
           </div>
           <p class="text-xs text-slate-400 leading-relaxed max-w-sm font-sans">
-            Desarrollado para el reto "Hackeando las Inundaciones" de DesafIA 2026. Telemetría de cauces en cuenca baja, detección de mareas vivas y alerta comunitaria con Heltec LoRa 32 (915 MHz) y Supabase Cloud.
+            Proyecto surgido del reto DesafIA «Hackeando las inundaciones». Monitoreo de niveles de agua en ríos y zonas con riesgo de inundación mediante estaciones LoRa.
           </p>
         </div>
 
         <div>
-          <h5 class="text-white font-bold uppercase mb-3 tracking-wider">Bitácora de Navegación</h5>
+          <h5 class="text-white font-bold uppercase mb-3 tracking-wider">Explorar</h5>
           <ul class="space-y-2">
             <li><a href="#hero" class="hover:text-sky-400 transition">Inicio / Sonda Fluvial</a></li>
             <li><a href="#reto" class="hover:text-sky-400 transition">El Reto de las Grandes Aguas</a></li>
             <li><a href="#ejes" class="hover:text-sky-400 transition">Los 6 Ejes Hidrológicos</a></li>
             <li><a href="#simulador" class="hover:text-sky-400 transition">Corte Hidráulico Transversal</a></li>
+            <li><a href="#desafia" class="hover:text-sky-400 transition">Proyecto DesafIA</a></li>
+            <li><a href="#aliados" class="hover:text-sky-400 transition">Colaboradores</a></li>
             <li><a href="dashboard_rio.html" class="hover:text-sky-300 transition font-bold text-sky-400">Dashboard de Telemetría</a></li>
           </ul>
         </div>
 
         <div>
-          <h5 class="text-white font-bold uppercase mb-3 tracking-wider">Enlaces del Territorio</h5>
+          <h5 class="text-white font-bold uppercase mb-3 tracking-wider">Sobre la plataforma</h5>
           <ul class="space-y-2">
-            <li><a href="https://desafia.mx" target="_blank" rel="noopener noreferrer" class="hover:text-sky-400 transition">Sitio Oficial desafia.mx</a></li>
-            <li><a href="https://desafia.mx#registro" target="_blank" rel="noopener noreferrer" class="hover:text-sky-400 transition">Convocatoria Tabasco</a></li>
-            <li><a href="https://supabase.com" target="_blank" rel="noopener noreferrer" class="hover:text-sky-400 transition">Nube de Datos Supabase</a></li>
-            <li><span class="text-slate-500">Sureste Mexicano · Septiembre 2026</span></li>
+            <li><a href="#reto" class="hover:text-sky-400 transition">El reto de las inundaciones</a></li>
+            <li><a href="dashboard_rio.html" class="hover:text-sky-400 transition">Estaciones y lecturas</a></li>
+            <li><span class="text-slate-500">Ríos y zonas urbanas vulnerables</span></li>
           </ul>
         </div>
 
       </div>
 
       <div class="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
-        <p>© 2026 Sistema Hidrológico y Marítimo LoRa 32 · DesafIA 2026 Sureste Mexicano.</p>
+        <p>© 2026 Hackeando las inundaciones · Proyecto DesafIA.</p>
         <p class="flex items-center gap-2">
-          <span>Ríos Grijalva &amp; Usumacinta</span>
+          <span>Ríos y zonas de riesgo</span>
           <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
-          <span>Golfo de México</span>
+          <span>Tabasco</span>
         </p>
       </div>
 
@@ -937,7 +994,7 @@
   </footer>
 
   <!-- ========================================================================= -->
-  <!-- SCRIPTS: INTERACTIVIDAD, AMBIENTACIÓN FLUVIO-MARINA Y SUPABASE REALTIME   -->
+  <!-- SCRIPTS: INTERACTIVIDAD Y AMBIENTACIÓN DEL RÍO -->
   <!-- ========================================================================= -->
   <script>
     // Inicializar iconos de Lucide
@@ -1045,9 +1102,61 @@
     const MAX_DEPTH_METERS = 6.00;
     const WARNING_THRESHOLD = 3.50;
     const CRITICAL_THRESHOLD = 5.20;
+    const simAudioToggle = document.getElementById('sim-audio-toggle');
+    const simAudioLabel = document.getElementById('sim-audio-label');
+    const simAudioHelp = document.getElementById('sim-audio-help');
+    let simAudioCtx = null;
+    let simSoundEnabled = false;
+    let simLastZone = 0;
+
+    function playSimulatorAlert(zone) {
+      if (!simSoundEnabled || !simAudioCtx) return;
+      // Sonido de demostración independiente de las alertas de estaciones reales.
+      const start = simAudioCtx.currentTime;
+      const pulses = zone === 2 ? 2 : 1;
+      for (let i = 0; i < pulses; i++) {
+        const at = start + i * 0.36;
+        const osc = simAudioCtx.createOscillator();
+        const gain = simAudioCtx.createGain();
+        osc.type = zone === 2 ? 'square' : 'sine';
+        osc.frequency.value = zone === 2 ? 980 : 600;
+        gain.gain.setValueAtTime(0.0001, at);
+        gain.gain.exponentialRampToValueAtTime(0.08, at + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.25);
+        osc.connect(gain);
+        gain.connect(simAudioCtx.destination);
+        osc.start(at);
+        osc.stop(at + 0.26);
+      }
+    }
+
+    simAudioToggle.addEventListener('click', async () => {
+      if (!simSoundEnabled) {
+        try {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (!AudioContext) throw new Error('Audio no disponible');
+          simAudioCtx ||= new AudioContext();
+          await simAudioCtx.resume();
+          simSoundEnabled = true;
+        } catch {
+          simAudioHelp.textContent = 'Este navegador no pudo activar el sonido.';
+          return;
+        }
+      } else {
+        simSoundEnabled = false;
+      }
+      simAudioToggle.setAttribute('aria-pressed', String(simSoundEnabled));
+      simAudioLabel.textContent = simSoundEnabled ? 'Silenciar simulador' : 'Activar sonido del simulador';
+      document.getElementById('sim-audio-icon').setAttribute('data-lucide', simSoundEnabled ? 'volume-2' : 'volume-x');
+      simAudioHelp.textContent = simSoundEnabled ? 'Sonido activo solo para cambios de nivel simulados.' : 'El sonido solo se reproduce al pasar a aviso o peligro.';
+      lucide.createIcons();
+    });
 
     function updateSimulator(level) {
       level = Math.max(0.20, Math.min(MAX_DEPTH_METERS, parseFloat(level)));
+      const zone = level >= CRITICAL_THRESHOLD ? 2 : level >= WARNING_THRESHOLD ? 1 : 0;
+      if (zone > simLastZone) playSimulatorAlert(zone);
+      simLastZone = zone;
       const pct = ((level / MAX_DEPTH_METERS) * 100).toFixed(1);
 
       simWaterColumn.style.height = pct + '%';
@@ -1062,24 +1171,24 @@
         simStatusPill.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span><span>Peligro de Desborde Ribereño</span>';
 
         simRecommendationBox.className = "p-4 rounded-2xl border border-rose-300 bg-rose-50/90 text-rose-900 text-xs leading-relaxed shadow-sm";
-        simRecTitle.textContent = "ALERTA MÁXIMA: RÍO SOBRE BORDO DE PROTECCIÓN";
-        simRecText.textContent = "El tirante de agua supera la cota de 5.20 m. Se activa evacuación preventiva en malecones y zonas de amortiguamiento. Amarre de embarcaciones mayores y desconexión de plantas ribereñas.";
+        simRecTitle.textContent = "SIMULACIÓN: NIVEL CRÍTICO";
+        simRecText.textContent = "El nivel simulado superó el umbral crítico de ejemplo. En una emergencia real, atiende las instrucciones de Protección Civil y las autoridades locales.";
       } else if (level >= WARNING_THRESHOLD) {
         simWaterColumn.className = "w-full bg-gradient-to-t from-amber-600 via-amber-500 to-amber-400 rounded-2xl relative transition-all duration-500 overflow-hidden shadow-lg shadow-amber-500/25";
         simStatusPill.className = "inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300 shadow-sm";
         simStatusPill.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span><span>Precaución · Crecida y Corriente Rápida</span>';
 
         simRecommendationBox.className = "p-4 rounded-2xl border border-amber-300 bg-amber-50/90 text-amber-900 text-xs leading-relaxed shadow-sm";
-        simRecTitle.textContent = "PRECAUCIÓN: GASTO HIDRÁULICO EN AUMENTO";
-        simRecText.textContent = "Corriente fuerte por lluvias en cuenca alta o repunte de marea en desembocadura. Restricción preventiva a navegación menor y retiro de equipos de orilla de río.";
+        simRecTitle.textContent = "SIMULACIÓN: NIVEL DE AVISO";
+        simRecText.textContent = "El nivel de esta simulación entró en zona de aviso. En un sitio real, revisa las lecturas de la estación y sigue las indicaciones de las autoridades.";
       } else {
         simWaterColumn.className = "w-full water-stream rounded-2xl relative transition-all duration-500 overflow-hidden";
         simStatusPill.className = "inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-sm";
         simStatusPill.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span><span>Régimen Normal · Agua en Cauce</span>';
 
         simRecommendationBox.className = "p-4 rounded-2xl border border-emerald-300 bg-emerald-50/85 text-emerald-900 text-xs leading-relaxed shadow-sm";
-        simRecTitle.textContent = "CONDICIÓN SEGURA: AGUAS EN CAUCE NATURAL";
-        simRecText.textContent = "El caudal del río se mantiene dentro del cauce ordinario. Vía libre y segura para navegación de lanchas, pesca artesanal y tránsito ribereño.";
+        simRecTitle.textContent = "SIMULACIÓN: NIVEL BAJO";
+        simRecText.textContent = "El nivel simulado permanece bajo el umbral de aviso. Consulta las lecturas actuales de cada estación para conocer su situación real.";
       }
     }
 
@@ -1090,86 +1199,6 @@
     function setSimScenario(val) {
       updateSimulator(val);
     }
-
-    // ==========================================
-    // SINCRONIZACIÓN EN VIVO CON SUPABASE (HERO)
-    // ==========================================
-    const DEFAULT_SUPABASE_URL = 'https://gffxiesxsqijbxlyerwi.supabase.co';
-    const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmZnhpZXN4c3FpamJ4bHllcndpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MzIyOTMsImV4cCI6MjEwNDEwODI5M30.MPxGovxcE3kuW4FZKPnkwc4wtf32KJH3KFT5XbYi3LM';
-
-    function actualizarHeroStats(waterMeters) {
-      waterMeters = Math.max(0, Math.min(MAX_DEPTH_METERS, waterMeters));
-      const heroStatLevel = document.getElementById('hero-stat-level');
-      const heroStatPct = document.getElementById('hero-stat-percent');
-      const heroStatMargin = document.getElementById('hero-stat-margin');
-      const heroWaterVisual = document.getElementById('hero-water-visual');
-      const heroStatBadge = document.getElementById('hero-stat-badge');
-
-      if (heroStatLevel) heroStatLevel.textContent = waterMeters.toFixed(2);
-      const pct = ((waterMeters / MAX_DEPTH_METERS) * 100).toFixed(1);
-      if (heroStatPct) heroStatPct.textContent = pct + '%';
-      if (heroStatMargin) heroStatMargin.textContent = (MAX_DEPTH_METERS - waterMeters).toFixed(2) + ' m';
-      if (heroWaterVisual) heroWaterVisual.style.height = pct + '%';
-
-      if (heroStatBadge) {
-        if (waterMeters >= CRITICAL_THRESHOLD) {
-          heroStatBadge.textContent = 'Alerta de Desborde';
-          heroStatBadge.className = 'text-xs font-bold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-700 border border-rose-300';
-        } else if (waterMeters >= WARNING_THRESHOLD) {
-          heroStatBadge.textContent = 'Caudal Elevado';
-          heroStatBadge.className = 'text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-300';
-        } else {
-          heroStatBadge.textContent = 'Caudal en Calma';
-          heroStatBadge.className = 'text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-300';
-        }
-      }
-    }
-
-    async function initHeroSupabase() {
-      try {
-        if (!window.supabase) return;
-        const client = window.supabase.createClient(DEFAULT_SUPABASE_URL, DEFAULT_SUPABASE_KEY);
-
-        const { data: rows, error } = await client
-          .from('mediciones_rio')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(1);
-
-        if (!error && rows && rows.length > 0) {
-          const w = Number(rows[0].nivel_rio_cm) / 100;
-          if (!isNaN(w) && w > 0) {
-            actualizarHeroStats(w);
-          }
-        }
-
-        client
-          .channel('hero_telemetria_sync')
-          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mediciones_rio' }, payload => {
-            const r = payload.new;
-            if (r && r.nivel_rio_cm) {
-              const w = Number(r.nivel_rio_cm) / 100;
-              if (!isNaN(w) && w > 0) actualizarHeroStats(w);
-            }
-          })
-          .subscribe();
-      } catch (err) {
-        console.warn('Hero Supabase notice:', err);
-      }
-    }
-
-    initHeroSupabase();
-
-    // Micro fluctuación suave de reserva para emular el oleaje vivo si la estación está en reposo
-    let currentHeroLevel = 2.42;
-    setInterval(() => {
-      const delta = (Math.random() - 0.5) * 0.015;
-      currentHeroLevel = Math.max(2.38, Math.min(2.46, currentHeroLevel + delta));
-      const heroStatLevel = document.getElementById('hero-stat-level');
-      if (heroStatLevel && heroStatLevel.textContent === '2.42') {
-        actualizarHeroStats(currentHeroLevel);
-      }
-    }, 4000);
 
     // ==========================================
     // SISTEMA DE AUTENTICACIÓN DIRECTO DESDE LA LANDING
@@ -1207,7 +1236,7 @@
   </script>
 
   <!-- ==================== MODAL DE INICIO DE SESIÓN DIRECTO DESDE LA LANDING ==================== -->
-  <div id="modal-landing-login" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden"><div class="portal-login-card"><h2>Alerta Río &amp; Mar</h2><p>Cargando acceso…</p></div></div>
+  <div id="modal-landing-login" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden"><div class="portal-login-card"><h2>Hackeando las inundaciones</h2><p>Cargando acceso…</p></div></div>
 
 
 </body></html>
