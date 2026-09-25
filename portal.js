@@ -76,6 +76,19 @@
     window.lucide?.createIcons();
   }
   function cacheUsers(){sessionStorage.setItem('entidades_acceso_lora',JSON.stringify(users.filter(u=>u.role==='user').map(u=>({...u,name:u.entityName||u.name}))));}
+  let entityRefreshBusy=false;
+  async function refreshEntityGroups(){
+    if(!ready||user?.role!=='admin'||entityRefreshBusy)return;
+    entityRefreshBusy=true;
+    try{
+      users=(await api('users')).users;
+      cacheUsers();
+      if(typeof renderGridEstaciones==='function')renderGridEstaciones();
+      if(typeof renderEstacionesAdmin==='function')renderEstacionesAdmin();
+      renderUsers();
+    }catch(error){console.warn('No se pudo actualizar la lista de entidades:',error);}
+    finally{entityRefreshBusy=false;}
+  }
   async function loadAccount(){
     const [state,accounts]=await Promise.all([api('stations'),user.role==='admin'?api('users'):Promise.resolve(null)]);
     if(accounts){users=accounts.users;cacheUsers();}
@@ -185,7 +198,7 @@
     box.querySelector('form').onsubmit=async event=>{event.preventDefault();const form=event.currentTarget,data=new FormData(form),b=form.querySelector('button');b.disabled=true;
       try{await api('saveUser',{user:{id:account.id,name:data.get('name'),entityName:data.get('entityName'),username:data.get('username'),password:data.get('password'),role:data.get('role'),active:data.has('active'),assignedStations:data.getAll('station')}});box.close();
         if(account.id===user.id){sessionStorage.removeItem('lora_rio_active_session');location.reload();return;}
-        users=(await api('users')).users;cacheUsers();renderUsers();if(typeof renderEstacionesAdmin==='function')renderEstacionesAdmin();
+        await refreshEntityGroups();
       }catch(e){form.querySelector('[role=alert]').textContent=e.message;}finally{b.disabled=false;}
     };
   }
@@ -219,6 +232,9 @@
       await loadAccount();
     }catch(e){if(e.status!==401){if(user)accountError(e);else document.querySelectorAll('[data-unified-login] [role=alert]').forEach(el=>el.textContent=e.message);}}
     setInterval(()=>{stationStatus();if(document.visibilityState!=='hidden')refreshTickets();},15000);
+    window.addEventListener('focus',refreshEntityGroups);
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshEntityGroups();});
+    setInterval(()=>{if(document.visibilityState!=='hidden')refreshEntityGroups();},30000);
     const status=$('cloud-indicator');if(status)new MutationObserver(refreshChrome).observe(status,{attributes:true,attributeFilter:['data-connected']});
     const sensor=$('sensor-status-text');if(sensor)new MutationObserver(stationStatus).observe(sensor,{childList:true,characterData:true,subtree:true});
   }

@@ -140,6 +140,11 @@
         <!-- Indicador de enlace Nube / LoRa -->
         <div id="cloud-indicator" class="cloud-indicator" hidden="" role="status" aria-label="Base de datos desconectada" title="Base de datos desconectada"><span id="status-dot" class="cloud-dot"></span></div>
 
+        <!-- Respaldo local: las lecturas USB entran a las mismas tarjetas de estación. -->
+        <button id="btn-connect-usb" type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-800 font-bold text-xs shadow-xs transition active:scale-95" title="Leer el gateway por USB en Chrome o Edge" aria-pressed="false">
+          <i data-lucide="usb" class="w-4 h-4"></i><span id="usb-button-label">Conectar USB</span>
+        </button>
+
         <!-- ACCIONES EXCLUSIVAS DE ADMINISTRADOR (Ocultas para Entidades) -->
         <div id="admin-actions-bar" class="hidden flex items-center gap-1.5">
           <!-- Botón Directo al Centro de Mando Admin (admin.html) -->
@@ -1015,6 +1020,7 @@
     const STATION_TIMEOUT_MS = 15000;
     let gatewayCloudLastSeen = null;
     let gatewayCloudBusy = false;
+    let gatewayUsbConnected = false;
 
     function registrarSenalGateway(timestamp) {
       const time = Date.parse(timestamp);
@@ -1023,6 +1029,7 @@
     }
 
     function estadoConexionGateway(now = Date.now()) {
+      if (gatewayUsbConnected) return { connected: true, state: 'online', label: 'Gateway conectado · USB' };
       if (gatewayCloudLastSeen !== null && now - gatewayCloudLastSeen <= GATEWAY_TIMEOUT_MS) {
         return { connected: true, state: 'online', label: 'Gateway conectado · Wi-Fi / nube' };
       }
@@ -1044,7 +1051,7 @@
       const gatewayStatus = document.getElementById('gateway-connection-status');
       gatewayStatus.textContent = gateway.label;
       gatewayStatus.className = 'gateway-status gateway-' + gateway.state;
-      gatewayStatus.title = gatewayCloudLastSeen !== null ? 'Última comunicación del gateway: ' + new Date(gatewayCloudLastSeen).toLocaleString() :
+      gatewayStatus.title = gatewayUsbConnected ? 'Puerto USB abierto. Esperando paquetes LoRa de la estación.' : gatewayCloudLastSeen !== null ? 'Última comunicación del gateway: ' + new Date(gatewayCloudLastSeen).toLocaleString() :
         'Esperando el aviso periódico del gateway. La conexión de la página a Supabase no confirma la conexión de la placa.';
       const accessible = getAccessibleStations();
       let totalEstaciones = accessible.length;
@@ -1778,7 +1785,7 @@
     let cloudBusy = false;
     const cloudSeen = new Set();
     function receiveCloudRow(row) {
-      if (isDemoMode) return;
+      if (isDemoMode || gatewayUsbConnected) return;
       if (row.estacion === GATEWAY_ID) {
         if (row.estado === 'GATEWAY_ONLINE') registrarSenalGateway(row.created_at);
         evaluarRiesgoGlobal();
@@ -1835,7 +1842,7 @@
     }
 
     async function cargarHistorialSupabase() {
-      if (!supabaseClient || isDemoMode || cloudBusy) return;
+      if (!supabaseClient || isDemoMode || gatewayUsbConnected || cloudBusy) return;
       cloudBusy = true;
       try {
         const { data, error } = await supabaseClient
@@ -1864,7 +1871,7 @@
     }
 
     async function cargarEstadoGateway() {
-      if (!supabaseClient || isDemoMode || gatewayCloudBusy) return;
+      if (!supabaseClient || isDemoMode || gatewayUsbConnected || gatewayCloudBusy) return;
       gatewayCloudBusy = true;
       const client = supabaseClient;
       try {
@@ -1883,6 +1890,95 @@
     }
     setInterval(cargarEstadoGateway, 5000);
     setInterval(cargarHistorialSupabase, 5000);
+
+    // Respaldo USB: usa el mismo formato RX que imprime el firmware del gateway.
+    const usbButton = document.getElementById('btn-connect-usb');
+    let usbPort = null;
+    let usbReader = null;
+    let usbClosing = false;
+    let usbReadTask = null;
+
+    function updateUsbButton() {
+      document.getElementById('usb-button-label').textContent = gatewayUsbConnected ? 'Desconectar USB' : 'Conectar USB';
+      usbButton.setAttribute('aria-pressed', String(gatewayUsbConnected));
+      usbButton.title = gatewayUsbConnected ? 'Cerrar la conexión USB y volver a la nube' : 'Leer el gateway por USB en Chrome o Edge';
+      evaluarRiesgoGlobal();
+    }
+
+    function receiveUsbLine(line) {
+      // Ejemplo: RX: RIO_02,42.5,OK,18 | RSSI: -77 dBm
+      const match = line.match(/^RX:\s*(RIO_\d{2}),\s*([+-]?\d+(?:\.\d+)?),\s*([A-Z_]+),\s*(\d+)\s*\|\s*RSSI:\s*(-?\d+)\s*dBm\s*$/i);
+      if (!match) return;
+      const distance = Number(match[2]);
+      const packet = Number(match[4]);
+      const rssi = Number(match[5]);
+      if (!Number.isFinite(distance) || !Number.isSafeInteger(packet) || !Number.isFinite(rssi)) return;
+      processIncomingData(match[1], distance, match[3].toUpperCase(), packet, rssi);
+    }
+
+    async function closeUsbPort(fromReader = false) {
+      usbClosing = true;
+      try { if (usbReader) await usbReader.cancel(); } catch (_) {}
+      if (!fromReader && usbReadTask) {
+        try { await usbReadTask; } catch (_) {}
+      }
+      try { if (usbPort) await usbPort.close(); } catch (_) {}
+      usbPort = null;
+      usbReadTask = null;
+      gatewayUsbConnected = false;
+      updateUsbButton();
+      cargarEstadoGateway();
+      cargarHistorialSupabase();
+    }
+
+    async function readUsbPort() {
+      const decoder = new TextDecoder();
+      let buffer = '';
+      try {
+        while (usbPort?.readable && !usbClosing) {
+          usbReader = usbPort.readable.getReader();
+          try {
+            while (true) {
+              const { value, done } = await usbReader.read();
+              if (done) break;
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split(/\r?\n/);
+              buffer = lines.pop().slice(-500);
+              for (const line of lines) receiveUsbLine(line.trim());
+            }
+          } finally {
+            usbReader.releaseLock();
+            usbReader = null;
+          }
+        }
+      } catch (error) {
+        if (!usbClosing) LoraUI.alert('Se interrumpió la lectura USB: ' + error.message);
+      } finally {
+        if (gatewayUsbConnected && !usbClosing) await closeUsbPort(true);
+      }
+    }
+
+    usbButton.addEventListener('click', async () => {
+      if (gatewayUsbConnected) {
+        await closeUsbPort();
+        return;
+      }
+      if (!navigator.serial || !window.isSecureContext) {
+        LoraUI.alert('La conexión USB requiere Chrome o Edge en una página HTTPS o localhost.');
+        return;
+      }
+      try {
+        usbPort = await navigator.serial.requestPort();
+        await usbPort.open({ baudRate: 115200 });
+        usbClosing = false;
+        gatewayUsbConnected = true;
+        updateUsbButton();
+        usbReadTask = readUsbPort();
+      } catch (error) {
+        if (error.name !== 'NotFoundError') LoraUI.alert('No se pudo abrir el gateway USB: ' + error.message + '. Cierra el Monitor Serie de Arduino y vuelve a intentar.');
+        await closeUsbPort();
+      }
+    });
 
     // ==========================================
     // 11. GESTIÓN DE ESTACIONES (MODAL ADMIN)
