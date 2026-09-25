@@ -238,6 +238,6 @@
     const status=$('cloud-indicator');if(status)new MutationObserver(refreshChrome).observe(status,{attributes:true,attributeFilter:['data-connected']});
     const sensor=$('sensor-status-text');if(sensor)new MutationObserver(stationStatus).observe(sensor,{childList:true,characterData:true,subtree:true});
   }
-  window.Portal={api,get user(){return user;},get ready(){return ready;},logout,showLogin,landingButton,refreshChrome,saveStations,refreshTickets,renderUsers,editUser,importLegacy,openTickets,stationStatus,newTicket};
+  window.Portal={api,get user(){return user;},get ready(){return ready;},entityAssignments:()=>user?.role==='admin'&&ready?users.filter(u=>u.role==='user').map(u=>({id:u.id,name:u.entityName||u.name,assignedStations:u.assignedStations||[]})):null,logout,showLogin,landingButton,refreshChrome,saveStations,refreshTickets,renderUsers,editUser,importLegacy,openTickets,stationStatus,newTicket};
   document.addEventListener('DOMContentLoaded',bootstrap);
 })();

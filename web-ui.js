@@ -26,7 +26,8 @@
     const cards=new Map(Array.from(grid.children).map(card=>[card.dataset.stationId,card]));
     grid.replaceChildren();
     grid.classList.add('entity-group-list');
-    for(const group of groups(stations,readEntities())) {
+    const accounts=window.Portal?.entityAssignments?.() || readEntities();
+    for(const group of groups(stations,accounts)) {
       const section=document.createElement('section'); section.className='entity-station-section';
       const head=document.createElement('div');head.className='entity-section-heading';
       const title=document.createElement('h3');title.textContent=group.name;
