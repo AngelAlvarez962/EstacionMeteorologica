@@ -506,8 +506,8 @@
       <!-- BENTO GRID ASIMÉTRICO TOTALMENTE TEMATIZADO -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
 
-        <!-- CELDA 1: HERO TILE (EJE 02 - SONDA ACÚSTICA & BATIMETRÍA EN TIEMPO REAL) - Span 2 en Desktop -->
-        <div class="lg:col-span-2 rounded-3xl border-2 border-sky-400 bg-gradient-to-br from-sky-50 via-white to-cyan-50/90 p-8 shadow-xl shadow-sky-500/10 relative overflow-hidden flex flex-col justify-between">
+        <!-- EJE 02: mismo tamaño que los otros cinco ejes -->
+        <div class="rounded-3xl border border-sky-200 bg-gradient-to-br from-sky-50 via-white to-cyan-50/90 p-7 shadow-sm relative overflow-hidden flex flex-col justify-between">
           <div class="absolute -right-16 -top-16 w-56 h-56 bg-cyan-200/40 rounded-full blur-3xl pointer-events-none"></div>
 
           <div>
@@ -521,7 +521,7 @@
               </div>
             </div>
 
-            <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Medición y consulta del nivel de agua</h3>
+            <h3 class="text-xl font-bold text-slate-900">Medición y consulta del nivel de agua</h3>
             <p class="text-sm font-semibold text-sky-700 mt-2">"Vigilancia continua del tirante hidráulico en cauces de alta vulnerabilidad."</p>
 
             <p class="text-xs sm:text-sm text-slate-600 mt-4 leading-relaxed max-w-2xl">
@@ -534,7 +534,6 @@
               <span class="w-2.5 h-2.5 rounded-full bg-sky-500 animate-ping"></span>
               <span>Lecturas cuando la estación transmite</span>
             </span>
-            <a href="dashboard_rio.html" class="text-sky-700 hover:text-sky-900 flex items-center gap-1 font-bold">Abrir consola hidrológica →</a>
           </div>
         </div>
 
@@ -713,9 +712,9 @@
           <img src="assets/asociacion-mexicana-hidraulica-tabasco.png" alt="Asociación Mexicana de Hidráulica, Sección Tabasco" class="w-full sm:w-56 h-36 object-contain" loading="lazy" width="1280" height="853">
           <div><h3 class="font-bold text-slate-900">Asociación Mexicana de Hidráulica</h3><p class="text-sm text-slate-600 mt-1">Sección Tabasco</p></div>
         </article>
-        <article class="rounded-3xl border border-teal-200 bg-white p-6 shadow-sm flex flex-col justify-center">
-          <div class="flex items-center gap-3"><i data-lucide="shield-check" class="w-7 h-7 text-teal-700" aria-hidden="true"></i><h3 class="font-bold text-slate-900">Protección Civil</h3></div>
-          <p class="text-sm text-slate-600 mt-3">Integración en preparación para apoyar la consulta de niveles en zonas de riesgo. Los avisos oficiales corresponden a las autoridades competentes.</p>
+        <article class="rounded-3xl border border-teal-200 bg-white p-6 shadow-sm flex flex-col sm:flex-row items-center gap-5">
+          <img src="assets/ideas-disruptivas.png" alt="Ideas Disruptivas: innovación para la vida" class="w-full sm:w-56 h-36 object-contain" loading="lazy">
+          <div><h3 class="font-bold text-slate-900">Ideas Disruptivas</h3><p class="text-sm text-slate-600 mt-1">Innovación para la vida</p></div>
         </article>
       </div>
     </div>
@@ -743,7 +742,7 @@
           <i data-lucide="volume-x" id="sim-audio-icon" class="w-4 h-4" aria-hidden="true"></i>
           <span id="sim-audio-label">Activar sonido del simulador</span>
         </button>
-        <p id="sim-audio-help" class="mt-2 text-xs text-slate-500" role="status">El sonido solo se reproduce al pasar a aviso o peligro.</p>
+        <p id="sim-audio-help" class="mt-2 text-xs text-slate-500" role="status">Activa el sonido para oír una alerta al entrar en amarillo (aviso) o rojo (crítico).</p>
       </div>
 
       <!-- Interfaz del Simulador Fluvial -->
@@ -1148,7 +1147,7 @@
       simAudioToggle.setAttribute('aria-pressed', String(simSoundEnabled));
       simAudioLabel.textContent = simSoundEnabled ? 'Silenciar simulador' : 'Activar sonido del simulador';
       document.getElementById('sim-audio-icon').setAttribute('data-lucide', simSoundEnabled ? 'volume-2' : 'volume-x');
-      simAudioHelp.textContent = simSoundEnabled ? 'Sonido activo solo para cambios de nivel simulados.' : 'El sonido solo se reproduce al pasar a aviso o peligro.';
+      simAudioHelp.textContent = simSoundEnabled ? 'Sonido activo al entrar en amarillo o rojo durante la simulación.' : 'Activa el sonido para oír una alerta al entrar en amarillo (aviso) o rojo (crítico).';
       lucide.createIcons();
     });
 
