@@ -269,7 +269,11 @@
     try{const result=await api('me');session(result.user);hideLogin();
       if($('gate-admin-auth')&&user.role!=='admin'){location.href='dashboard_rio.html';return;}
       await loadAccount();
-    }catch(e){if(e.status!==401){if(user)accountError(e);else document.querySelectorAll('[data-unified-login] [role=alert]').forEach(el=>el.textContent=e.message);}}
+    }catch(e){
+      const gate=$('gate-login-overlay')||$('gate-admin-auth');
+      if(!user&&gate){gate.hidden=false;gate.classList.remove('hidden');}
+      if(e.status!==401){if(user)accountError(e);else document.querySelectorAll('[data-unified-login] [role=alert]').forEach(el=>el.textContent=e.message);}
+    }
     setInterval(()=>{stationStatus();if(document.visibilityState!=='hidden')refreshTickets();},15000);
     window.addEventListener('focus',refreshEntityGroups);
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshEntityGroups();});
