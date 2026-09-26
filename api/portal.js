@@ -5,7 +5,7 @@ const ROOT = '00000000-0000-4000-8000-000000000001';
 const fail = (status, message) => Object.assign(new Error(message), {status});
 const digest = value => crypto.createHash('sha256').update(value).digest('hex');
 const clean = (value, max=160) => String(value || '').trim().slice(0,max);
-const publicUser = u => ({id:u.id, username:u.username, name:u.name, entityName:u.entity_name, role:u.role, type:u.role==='admin'?'admin':'entity', assignedStations:u.assigned_stations||[], active:u.active, cloud:true});
+const publicUser = u => ({id:u.id, username:u.username, name:u.name, entityId:u.entity_id, entityName:u.entity_name, role:u.role, type:u.role==='admin'?'admin':'entity', assignedStations:u.assigned_stations||[], active:u.active, cloud:true});
 async function passwordHash(password) {
   const salt=crypto.randomBytes(16).toString('hex');
   return salt+':'+(await scrypt(password,salt,64)).toString('hex');
@@ -21,7 +21,7 @@ async function db(route, method='GET', body, prefer='return=representation') {
   const headers={apikey:key,'Content-Type':'application/json',Prefer:prefer};
   if(!key.startsWith('sb_secret_'))headers.Authorization='Bearer '+key;
   const r=await fetch(process.env.SUPABASE_URL.replace(/\/$/,'')+'/rest/v1/'+route,{method,headers,body:body===undefined?undefined:JSON.stringify(body),signal:AbortSignal.timeout(15000)});
-  if(!r.ok){if(r.status===409)throw fail(409,'Ese usuario ya existe.');throw fail(503,'No se pudo acceder a los datos. Verifica la configuración y el SQL del portal.');}
+  if(!r.ok){if(r.status===409)throw fail(409,'Ese nombre o usuario ya está registrado, o la entidad aún tiene cuentas.');throw fail(503,'No se pudo acceder a los datos. Verifica la configuración y el SQL del portal.');}
   const text=await r.text();return text?JSON.parse(text):null;
 }
 function sessionName(req) {
@@ -99,6 +99,35 @@ module.exports=async function handler(req,res){
     if(action==='users'){
       requireAdmin();return res.status(200).json({users:(await db('portal_users?order=created_at.asc')).map(publicUser)});
     }
+    if(action==='entities'){
+      requireAdmin();return res.status(200).json({entities:await db('portal_entities?select=id,name&order=name.asc')});
+    }
+    if(action==='saveEntity' && req.method==='POST'){
+      requireAdmin();const entityName=clean(body.name,160),id=body.id;
+      if(!entityName)throw fail(400,'Escribe un nombre para la entidad.');
+      if(id && !/^[a-f0-9-]{36}$/.test(id))throw fail(400,'Entidad inválida.');
+      const existing=id?(await db('portal_entities?id=eq.'+id+'&limit=1'))[0]:null;
+      if(id&&!existing)throw fail(404,'La entidad ya no existe.');
+      const duplicate=(await db('portal_entities?select=id,name')).some(e=>e.id!==id&&e.name.toLocaleLowerCase('es')===entityName.toLocaleLowerCase('es'));
+      if(duplicate)throw fail(409,'Ya existe una entidad con ese nombre.');
+      const saved=existing?await db('portal_entities?id=eq.'+id,'PATCH',{name:entityName}):await db('portal_entities','POST',{name:entityName});
+      return res.status(200).json({entity:saved[0]});
+    }
+    if(action==='deleteEntity' && req.method==='POST'){
+      requireAdmin();const id=body.id;
+      if(!/^[a-f0-9-]{36}$/.test(id))throw fail(400,'Entidad inválida.');
+      const result=await db('rpc/portal_delete_entity','POST',{actor_id:user.id,target_id:id});
+      if(result.error)throw fail(409,result.error);
+      return res.status(200).json({ok:true});
+    }
+    if(action==='deleteUser' && req.method==='POST'){
+      requireAdmin();const id=body.id;
+      if(!/^[a-f0-9-]{36}$/.test(id))throw fail(400,'Cuenta inválida.');
+      if(id===ROOT||id===user.id)throw fail(400,'No puedes eliminar tu propia cuenta ni la cuenta principal.');
+      const result=await db('rpc/portal_delete_user','POST',{actor_id:user.id,target_id:id});
+      if(result.error)throw fail(409,result.error);
+      return res.status(200).json({ok:true});
+    }
     if(action==='saveUser' && req.method==='POST'){
       requireAdmin();const input=body.user||{};
       const username=clean(input.username,48).toLowerCase();
@@ -109,7 +138,10 @@ module.exports=async function handler(req,res){
       if(id===ROOT && (input.role!=='admin'||input.active===false))throw fail(400,'La cuenta principal debe permanecer activa como administradora.');
       const assigned=Array.isArray(input.assignedStations)?[...new Set(input.assignedStations)]:[];
       if(assigned.length>300||assigned.some(x=>!/^RIO_\d{2}$/.test(x)))throw fail(400,'Estaciones inválidas.');
-      const data={id,username,name:clean(input.name),entity_name:clean(input.entityName||input.name),role:input.role,active:input.active!==false,assigned_stations:assigned};
+      const entityId=input.role==='user'?input.entityId:null;
+      if(input.role==='user' && (!/^[a-f0-9-]{36}$/.test(entityId||'') || !(await db('portal_entities?id=eq.'+entityId+'&limit=1')).length))throw fail(400,'Selecciona una entidad registrada.');
+      const entity=entityId?(await db('portal_entities?id=eq.'+entityId+'&limit=1'))[0]:null;
+      const data={id,username,name:clean(input.name),entity_id:entityId,entity_name:entity?.name||'',role:input.role,active:input.active!==false,assigned_stations:assigned};
       if(input.password || !existing){if(typeof input.password!=='string'||input.password.length<8||input.password.length>256)throw fail(400,'La contraseña debe tener entre 8 y 256 caracteres.');data.password_hash=await passwordHash(input.password);}
       const saved=existing?await db('portal_users?id=eq.'+id,'PATCH',data):await db('portal_users','POST',data);
       // Permission and password changes invalidate old sessions.
