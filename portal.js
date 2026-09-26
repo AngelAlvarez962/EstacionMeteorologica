@@ -14,7 +14,7 @@
   // Login rotates this tab's cookie namespace, including duplicated browser tabs.
   function hideLogin(){for(const id of ['gate-login-overlay','gate-admin-auth','modal-landing-login']){const el=$(id);if(el){el.hidden=true;el.classList.add('hidden');}}}
   let selectedUser=null;
-  let user=null, users=[], tickets=[], ready=false, ticketBusy=false;
+  let user=null, users=[], entities=[], tickets=[], ready=false, ticketBusy=false;
   let stationSave=Promise.resolve();
   const labels={open:'Pendiente',in_progress:'Pendiente',approved:'Aprobada · pendiente de aplicar',resolved:'Completada',rejected:'Rechazada'};
   const actionLabels={add:'Agregar estación',modify:'Modificar estación',delete:'Eliminar estación',password:'Cambiar contraseña'};
@@ -76,22 +76,23 @@
     window.lucide?.createIcons();
   }
   function cacheUsers(){sessionStorage.setItem('entidades_acceso_lora',JSON.stringify(users.filter(u=>u.role==='user').map(u=>({...u,name:u.entityName||u.name}))));}
-  let entityRefreshBusy=false;
+  let entityRefreshSequence=0;
   async function refreshEntityGroups(){
-    if(!ready||user?.role!=='admin'||entityRefreshBusy)return;
-    entityRefreshBusy=true;
+    if(!ready||user?.role!=='admin')return;
+    const sequence=++entityRefreshSequence;
     try{
-      users=(await api('users')).users;
+      const latest=await Promise.all([api('users'),api('entities')]);
+      if(sequence!==entityRefreshSequence)return;
+      users=latest[0].users;entities=latest[1].entities;
       cacheUsers();
       if(typeof renderGridEstaciones==='function')renderGridEstaciones();
       if(typeof renderEstacionesAdmin==='function')renderEstacionesAdmin();
       renderUsers();
     }catch(error){console.warn('No se pudo actualizar la lista de entidades:',error);}
-    finally{entityRefreshBusy=false;}
   }
   async function loadAccount(){
-    const [state,accounts]=await Promise.all([api('stations'),user.role==='admin'?api('users'):Promise.resolve(null)]);
-    if(accounts){users=accounts.users;cacheUsers();}
+    const [state,accounts,entityList]=await Promise.all([api('stations'),user.role==='admin'?api('users'):Promise.resolve(null),user.role==='admin'?api('entities'):Promise.resolve(null)]);
+    if(accounts){users=accounts.users;entities=entityList.entities;cacheUsers();}
     sessionStorage.setItem('estaciones_config',JSON.stringify(state.stations));
     if(typeof stationsConfig!=='undefined')stationsConfig=state.stations;
     ready=true;
@@ -175,16 +176,50 @@
   }
   function renderUsers(){
     const container=$('portal-users-list');if(!container||user?.role!=='admin')return;
+    renderEntities();
     selectedUser=users.some(u=>u.id===selectedUser)?selectedUser:users[0]?.id;
     container.innerHTML='<nav class="portal-user-sidebar" aria-label="Cuentas"></nav><section class="portal-user-detail"></section>';
     const sidebar=container.querySelector('nav'),detail=container.querySelector('section');
     for(const account of users){const button=document.createElement('button');button.className='portal-user-choice';button.setAttribute('aria-pressed',String(account.id===selectedUser));button.innerHTML=`<span class="portal-avatar">${esc(account.name.slice(0,1).toUpperCase())}</span><span><strong>${esc(account.username)}</strong><small>${account.role==='admin'?'Administrador':'Usuario'} · ${account.active?'Activo':'Desactivado'}</small></span>`;button.onclick=()=>{selectedUser=account.id;renderUsers();};sidebar.append(button);}
     const account=users.find(u=>u.id===selectedUser);
-    if(account){detail.innerHTML=`<div class="portal-section-heading"><div><h3>${esc(account.name)}</h3><p>@${esc(account.username)} · ${account.role==='admin'?'Administrador':'Usuario'}</p></div><div class="portal-action-row"><button class="portal-secondary" data-edit>Editar usuario y rol</button><button class="portal-secondary" data-password>Contraseña</button></div></div><p>${esc(account.entityName||'Sin entidad')}</p><h4>Estaciones asignadas</h4><div class="portal-assigned">${read('estaciones_config').filter(s=>account.assignedStations.includes(s.id)).map(s=>'<span>'+esc(s.name)+' · '+esc(s.id)+'</span>').join('')||'<p>Sin estaciones asignadas.</p>'}</div>`;
-      detail.querySelector('[data-edit]').onclick=()=>editUser(account);detail.querySelector('[data-password]').onclick=()=>editPassword(account);
+    if(account){detail.innerHTML=`<div class="portal-section-heading"><div><h3>${esc(account.name)}</h3><p>@${esc(account.username)} · ${account.role==='admin'?'Administrador':'Usuario'}</p></div><div class="portal-action-row"><button class="portal-secondary" data-edit>Editar usuario y rol</button><button class="portal-secondary" data-password>Contraseña</button>${account.id===user.id?'':'<button class="portal-danger" data-delete>Eliminar usuario</button>'}</div></div><p>${esc(entities.find(e=>e.id===account.entityId)?.name||account.entityName||'Sin entidad')}</p><h4>Estaciones asignadas</h4><div class="portal-assigned">${read('estaciones_config').filter(s=>account.assignedStations.includes(s.id)).map(s=>'<span>'+esc(s.name)+' · '+esc(s.id)+'</span>').join('')||'<p>Sin estaciones asignadas.</p>'}</div>`;
+      detail.querySelector('[data-edit]').onclick=()=>editUser(account);detail.querySelector('[data-password]').onclick=()=>editPassword(account);if(detail.querySelector('[data-delete]'))detail.querySelector('[data-delete]').onclick=()=>deleteUser(account);
     }
-    for(const id of ['stat-entities-count','badge-tab-entities'])if($(id))$(id).textContent=users.filter(u=>u.role==='user').length;
+    if($('stat-entities-count'))$('stat-entities-count').textContent=entities.length;
+    if($('badge-tab-entities'))$('badge-tab-entities').textContent=users.length;
     if($('stat-active-users'))$('stat-active-users').textContent=users.filter(u=>u.active).length;
+  }
+  function renderEntities(){
+    const list=$('portal-entities-list');if(!list)return;
+    list.replaceChildren();
+    if(!entities.length){const note=document.createElement('p');note.className='portal-empty';note.textContent='Todavía no hay entidades. Agrégalas aquí antes de crear usuarios.';list.append(note);return;}
+    for(const entity of entities){
+      const count=users.filter(u=>u.entityId===entity.id).length;
+      const card=document.createElement('div');card.className='portal-entity-card';
+      const label=document.createElement('div');label.innerHTML=`<strong>${esc(entity.name)}</strong><small>${count} ${count===1?'cuenta':'cuentas'}</small>`;
+      const buttons=document.createElement('div');buttons.className='portal-action-row';
+      const edit=document.createElement('button');edit.className='portal-secondary';edit.textContent='Renombrar';edit.onclick=()=>editEntity(entity);
+      const remove=document.createElement('button');remove.className='portal-danger';remove.textContent='Eliminar';remove.onclick=()=>deleteEntity(entity);
+      buttons.append(edit,remove);card.append(label,buttons);list.append(card);
+    }
+  }
+  function editEntity(entity={}){
+    if(user?.role!=='admin')return;
+    const box=dialog(entity.id?'Renombrar entidad':'Agregar entidad',`<form class="portal-form"><label>Nombre de la entidad<input name="name" value="${esc(entity.name||'')}" maxlength="160" required></label><p class="portal-error" role="alert"></p><button class="portal-primary">Guardar entidad</button></form>`);
+    box.classList.add('portal-compact');box.querySelector('form').onsubmit=async event=>{event.preventDefault();const form=event.currentTarget,button=form.querySelector('button');button.disabled=true;
+      try{await api('saveEntity',{id:entity.id,name:form.elements.name.value});box.close();await refreshEntityGroups();}
+      catch(error){form.querySelector('[role=alert]').textContent=error.message;}finally{button.disabled=false;}
+    };
+  }
+  async function deleteEntity(entity){
+    const count=users.filter(u=>u.entityId===entity.id).length;
+    if(count){await LoraUI.alert(`La entidad ${entity.name} tiene ${count} ${count===1?'cuenta':'cuentas'}. Reasigna o elimina esas cuentas primero.`);return;}
+    if(!await LoraUI.confirm(`¿Eliminar la entidad ${entity.name}? Esta acción no borra las estaciones ni sus mediciones.`))return;
+    try{await api('deleteEntity',{id:entity.id});await refreshEntityGroups();}catch(error){await LoraUI.alert(error.message);}
+  }
+  async function deleteUser(account){
+    if(!await LoraUI.confirm(`¿Eliminar definitivamente la cuenta @${account.username}? Perderá acceso. Sus solicitudes anteriores quedarán como historial.`))return;
+    try{await api('deleteUser',{id:account.id});await refreshEntityGroups();}catch(error){await LoraUI.alert(error.message);}
   }
   function editPassword(account){
     const box=dialog('Cambiar contraseña',`<p class="portal-ticket-description">Actualizarás la contraseña de @${esc(account.username)}. Sus sesiones abiertas se cerrarán al guardar.</p><form class="portal-form"><label>Nueva contraseña<input type="password" name="password" minlength="8" maxlength="256" autocomplete="new-password" required></label><label>Repetir contraseña<input type="password" name="repeat" autocomplete="new-password" required></label><p class="portal-error" role="alert"></p><button class="portal-primary">Guardar contraseña</button></form>`);box.classList.add('portal-compact');
@@ -194,9 +229,13 @@
   function editUser(account={}){
     if(user?.role!=='admin')return;
     const stations=read('estaciones_config');
-    const box=dialog(account.id?'Editar cuenta':'Crear cuenta',`<form class="portal-form"><label>Nombre<input name="name" value="${esc(account.name)}" required maxlength="160"></label><label>Entidad<input name="entityName" value="${esc(account.entityName)}" required maxlength="160"></label><label>Usuario<input name="username" value="${esc(account.username)}" pattern="[a-zA-Z0-9._-]{3,48}" minlength="3" maxlength="48" autocomplete="off" required></label><label>Contraseña ${account.id?'(vacía para conservarla)':''}<input name="password" type="password" minlength="8" maxlength="256" autocomplete="new-password" ${account.id?'':'required'}></label><label>Rol<select name="role"><option value="user">Usuario</option><option value="admin" ${account.role==='admin'?'selected':''}>Administrador</option></select></label><label class="portal-check"><input name="active" type="checkbox" ${account.active===false?'':'checked'}> Cuenta activa</label><fieldset><legend>Estaciones asignadas</legend>${stations.map(s=>`<label class="portal-check"><input type="checkbox" name="station" value="${esc(s.id)}" ${(account.assignedStations||[]).includes(s.id)?'checked':''}>${esc(s.name)} · ${esc(s.id)}</label>`).join('')||'<p>No hay estaciones registradas.</p>'}</fieldset><p role="alert" class="portal-error"></p><button class="portal-primary">Guardar cuenta</button></form>`);
-    box.querySelector('form').onsubmit=async event=>{event.preventDefault();const form=event.currentTarget,data=new FormData(form),b=form.querySelector('button');b.disabled=true;
-      try{await api('saveUser',{user:{id:account.id,name:data.get('name'),entityName:data.get('entityName'),username:data.get('username'),password:data.get('password'),role:data.get('role'),active:data.has('active'),assignedStations:data.getAll('station')}});box.close();
+    const options=entities.map(e=>`<option value="${esc(e.id)}" ${e.id===account.entityId||(!account.entityId&&e.name.toLocaleLowerCase('es')===String(account.entityName||'').toLocaleLowerCase('es'))?'selected':''}>${esc(e.name)}</option>`).join('');
+    const box=dialog(account.id?'Editar cuenta':'Crear cuenta',`<form class="portal-form"><label>Nombre<input name="name" value="${esc(account.name)}" required maxlength="160"></label><label>Usuario<input name="username" value="${esc(account.username)}" pattern="[a-zA-Z0-9._-]{3,48}" minlength="3" maxlength="48" autocomplete="off" required></label><label>Contraseña ${account.id?'(vacía para conservarla)':''}<input name="password" type="password" minlength="8" maxlength="256" autocomplete="new-password" ${account.id?'':'required'}></label><label>Rol<select name="role"><option value="user">Usuario</option><option value="admin" ${account.role==='admin'?'selected':''}>Administrador</option></select></label><label>Entidad<select name="entityId"><option value="">Selecciona una entidad</option>${options}</select></label><label class="portal-check"><input name="active" type="checkbox" ${account.active===false?'':'checked'}> Cuenta activa</label><fieldset><legend>Estaciones asignadas</legend>${stations.map(s=>`<label class="portal-check"><input type="checkbox" name="station" value="${esc(s.id)}" ${(account.assignedStations||[]).includes(s.id)?'checked':''}>${esc(s.name)} · ${esc(s.id)}</label>`).join('')||'<p>No hay estaciones registradas.</p>'}</fieldset><p role="alert" class="portal-error"></p><button class="portal-primary">Guardar cuenta</button></form>`);
+    const form=box.querySelector('form'),role=form.elements.role,entitySelect=form.elements.entityId;
+    const updateEntity=()=>{entitySelect.required=role.value==='user';entitySelect.closest('label').hidden=role.value==='admin';if(role.value==='admin')entitySelect.value='';};
+    role.onchange=updateEntity;updateEntity();
+    form.onsubmit=async event=>{event.preventDefault();const data=new FormData(form),b=form.querySelector('button');b.disabled=true;
+      try{await api('saveUser',{user:{id:account.id,name:data.get('name'),entityId:data.get('entityId'),username:data.get('username'),password:data.get('password'),role:data.get('role'),active:data.has('active'),assignedStations:data.getAll('station')}});box.close();
         if(account.id===user.id){sessionStorage.removeItem('lora_rio_active_session');location.reload();return;}
         await refreshEntityGroups();
       }catch(e){form.querySelector('[role=alert]').textContent=e.message;}finally{b.disabled=false;}
@@ -238,6 +277,6 @@
     const status=$('cloud-indicator');if(status)new MutationObserver(refreshChrome).observe(status,{attributes:true,attributeFilter:['data-connected']});
     const sensor=$('sensor-status-text');if(sensor)new MutationObserver(stationStatus).observe(sensor,{childList:true,characterData:true,subtree:true});
   }
-  window.Portal={api,get user(){return user;},get ready(){return ready;},entityAssignments:()=>user?.role==='admin'&&ready?users.filter(u=>u.role==='user').map(u=>({id:u.id,name:u.entityName||u.name,assignedStations:u.assignedStations||[]})):null,logout,showLogin,landingButton,refreshChrome,saveStations,refreshTickets,renderUsers,editUser,importLegacy,openTickets,stationStatus,newTicket};
+  window.Portal={api,get user(){return user;},get ready(){return ready;},entityAssignments:()=>user?.role==='admin'&&ready?entities.map(e=>({id:e.id,name:e.name,assignedStations:[...new Set(users.filter(u=>u.entityId===e.id).flatMap(u=>u.assignedStations||[]))]})):null,logout,showLogin,landingButton,refreshChrome,saveStations,refreshTickets,renderUsers,renderEntities,editEntity,editUser,importLegacy,openTickets,stationStatus,newTicket};
   document.addEventListener('DOMContentLoaded',bootstrap);
 })();

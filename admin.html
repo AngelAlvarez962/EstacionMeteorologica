@@ -285,7 +285,13 @@
     <!-- ========================================================================= -->
     <!-- SECCIÓN 3: GESTIÓN DE ENTIDADES / USUARIOS Y CLAVES DE ACCESO              -->
     <!-- ========================================================================= -->
-    <div id="panel-section-entities" class="space-y-6 hidden"><div class="portal-section-heading"><div><h2>Usuarios y roles</h2><p>Un solo acceso para administradores y usuarios.</p></div><button class="portal-primary" onclick="Portal.editUser()">Crear cuenta</button></div><button class="portal-secondary" onclick="Portal.importLegacy()">Importar cuentas y estaciones anteriores</button><div id="portal-users-list" class="portal-users-workspace"></div></div>
+    <div id="panel-section-entities" class="space-y-6 hidden">
+      <div class="portal-section-heading"><div><h2>Entidades</h2><p>Registra las entidades antes de asignarles cuentas.</p></div><button class="portal-primary" onclick="Portal.editEntity()">Agregar entidad</button></div>
+      <div id="portal-entities-list" class="portal-entity-list"></div>
+      <div class="portal-section-heading"><div><h2>Usuarios y roles</h2><p>Cada usuario pertenece a una entidad registrada.</p></div><button class="portal-primary" onclick="Portal.editUser()">Crear cuenta</button></div>
+      <button class="portal-secondary" onclick="Portal.importLegacy()">Importar cuentas y estaciones anteriores</button>
+      <div id="portal-users-list" class="portal-users-workspace"></div>
+    </div>
 
     <!-- ========================================================================= -->
     <!-- SECCIÓN 4: SEGURIDAD Y PIN MAESTRO DE ADMINISTRADOR                        -->

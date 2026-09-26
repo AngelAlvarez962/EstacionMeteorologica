@@ -211,7 +211,7 @@
             </div>
             
             <p class="text-xs sm:text-sm text-slate-600 leading-relaxed" id="risk-recommendation">
-              Aún no hay estaciones agregadas. Accede como Administrador y haz clic en "Estaciones" o "+ Nueva Estación" para comenzar a recibir telemetría.
+              Aún no hay estaciones agregadas. Regístralas desde el panel de administración para comenzar a recibir telemetría.
             </p>
 
             <div id="gateway-connection-status" class="gateway-status gateway-unknown" role="status">Gateway: comprobando conexión…</div>
@@ -1070,7 +1070,7 @@
         badge.textContent = 'SIN ESTACIONES';
         title.className = 'font-extrabold text-sm sm:text-base tracking-wide uppercase text-slate-900';
         title.textContent = 'SIN ESTACIONES REGISTRADAS TODAVÍA';
-        reco.textContent = 'Accede como Administrador y haz clic en "+ Nueva Estación" en la barra superior para agregar tu primer nodo meteorológico LoRa 32.';
+        reco.textContent = 'Registra la primera estación desde el panel de administración para comenzar el monitoreo.';
         icon.setAttribute('data-lucide', 'radio');
         countEl.textContent = '0 estaciones autorizadas';
         summaryLine.innerHTML = '<span class="text-slate-400 text-[11px] italic">Sin estaciones vinculadas en el sistema</span>';
@@ -1281,13 +1281,13 @@
             </div>
             <h4 class="font-extrabold text-base text-slate-900">No hay estaciones meteorológicas registradas</h4>
             <p class="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
-              Como Administrador, haz clic en el botón <b>"+ Nueva Estación"</b> o en <b>"Estaciones"</b> en la barra superior para agregar tu primer nodo LoRa 32 y calibrar su cota de lecho.
+              Registra tu primer nodo LoRa 32 y calibra su cota de lecho en el panel de administración.
             </p>
             <div class="pt-2">
-              <button onclick="abrirModalGestionEstaciones()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs uppercase tracking-wider shadow-sm transition active:scale-95">
+              <a href="admin.html" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs uppercase tracking-wider shadow-sm transition active:scale-95">
                 <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                <span>Crear Primera Estación</span>
-              </button>
+                <span>Ir al panel de administración</span>
+              </a>
             </div>
           </div>
         `;
