@@ -137,7 +137,7 @@
   </style>
   <link rel="stylesheet" href="web-ui.css">
   <script src="web-ui.js"></script>
-<script src="portal.js"></script></head>
+<script src="portal.js"></script><script src="alert-sound.js"></script></head>
 
 <body class="bg-gradient-to-b from-[#f8fafc] via-[#f0f9ff] to-[#ecfdf5] text-slate-800 min-h-screen font-sans antialiased selection:bg-ocean-200 selection:text-ocean-950 relative overflow-x-hidden">
 
@@ -178,6 +178,10 @@
 
       <!-- Navegación Central (Desktop) -->
       <div class="hidden lg:flex items-center gap-6 text-xs font-semibold tracking-wide text-slate-600">
+        <a href="#desafia" class="hover:text-sky-600 transition-colors py-1 flex items-center gap-1">
+          <i data-lucide="users" class="w-3.5 h-3.5 text-teal-600"></i>
+          <span>DesafIA</span>
+        </a>
         <a href="#reto" class="hover:text-sky-600 transition-colors py-1 flex items-center gap-1">
           <i data-lucide="droplet" class="w-3.5 h-3.5 text-sky-500"></i>
           <span>El Reto</span>
@@ -186,13 +190,9 @@
           <i data-lucide="compass" class="w-3.5 h-3.5 text-teal-600"></i>
           <span>Los 6 Ejes</span>
         </a>
-        <a href="#desafia" class="hover:text-sky-600 transition-colors py-1 flex items-center gap-1">
-          <i data-lucide="users" class="w-3.5 h-3.5 text-teal-600"></i>
-          <span>DesafIA</span>
-        </a>
         <a href="#simulador" class="hover:text-sky-600 transition-colors py-1 flex items-center gap-1">
           <i data-lucide="sliders" class="w-3.5 h-3.5 text-cyan-600"></i>
-          <span>Corte Hidráulico</span>
+          <span>Simulador del nivel del agua</span>
         </a>
       </div>
 
@@ -504,37 +504,36 @@
       </div>
 
       <!-- BENTO GRID ASIMÉTRICO TOTALMENTE TEMATIZADO -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr gap-5">
 
         <!-- CELDA 1: HERO TILE (EJE 02 - SONDA ACÚSTICA & BATIMETRÍA EN TIEMPO REAL) - Span 2 en Desktop -->
-        <div class="lg:col-span-2 rounded-3xl border-2 border-sky-400 bg-gradient-to-br from-sky-50 via-white to-cyan-50/90 p-8 shadow-xl shadow-sky-500/10 relative overflow-hidden flex flex-col justify-between">
+        <div class="rounded-3xl border border-sky-200 bg-gradient-to-br from-sky-50 via-white to-cyan-50/90 p-7 shadow-sm relative overflow-hidden flex flex-col justify-between">
           <div class="absolute -right-16 -top-16 w-56 h-56 bg-cyan-200/40 rounded-full blur-3xl pointer-events-none"></div>
 
           <div>
             <div class="flex items-center justify-between mb-4">
               <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-sky-100 text-sky-800 border border-sky-200 flex items-center gap-1.5">
                 <i data-lucide="radio" class="w-3.5 h-3.5 text-sky-600"></i>
-                <span>02 / MONITOREO · SENSOR ULTRASÓNICO</span>
+                <span>02 / MONITOREO</span>
               </span>
               <div class="w-10 h-10 rounded-2xl bg-sky-600 text-white flex items-center justify-center shadow-md shadow-sky-600/30">
                 <i data-lucide="activity" class="w-5 h-5"></i>
               </div>
             </div>
 
-            <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Medición y consulta del nivel de agua</h3>
-            <p class="text-sm font-semibold text-sky-700 mt-2">"Vigilancia continua del tirante hidráulico en cauces de alta vulnerabilidad."</p>
+            <h3 class="text-xl font-bold text-slate-900">Medición y consulta del nivel de agua</h3>
+            <p class="text-xs font-semibold text-sky-700 mt-1">Monitoreo continuo del nivel del agua</p>
 
-            <p class="text-xs sm:text-sm text-slate-600 mt-4 leading-relaxed max-w-2xl">
+            <p class="text-xs text-slate-600 mt-3 leading-relaxed">
               Un sensor ultrasónico mide la distancia hasta el agua. La estación envía esa lectura por LoRa al gateway, que la publica en la plataforma cuando dispone de internet.
             </p>
           </div>
 
-          <div class="mt-8 pt-5 border-t border-sky-200 flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-sky-800">
+          <div class="mt-6 pt-4 border-t border-sky-200 flex flex-wrap items-center justify-between gap-4 text-[11px] font-mono text-sky-800">
             <span class="flex items-center gap-2 font-bold">
               <span class="w-2.5 h-2.5 rounded-full bg-sky-500 animate-ping"></span>
               <span>Lecturas cuando la estación transmite</span>
             </span>
-            <a href="dashboard_rio.html" class="text-sky-700 hover:text-sky-900 flex items-center gap-1 font-bold">Abrir consola hidrológica →</a>
           </div>
         </div>
 
@@ -713,10 +712,9 @@
           <img src="assets/asociacion-mexicana-hidraulica-tabasco.png" alt="Asociación Mexicana de Hidráulica, Sección Tabasco" class="w-full sm:w-56 h-36 object-contain" loading="lazy" width="1280" height="853">
           <div><h3 class="font-bold text-slate-900">Asociación Mexicana de Hidráulica</h3><p class="text-sm text-slate-600 mt-1">Sección Tabasco</p></div>
         </article>
-        <article class="rounded-3xl border border-teal-200 bg-white p-6 shadow-sm flex flex-col justify-center">
-          <div class="flex items-center gap-3"><i data-lucide="shield-check" class="w-7 h-7 text-teal-700" aria-hidden="true"></i><h3 class="font-bold text-slate-900">Protección Civil</h3></div>
-          <p class="text-sm text-slate-600 mt-3">Integración en preparación para apoyar la consulta de niveles en zonas de riesgo. Los avisos oficiales corresponden a las autoridades competentes.</p>
-        </article>
+        <article class="rounded-3xl border border-teal-200 bg-white p-6 shadow-sm flex flex-col sm:flex-row items-center gap-5">
+<img src="assets/ideas-disruptivas.jpg" alt="Ideas Disruptivas: innovación para la vida" class="w-full sm:w-56 h-36 object-contain" loading="lazy" width="1376" height="768">
+<div><h3 class="font-bold text-slate-900">Ideas Disruptivas</h3><p class="text-sm text-slate-600 mt-1">Innovación para la vida</p></div></article>
       </div>
     </div>
   </section>
@@ -733,7 +731,7 @@
           <span>Simulador educativo de nivel</span>
         </div>
         <h2 class="font-black text-3xl sm:text-5xl text-slate-900 tracking-tight">
-          Corte Hidráulico Transversal del Río
+          Simulador del nivel del agua
         </h2>
         <p class="mt-3 text-base text-slate-600">
           Modifica el tirante de agua para observar la elevación sobre el lecho fluvial, la boya de superficie y el comportamiento de las alertas ribereñas.
@@ -743,7 +741,7 @@
           <i data-lucide="volume-x" id="sim-audio-icon" class="w-4 h-4" aria-hidden="true"></i>
           <span id="sim-audio-label">Activar sonido del simulador</span>
         </button>
-        <p id="sim-audio-help" class="mt-2 text-xs text-slate-500" role="status">El sonido solo se reproduce al pasar a aviso o peligro.</p>
+        <p id="sim-audio-help" class="mt-2 text-xs text-slate-500" role="status">Amarillo: un pitido cada 2 segundos. Rojo: dos pitidos cada segundo.</p>
       </div>
 
       <!-- Interfaz del Simulador Fluvial -->
@@ -961,10 +959,10 @@
           <h5 class="text-white font-bold uppercase mb-3 tracking-wider">Explorar</h5>
           <ul class="space-y-2">
             <li><a href="#hero" class="hover:text-sky-400 transition">Inicio / Sonda Fluvial</a></li>
+            <li><a href="#desafia" class="hover:text-sky-400 transition">Proyecto DesafIA</a></li>
             <li><a href="#reto" class="hover:text-sky-400 transition">El Reto de las Grandes Aguas</a></li>
             <li><a href="#ejes" class="hover:text-sky-400 transition">Los 6 Ejes Hidrológicos</a></li>
-            <li><a href="#simulador" class="hover:text-sky-400 transition">Corte Hidráulico Transversal</a></li>
-            <li><a href="#desafia" class="hover:text-sky-400 transition">Proyecto DesafIA</a></li>
+            <li><a href="#simulador" class="hover:text-sky-400 transition">Simulador del nivel del agua</a></li>
             <li><a href="#aliados" class="hover:text-sky-400 transition">Colaboradores</a></li>
             <li><a href="dashboard_rio.html" class="hover:text-sky-300 transition font-bold text-sky-400">Dashboard de Telemetría</a></li>
           </ul>
@@ -1108,6 +1106,7 @@
     let simAudioCtx = null;
     let simSoundEnabled = false;
     let simLastZone = 0;
+    const simAlarm = new AlertCadence(playSimulatorAlert);
 
     function playSimulatorAlert(zone) {
       if (!simSoundEnabled || !simAudioCtx) return;
@@ -1148,14 +1147,15 @@
       simAudioToggle.setAttribute('aria-pressed', String(simSoundEnabled));
       simAudioLabel.textContent = simSoundEnabled ? 'Silenciar simulador' : 'Activar sonido del simulador';
       document.getElementById('sim-audio-icon').setAttribute('data-lucide', simSoundEnabled ? 'volume-2' : 'volume-x');
-      simAudioHelp.textContent = simSoundEnabled ? 'Sonido activo solo para cambios de nivel simulados.' : 'El sonido solo se reproduce al pasar a aviso o peligro.';
+      simAudioHelp.textContent = simSoundEnabled ? 'Amarillo: un pitido cada 2 segundos. Rojo: dos pitidos cada segundo.' : 'Activa el sonido para escuchar los avisos del simulador.';
+      simAlarm.set(simLastZone, simSoundEnabled);
       lucide.createIcons();
     });
 
     function updateSimulator(level) {
       level = Math.max(0.20, Math.min(MAX_DEPTH_METERS, parseFloat(level)));
       const zone = level >= CRITICAL_THRESHOLD ? 2 : level >= WARNING_THRESHOLD ? 1 : 0;
-      if (zone > simLastZone) playSimulatorAlert(zone);
+      simAlarm.set(zone, simSoundEnabled);
       simLastZone = zone;
       const pct = ((level / MAX_DEPTH_METERS) * 100).toFixed(1);
 

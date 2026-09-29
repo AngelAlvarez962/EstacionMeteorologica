@@ -1,0 +1,11 @@
+PUBLICAR ESTA ACTUALIZACIÓN
+
+1. Descomprime Actualizacion-landing-y-sonido.zip.
+2. En la raíz de tu repositorio reemplaza index.html, landing.html y dashboard_rio.html; agrega alert-sound.js en esa misma raíz.
+3. Dentro de la carpeta assets agrega ideas-disruptivas.jpg. Conserva los demás archivos de assets.
+4. Guarda los cambios en la rama main. Vercel publicará la actualización automáticamente.
+5. Recarga la web con Ctrl+F5.
+
+No subas la carpeta contenedora ni este LEEME. No necesitas cambiar api, Supabase ni variables de Vercel.
+
+Cambios: seis tarjetas iguales, logo Ideas Disruptivas, menú DesafIA / El Reto / Los 6 Ejes / Simulador del nivel del agua. Sonido amarillo: un pitido cada 2 segundos; rojo: dos pitidos cada segundo. En el simulador debes activar el sonido. El navegador puede requerir un clic para permitir audio; los temporizadores pueden pausarse en segundo plano.

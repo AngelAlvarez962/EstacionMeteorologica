@@ -94,7 +94,7 @@
   </style>
   <link rel="stylesheet" href="web-ui.css">
   <script src="web-ui.js"></script>
-<script src="portal.js"></script></head>
+<script src="portal.js"></script><script src="alert-sound.js"></script></head>
 <body class="bg-gradient-to-b from-sky-50 via-cyan-50/40 to-slate-50 text-slate-800 min-h-screen flex flex-col font-sans antialiased selection:bg-cyan-500 selection:text-white pb-8">
 
   <!-- ==================== HEADER PRINCIPAL ==================== -->
@@ -740,6 +740,11 @@
     let currentViewMode = 'ALL';
     let windowSize = 30;
     let isSoundEnabled = true;
+    let alarmZone = 0;
+    const stationAlarm = new AlertCadence(zone => {
+      playAlarmTone(zone === 2 ? 980 : 600, zone === 2 ? 'square' : 'sine', 0.18);
+      if (zone === 2) playAlarmTone(980, 'square', 0.18, 0.3);
+    });
     let isDemoMode = false;
     let demoInterval = null;
     let totalPacketCount = 0;
@@ -1064,6 +1069,7 @@
       let ahora = Date.now();
 
       if (totalEstaciones === 0) {
+        alarmZone = 0; stationAlarm.set(0, isSoundEnabled);
         banner.className = 'p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-white/95 border-sky-200/90 text-slate-800 shadow-sm';
         iconBox.className = 'p-3 rounded-xl bg-sky-50 border border-sky-200 text-sky-700 shrink-0';
         badge.className = 'text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200';
@@ -1112,6 +1118,8 @@
         }
       });
 
+      alarmZone = peligros.length ? 2 : alertas.length ? 1 : 0;
+      stationAlarm.set(alarmZone, isSoundEnabled);
       countEl.textContent = activas + ' de ' + totalEstaciones + ' estaciones transmitiendo en vivo';
 
       if (peligros.length > 0) {
@@ -1125,7 +1133,7 @@
         const nombres = peligros.map(p => p.cfg.name + ' (' + p.water.toFixed(1) + 'cm)').join(', ');
         reco.textContent = 'Nivel elevado detectado en: ' + nombres + '. Evita acercarte al agua y cruzar puentes o vados afectados; consulta los avisos de Protección Civil y las autoridades locales.';
         icon.setAttribute('data-lucide', 'alert-octagon');
-        playAlarmTone(980, 'square', 0.3);
+
 
       } else if (alertas.length > 0) {
         banner.className = 'p-4 sm:p-5 rounded-2xl border transition-all duration-300 bg-amber-50 border-amber-300 text-amber-950 shadow-sm';
@@ -2167,7 +2175,7 @@
     // 14. GENERADOR DE SONIDOS Y ALARMAS
     // ==========================================
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playAlarmTone(freq = 880, type = 'sine', duration = 0.25) {
+    function playAlarmTone(freq = 880, type = 'sine', duration = 0.25, delay = 0) {
       if (!isSoundEnabled) return;
       try {
         if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -2175,21 +2183,23 @@
         const gain = audioCtx.createGain();
         osc.type = type;
         osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        const at = audioCtx.currentTime + delay;
+        gain.gain.setValueAtTime(0.12, at);
+        gain.gain.exponentialRampToValueAtTime(0.001, at + duration);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + duration);
+        osc.start(at);
+        osc.stop(at + duration);
       } catch (e) {}
     }
 
     document.getElementById('btn-sound').addEventListener('click', () => {
       isSoundEnabled = !isSoundEnabled;
+      stationAlarm.set(alarmZone, isSoundEnabled);
       const icon = document.getElementById('sound-icon');
       if (isSoundEnabled) {
         icon.setAttribute('data-lucide', 'volume-2');
-        playAlarmTone(600, 'sine', 0.1);
+        if (!alarmZone) playAlarmTone(600, 'sine', 0.1);
       } else {
         icon.setAttribute('data-lucide', 'volume-x');
       }
