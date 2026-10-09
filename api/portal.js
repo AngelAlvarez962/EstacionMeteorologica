@@ -39,8 +39,10 @@ function stationList(items) {
   return items.map(s=>{
     if(!/^RIO_\d{2}$/.test(s.id)||ids.has(s.id))throw fail(400,'Identificador de estación inválido o repetido.');ids.add(s.id);
     const bed=Number(s.bedHeight),yellow=Number(s.yellowAlert),red=Number(s.redAlert);
-    if(!clean(s.name)||![bed,yellow,red].every(Number.isFinite)||bed<=0||yellow<0||red<=yellow||red>bed)throw fail(400,'Revisa las alturas y alertas de las estaciones.');
-    return {id:s.id,name:clean(s.name),bedHeight:bed,yellowAlert:yellow,redAlert:red};
+    // Older stations use the installation height until a water capacity is configured.
+    const capacity=Number(s.capacityHeight ?? bed);
+    if(!clean(s.name)||![bed,capacity,yellow,red].every(Number.isFinite)||bed<=0||capacity<=0||capacity>bed||yellow<0||red<=yellow||red>capacity)throw fail(400,'Revisa las alturas: fondo a tope debe ser mayor que cero y no superar sensor a fondo; amarilla < roja ≤ fondo a tope.');
+    return {id:s.id,name:clean(s.name),bedHeight:bed,capacityHeight:capacity,yellowAlert:yellow,redAlert:red};
   });
 }
 module.exports=async function handler(req,res){
@@ -176,7 +178,7 @@ module.exports=async function handler(req,res){
           const next=stationList([{...body.details,id:kind==='modify'?station:body.details?.id}])[0];
           if(kind==='add'&&all.some(s=>s.id===next.id))throw fail(409,'Ese identificador ya está registrado.');
           payload={next,previous:current||null};
-          description=(kind==='add'?'Agregar':'Modificar')+' estación '+next.name+' ('+next.id+'). Altura: '+next.bedHeight+' cm; aviso: '+next.yellowAlert+' cm; alerta: '+next.redAlert+' cm.';
+          description=(kind==='add'?'Agregar':'Modificar')+' estación '+next.name+' ('+next.id+'). Sensor a fondo: '+next.bedHeight+' cm; fondo a tope: '+next.capacityHeight+' cm; aviso: '+next.yellowAlert+' cm; alerta: '+next.redAlert+' cm.';
         }else{payload={previous:current};description='Eliminar estación '+current.name+' ('+station+'). Se conserva el historial de mediciones.';}
       }
       const row=(await db('portal_tickets','POST',{user_id:user.id,user_name:user.name,entity_name:user.entity_name,kind,station:kind==='add'?payload.next.id:kind==='password'?null:station,description,payload}))[0];
