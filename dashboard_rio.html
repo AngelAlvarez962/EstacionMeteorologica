@@ -256,7 +256,7 @@
       <div class="flex items-center justify-between">
         <div>
           <h3 class="font-bold text-sm text-slate-900">Red de Monitoreo Distribuido</h3>
-          <p class="text-xs text-slate-500">Estado consolidado de las estaciones meteorológicas LoRa enlazadas</p>
+          <p class="text-xs text-slate-500">Estado consolidado de las estaciones hidrométricas LoRa enlazadas</p>
         </div>
         <span class="text-xs text-sky-700 font-mono font-semibold" id="label-network-status">Monitoreo continuo</span>
       </div>
@@ -540,7 +540,7 @@
           <!-- Selección de Estaciones Autorizadas -->
           <div>
             <label class="block text-[11px] font-mono text-slate-600 uppercase mb-2">
-              Estaciones Meteorológicas / Hidrológicas Autorizadas:
+              Estaciones Hidrométricas Autorizadas:
             </label>
             <div id="new-entity-stations-checkboxes" class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-white p-3 rounded-xl border border-sky-200 max-h-36 overflow-y-auto">
               <!-- Llenado dinámicamente -->
@@ -581,7 +581,7 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL: GESTIÓN DE ESTACIONES METEOROLÓGICAS ==================== -->
+  <!-- ==================== MODAL: GESTIÓN DE ESTACIONES HIDROMÉTRICAS ==================== -->
   <div id="modal-manage-stations" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white border border-sky-200 rounded-3xl max-w-2xl w-full p-6 space-y-4 shadow-2xl max-h-[90vh] flex flex-col">
       <div class="flex items-center justify-between pb-3 border-b border-sky-100">
@@ -913,7 +913,7 @@
       const assigned = Array.from(checkedInputs).map(cb => cb.value);
 
       if (assigned.length === 0) {
-        LoraUI.alert('Debes seleccionar al menos una estación meteorológica para esta entidad.');
+        LoraUI.alert('Debes seleccionar al menos una estación hidrométrica para esta entidad.');
         return;
       }
 
@@ -1175,7 +1175,7 @@
         badge.className = 'text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200';
         badge.textContent = 'SIN SEÑAL DE ESTACIÓN';
         title.className = 'font-extrabold text-sm sm:text-base tracking-wide uppercase text-slate-900';
-        title.textContent = totalEstaciones === 1 ? 'ESTACIÓN METEOROLÓGICA DESCONECTADA' : 'ESTACIONES METEOROLÓGICAS DESCONECTADAS';
+        title.textContent = totalEstaciones === 1 ? 'ESTACIÓN HIDROMÉTRICA DESCONECTADA' : 'ESTACIONES HIDROMÉTRICAS DESCONECTADAS';
         reco.textContent = gateway.connected
           ? 'El gateway está conectado, pero no hay señal reciente de la estación. Verifica su alimentación y el enlace LoRa. El estado se actualizará al recibir una transmisión.'
           : 'No hay señal reciente de la estación. Comprueba la alimentación y conexión del gateway, y después la alimentación y el enlace LoRa de la estación.';
@@ -1287,7 +1287,7 @@
             <div class="w-14 h-14 rounded-2xl bg-sky-50 border border-sky-200 text-sky-600 flex items-center justify-center mx-auto shadow-xs">
               <i data-lucide="radio" class="w-7 h-7"></i>
             </div>
-            <h4 class="font-extrabold text-base text-slate-900">No hay estaciones meteorológicas registradas</h4>
+            <h4 class="font-extrabold text-base text-slate-900">No hay estaciones hidrométricas registradas</h4>
             <p class="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
               Registra tu primer nodo LoRa 32 y calibra su cota de lecho en el panel de administración.
             </p>
@@ -2117,7 +2117,7 @@
     });
 
     document.getElementById('btn-reset-default-stations').addEventListener('click', async () => {
-      if (await LoraUI.confirm('¿Deseas limpiar y borrar todas las estaciones meteorológicas del sistema?')) {
+      if (await LoraUI.confirm('¿Deseas limpiar y borrar todas las estaciones hidrométricas del sistema?')) {
         stationsConfig = [];
         if(!await guardarConfiguracionEstaciones())return;
         abrirModalGestionEstaciones();
