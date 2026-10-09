@@ -214,14 +214,20 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-2xl bg-sky-50/50 border border-sky-100">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 rounded-2xl bg-sky-50/50 border border-sky-100">
             <div>
               <label class="block text-xs font-bold text-sky-950 uppercase tracking-wider mb-1 flex items-center gap-1">
                 <i data-lucide="arrow-down" class="w-3.5 h-3.5 text-sky-600"></i>
-                <span>Cota Lecho Fluvial (cm)</span>
+                <span>Sensor a fondo (cm)</span>
               </label>
-              <input type="number" id="station-input-bed" value="100" min="10" max="1000" required="" class="w-full px-3 py-2 rounded-xl border border-sky-200 bg-white text-sm font-mono font-bold">
+              <input type="number" id="station-input-bed" value="100" min="0.1" step="0.1" max="1000" required="" class="w-full px-3 py-2 rounded-xl border border-sky-200 bg-white text-sm font-mono font-bold">
               <p class="text-[10px] text-slate-500 mt-1">Distancia del sensor al fondo seco.</p>
+            </div>
+
+            <div>
+              <label for="station-input-capacity" class="block text-xs font-bold text-sky-950 uppercase tracking-wider mb-1">Fondo a tope (cm)</label>
+              <input type="number" id="station-input-capacity" value="100" min="0.1" step="0.1" max="1000" required="" class="w-full px-3 py-2 rounded-xl border border-sky-200 bg-white text-sm font-mono font-bold">
+              <p class="text-[10px] text-slate-500 mt-1">Altura de agua que equivale al 100%. Para tu cubeta: 16 cm.</p>
             </div>
 
             <div>
@@ -229,7 +235,7 @@
                 <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-600"></i>
                 <span>Alerta Amarilla (cm)</span>
               </label>
-              <input type="number" id="station-input-yellow" value="60" min="5" max="1000" required="" class="w-full px-3 py-2 rounded-xl border border-amber-300 bg-white text-sm font-mono font-bold">
+              <input type="number" id="station-input-yellow" value="60" min="0" step="0.1" max="1000" required="" class="w-full px-3 py-2 rounded-xl border border-amber-300 bg-white text-sm font-mono font-bold">
               <p class="text-[10px] text-slate-500 mt-1">Tirante de agua para aviso preventivo.</p>
             </div>
 
@@ -238,7 +244,7 @@
                 <i data-lucide="alert-octagon" class="w-3.5 h-3.5 text-rose-600"></i>
                 <span>Alerta Roja (cm)</span>
               </label>
-              <input type="number" id="station-input-red" value="80" min="10" max="1000" required="" class="w-full px-3 py-2 rounded-xl border border-rose-300 bg-white text-sm font-mono font-bold">
+              <input type="number" id="station-input-red" value="80" min="0.1" step="0.1" max="1000" required="" class="w-full px-3 py-2 rounded-xl border border-rose-300 bg-white text-sm font-mono font-bold">
               <p class="text-[10px] text-slate-500 mt-1">Tirante crítico de desborde inminente.</p>
             </div>
           </div>
@@ -405,10 +411,14 @@
               <p class="text-[11px] font-mono text-slate-500 mt-0.5">Frecuencia LoRa: 915.00 MHz</p>
             </div>
 
-            <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 text-center">
+            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-center">
               <div class="p-2 rounded-xl bg-sky-50 border border-sky-100">
-                <span class="text-[9px] font-mono uppercase text-sky-700 block font-bold">Lecho</span>
+                <span class="text-[9px] font-mono uppercase text-sky-700 block font-bold">Sensor a fondo</span>
                 <span class="text-xs font-mono font-bold text-sky-950">${st.bedHeight || 100} cm</span>
+              </div>
+              <div class="p-2 rounded-xl bg-sky-50 border border-sky-100">
+                <span class="text-[9px] font-mono uppercase text-sky-700 block font-bold">Fondo a tope</span>
+                <span class="text-xs font-mono font-bold text-sky-950">${st.capacityHeight ?? st.bedHeight ?? 100} cm</span>
               </div>
               <div class="p-2 rounded-xl bg-amber-50 border border-amber-200">
                 <span class="text-[9px] font-mono uppercase text-amber-700 block font-bold">Aviso</span>
@@ -435,17 +445,18 @@
       const mode = document.getElementById('edit-station-mode').value;
       const rawId = (document.getElementById('station-input-id').value || '').trim().toUpperCase();
       const name = (document.getElementById('station-input-name').value || '').trim();
-      const bed = parseFloat(document.getElementById('station-input-bed').value) || 100;
-      const yellow = parseFloat(document.getElementById('station-input-yellow').value) || 60;
-      const red = parseFloat(document.getElementById('station-input-red').value) || 80;
+      const bed = parseFloat(document.getElementById('station-input-bed').value);
+      const capacity = parseFloat(document.getElementById('station-input-capacity').value);
+      const yellow = parseFloat(document.getElementById('station-input-yellow').value);
+      const red = parseFloat(document.getElementById('station-input-red').value);
 
       if (!/^RIO_\d{2}$/i.test(rawId)) {
         LoraUI.alert('El ID debe tener el formato estricto RIO_XX (Ej: RIO_01, RIO_02)');
         return;
       }
 
-      if (yellow >= red) {
-        LoraUI.alert('La alerta amarilla debe ser menor al nivel crítico de alerta roja.');
+      if (![bed, capacity, yellow, red].every(Number.isFinite) || bed <= 0 || capacity <= 0 || capacity > bed || yellow < 0 || yellow >= red || red > capacity) {
+        LoraUI.alert('Revisa las alturas: fondo a tope debe ser mayor que cero y no superar sensor a fondo; amarilla < roja ≤ fondo a tope.');
         return;
       }
 
@@ -460,6 +471,7 @@
         id: rawId,
         name: name,
         bedHeight: bed,
+        capacityHeight: capacity,
         yellowAlert: yellow,
         redAlert: red
       };
@@ -489,6 +501,7 @@
       document.getElementById('station-input-id').classList.add('bg-slate-100');
       document.getElementById('station-input-name').value = st.name;
       document.getElementById('station-input-bed').value = st.bedHeight || 100;
+      document.getElementById('station-input-capacity').value = st.capacityHeight ?? st.bedHeight ?? 100;
       document.getElementById('station-input-yellow').value = st.yellowAlert || 60;
       document.getElementById('station-input-red').value = st.redAlert || 80;
 
@@ -506,6 +519,7 @@
       document.getElementById('station-input-id').classList.remove('bg-slate-100');
       document.getElementById('station-input-name').value = '';
       document.getElementById('station-input-bed').value = '100';
+      document.getElementById('station-input-capacity').value = '100';
       document.getElementById('station-input-yellow').value = '60';
       document.getElementById('station-input-red').value = '80';
 

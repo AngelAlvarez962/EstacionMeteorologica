@@ -328,7 +328,7 @@
               <span class="text-slate-400 font-medium text-xs">cm</span>
             </div>
             <div class="text-[11px] text-slate-600 mt-0.5 font-medium" id="metric-water-percent">Capacidad: --%</div>
-            <div class="text-[10px] text-sky-600 mt-1 font-mono">Fórmula: Lecho - Distancia</div>
+            <div class="text-[10px] text-sky-600 mt-1 font-mono">Nivel: sensor a fondo − distancia al agua</div>
           </div>
           <div class="mt-3 pt-2 border-t border-sky-100 flex items-center justify-between text-[11px]">
             <span class="text-slate-400">Altura Instalación:</span>
@@ -386,9 +386,9 @@
             </div>
 
             <div class="relative flex-1 bg-gradient-to-b from-sky-50/20 to-sky-100/40 flex flex-col justify-end overflow-hidden">
-              <!-- Sensor en lo alto -->
+              <!-- Etiqueta de instalación; el dibujo representa la escala de agua, no la altura física del sensor. -->
               <div class="absolute top-2 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center">
-                <div class="px-2 py-0.5 rounded bg-white border border-sky-200 text-[10px] font-mono font-semibold text-amber-700 flex items-center gap-1 shadow-xs">
+                <div id="sensor-installation-label" class="px-2 py-0.5 rounded bg-white border border-sky-200 text-[10px] font-mono font-semibold text-amber-700 flex items-center gap-1 shadow-xs">
                   <i data-lucide="radar" class="w-3 h-3 text-amber-600"></i>
                   SENSOR (Zona ciega: 20cm)
                 </div>
@@ -397,7 +397,7 @@
 
               <!-- Línea de Peligro Rojo -->
               <div id="line-red-alert" class="absolute top-[20%] w-full border-b border-rose-500 border-dashed z-10 flex items-center justify-end pr-2">
-                <span id="label-red-alert" class="text-[9px] text-rose-700 font-mono uppercase font-bold bg-white/80 px-1 rounded">Límite Desborde (80cm)</span>
+                <span id="label-red-alert" class="text-[9px] text-rose-700 font-mono uppercase font-bold bg-white/80 px-1 rounded">Alerta roja (80cm)</span>
               </div>
 
               <!-- Línea de Alerta Amarilla -->
@@ -620,8 +620,12 @@
           </div>
           <div class="sm:col-span-2 flex items-end gap-2">
             <div class="flex-1">
-              <label class="block text-slate-500 mb-1 text-[10px]">Lecho (cm):</label>
+              <label class="block text-slate-500 mb-1 text-[10px]">Sensor a fondo (cm):</label>
               <input type="number" id="new-station-bed" placeholder="100" value="100" class="w-full bg-white border border-sky-200 rounded-xl px-2.5 py-1.5 text-slate-900 font-mono focus:border-sky-500 focus:outline-none">
+            </div>
+            <div class="flex-1">
+              <label class="block text-slate-500 mb-1 text-[10px]">Fondo a tope (cm):</label>
+              <input type="number" id="new-station-capacity" placeholder="Igual al fondo si se deja vacío" min="0.1" step="0.1" class="w-full bg-white border border-sky-200 rounded-xl px-2.5 py-1.5 text-slate-900 font-mono focus:border-sky-500 focus:outline-none">
             </div>
             <button id="btn-add-station" class="bg-sky-600 hover:bg-sky-500 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs transition active:scale-95 shrink-0 shadow-xs">
               Agregar
@@ -1312,7 +1316,7 @@
         const water = isOverflow ? cfg.bedHeight : ((isLive && hasLatest && status === 'OK') ? store.latest.waterLevel : 0);
         const dist = isOverflow ? (store.latest.distance > 0 ? store.latest.distance : 20.0) : ((isLive && hasLatest && status === 'OK') ? store.latest.distance : 0);
         const rssi = (isLive && hasLatest) ? store.latest.rssi : null;
-        const pct = isOverflow ? 100 : ((isLive && status === 'OK') ? Math.min(100, Math.max(0, (water / cfg.bedHeight) * 100)) : 0);
+        const pct = isOverflow ? 100 : ((isLive && status === 'OK') ? calcularPorcentajeAgua(cfg, water) : 0);
 
         let cardBorder = 'border-sky-100 bg-white hover:border-sky-300';
         let badgeColor = 'bg-slate-100 text-slate-600 border-slate-200';
@@ -1373,7 +1377,7 @@
                   </span>
                   <h4 class="font-bold text-sm text-slate-900 group-hover:text-sky-700 transition line-clamp-1">${cfg.name}</h4>
                 </div>
-                <span class="text-[11px] text-slate-400 font-mono mt-0.5 block">Cota Lecho: ${cfg.bedHeight} cm</span>
+                <span class="text-[11px] text-slate-400 font-mono mt-0.5 block">Sensor a fondo: ${cfg.bedHeight} cm · tope: ${getCapacityHeight(cfg)} cm</span>
               </div>
               <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${badgeColor} whitespace-nowrap shrink-0">
                 ${badgeStatus}
@@ -1396,7 +1400,7 @@
                   <div class="font-mono text-sm ${isLive && (status === 'OK' || isOverflow) ? 'text-sky-700 font-bold' : 'text-slate-400'}">
                     ${isLive && (status === 'OK' || isOverflow) ? dist.toFixed(1) + ' cm' : (isLive ? status : '--')}
                   </div>
-                  <div class="text-[10px] text-slate-500">Capacidad: ${isLive && (status === 'OK' || isOverflow) ? pct.toFixed(0) + '%' : '--%'}</div>
+                  <div class="text-[10px] text-slate-500">Llenado: ${isLive && (status === 'OK' || isOverflow) ? pct.toFixed(0) + '%' : '--%'}</div>
                 </div>
               </div>
 
@@ -1432,6 +1436,20 @@
     // ==========================================
     // 5. VISTA DETALLADA DE ESTACIÓN INDIVIDUAL
     // ==========================================
+    // Installation height calculates depth; water capacity defines the visual 100%.
+    function getCapacityHeight(cfg) {
+      const capacity = Number(cfg.capacityHeight ?? cfg.bedHeight);
+      return Number.isFinite(capacity) && capacity > 0 ? capacity : Number(cfg.bedHeight);
+    }
+
+    function calcularNivelAgua(cfg, distance) {
+      return Math.max(0, Number(cfg.bedHeight) - distance);
+    }
+
+    function calcularPorcentajeAgua(cfg, waterLevel) {
+      return Math.min(100, Math.max(0, waterLevel / getCapacityHeight(cfg) * 100));
+    }
+
     function cargarDetalleEstacion(stId) {
       const cfg = stationsConfig.find(s => s.id === stId);
       if (!cfg) return;
@@ -1441,17 +1459,20 @@
       document.getElementById('card-sensor-range').textContent = '20 - ' + cfg.bedHeight + ' cm (Máx: 600cm)';
       document.getElementById('card-bed-height').textContent = cfg.bedHeight + ' cm';
 
-      document.getElementById('ruler-max-cm').innerHTML = cfg.bedHeight + 'cm <span class="text-rose-600 font-bold">▲ MAX</span>';
-      document.getElementById('ruler-75-cm').textContent = Math.round(cfg.bedHeight * 0.75) + 'cm';
-      document.getElementById('ruler-50-cm').textContent = Math.round(cfg.bedHeight * 0.50) + 'cm';
-      document.getElementById('ruler-25-cm').textContent = Math.round(cfg.bedHeight * 0.25) + 'cm';
+      const capacity = getCapacityHeight(cfg);
+      document.getElementById('ruler-station-caption').textContent = 'Fondo a tope: ' + capacity + ' cm · sensor a fondo: ' + cfg.bedHeight + ' cm';
+      document.getElementById('sensor-installation-label').textContent = 'Sensor a fondo: ' + cfg.bedHeight + ' cm';
+      document.getElementById('ruler-max-cm').innerHTML = capacity + 'cm <span class="text-rose-600 font-bold">▲ MAX</span>';
+      document.getElementById('ruler-75-cm').textContent = Number((capacity * 0.75).toFixed(1)) + 'cm';
+      document.getElementById('ruler-50-cm').textContent = Number((capacity * 0.50).toFixed(1)) + 'cm';
+      document.getElementById('ruler-25-cm').textContent = Number((capacity * 0.25).toFixed(1)) + 'cm';
 
-      const redTopPct = Math.max(0, Math.min(100, ((cfg.bedHeight - cfg.redAlert) / cfg.bedHeight) * 100));
-      const yellowTopPct = Math.max(0, Math.min(100, ((cfg.bedHeight - cfg.yellowAlert) / cfg.bedHeight) * 100));
+      const redTopPct = Math.max(0, Math.min(100, ((capacity - cfg.redAlert) / capacity) * 100));
+      const yellowTopPct = Math.max(0, Math.min(100, ((capacity - cfg.yellowAlert) / capacity) * 100));
 
       const lineRed = document.getElementById('line-red-alert');
       if (lineRed) lineRed.style.top = redTopPct.toFixed(1) + '%';
-      document.getElementById('label-red-alert').textContent = 'Límite Desborde (' + cfg.redAlert + 'cm)';
+      document.getElementById('label-red-alert').textContent = 'Alerta roja (' + cfg.redAlert + 'cm)';
 
       const lineYellow = document.getElementById('line-yellow-alert');
       if (lineYellow) lineYellow.style.top = yellowTopPct.toFixed(1) + '%';
@@ -1459,11 +1480,11 @@
 
       document.getElementById('badge-range-green').textContent = '< ' + cfg.yellowAlert + 'cm';
       document.getElementById('badge-range-yellow').textContent = cfg.yellowAlert + '-' + cfg.redAlert + 'cm';
-      document.getElementById('badge-range-red').textContent = '> ' + cfg.redAlert + 'cm';
-      document.getElementById('chart-legend-red').textContent = 'Límite Desborde (' + cfg.redAlert + 'cm)';
+      document.getElementById('badge-range-red').textContent = '≥ ' + cfg.redAlert + 'cm';
+      document.getElementById('chart-legend-red').textContent = 'Alerta roja (' + cfg.redAlert + 'cm)';
 
       if (riverChart && riverChart.options && riverChart.options.scales && riverChart.options.scales.y) {
-        riverChart.options.scales.y.max = cfg.bedHeight;
+        riverChart.options.scales.y.max = capacity;
       }
 
       const store = telemetryStore[stId];
@@ -1507,7 +1528,7 @@
       const isOverflow = (status === 'MUY_CERCA' || status === 'ERR_DESBORDE' || (status === 'OK' && distance > 0 && distance <= 20.0));
       const effWater = isOverflow ? cfg.bedHeight : waterLevel;
       const effDist = isOverflow ? (distance > 0 ? distance : 20.0) : distance;
-      const percent = Math.min(100, Math.max(0, (effWater / cfg.bedHeight) * 100));
+      const percent = calcularPorcentajeAgua(cfg, effWater);
 
       const sensorBadge = document.getElementById('sensor-badge');
       const sensorDot = document.getElementById('sensor-badge-dot');
@@ -1530,7 +1551,7 @@
         document.getElementById('metric-distance').textContent = distance.toFixed(1);
         document.getElementById('metric-meters').textContent = (distance / 100).toFixed(2) + ' m al agua';
         document.getElementById('metric-water-level').textContent = waterLevel.toFixed(1);
-        document.getElementById('metric-water-percent').textContent = 'Capacidad: ' + percent.toFixed(0) + '% del cauce';
+        document.getElementById('metric-water-percent').textContent = 'Llenado: ' + percent.toFixed(0) + '% · 100% = ' + getCapacityHeight(cfg) + ' cm';
         document.getElementById('water-column').style.height = percent + '%';
         document.getElementById('water-badge-level').textContent = 'Nivel río: ' + waterLevel.toFixed(1) + ' cm | Distancia sensor: ' + distance.toFixed(1) + ' cm';
 
@@ -1688,7 +1709,7 @@
         if (distance <= 0 || distance < 20.0) distance = 20.0;
         waterLevel = bedHeight;
       } else if (status === 'OK' && distance > 20.0) {
-        waterLevel = Math.max(0, bedHeight - distance);
+        waterLevel = calcularNivelAgua(cfg, distance);
       }
 
       const now = new Date();
@@ -2029,6 +2050,11 @@
               <span class="text-slate-400 text-[10px]">cm</span>
             </div>
             <div class="flex items-center gap-1">
+              <span class="text-slate-500 text-[10px]">Tope:</span>
+              <input type="number" value="${getCapacityHeight(cfg)}" id="st-edit-capacity-${index}" min="0.1" step="0.1" class="w-14 bg-white border border-sky-200 rounded-lg px-1.5 py-1 text-slate-900 text-xs font-mono">
+              <span class="text-slate-400 text-[10px]">cm</span>
+            </div>
+            <div class="flex items-center gap-1">
               <span class="text-amber-700 text-[10px]">🟡:</span>
               <input type="number" value="${cfg.yellowAlert}" id="st-edit-yellow-${index}" class="w-12 bg-white border border-amber-200 rounded-lg px-1 py-1 text-amber-900 text-xs font-mono focus:border-amber-500 focus:outline-none">
             </div>
@@ -2066,6 +2092,12 @@
       const id = idInput.value.trim().toUpperCase();
       const name = nameInput.value.trim();
       const bed = parseFloat(bedInput.value) || 100;
+      const capacityInput = document.getElementById('new-station-capacity');
+      const capacity = capacityInput.value.trim() ? Number(capacityInput.value) : bed;
+      if (!Number.isFinite(capacity) || capacity <= 0 || capacity > bed) {
+        LoraUI.alert('Fondo a tope debe ser mayor que cero y no superar sensor a fondo.');
+        return;
+      }
 
       if (!id || !name) {
         LoraUI.alert('Por favor ingresa un ID LoRa y un Nombre para la estación.');
@@ -2081,8 +2113,9 @@
         id: id,
         name: name,
         bedHeight: bed,
-        yellowAlert: Math.round(bed * 0.62),
-        redAlert: Math.round(bed * 0.80)
+        capacityHeight: capacity,
+        yellowAlert: Number((capacity * 0.62).toFixed(2)),
+        redAlert: Number((capacity * 0.80).toFixed(2))
       });
 
       if(!await guardarConfiguracionEstaciones())return;
@@ -2098,11 +2131,13 @@
       stationsConfig.forEach((cfg, index) => {
         const nameVal = document.getElementById('st-edit-name-' + index)?.value.trim();
         const bedVal = parseFloat(document.getElementById('st-edit-bed-' + index)?.value);
+        const capacityVal = parseFloat(document.getElementById('st-edit-capacity-' + index)?.value);
         const yellowVal = parseFloat(document.getElementById('st-edit-yellow-' + index)?.value);
         const redVal = parseFloat(document.getElementById('st-edit-red-' + index)?.value);
 
         if (nameVal) cfg.name = nameVal;
         if (!isNaN(bedVal) && bedVal > 20) cfg.bedHeight = bedVal;
+        if (Number.isFinite(capacityVal) && capacityVal > 0) cfg.capacityHeight = capacityVal;
         if (!isNaN(yellowVal) && yellowVal > 0) cfg.yellowAlert = yellowVal;
         if (!isNaN(redVal) && redVal > 0) cfg.redAlert = redVal;
       });
